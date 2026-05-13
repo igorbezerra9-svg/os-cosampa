@@ -131,6 +131,18 @@
   .empty-icon { font-size: 36px; margin-bottom: 10px; }
 
   #cfg-banner { background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 11px 16px; margin-bottom: 1.25rem; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  tr.row-pendente td { background: #FFFBEB; }
+  tr.row-pendente td:first-child { border-left: 3px solid #F59E0B; padding-left: 9px; }
+  tr.row-salvo td { background: #F0FDF4; }
+  tr.row-salvo td:first-child { border-left: 3px solid #2D6A4F; padding-left: 9px; }
+  .edit-btn { background: none; border: none; cursor: pointer; padding: 3px 6px; border-radius: 4px; color: var(--text3); font-size: 15px; line-height: 1; transition: background 0.15s; }
+  .edit-btn:hover { background: var(--surface2); color: var(--text); }
+  .row-state { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 3px; margin-right: 4px; }
+  .rs-pend { background: #FEF3C7; color: #92400E; }
+  .rs-ok   { background: #D8F0E5; color: #2D6A4F; }
+  .pending-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; background: #FEF3C7; color: #92400E; padding: 5px 12px; border-radius: 6px; border: 1px solid #F59E0B; }
+  .pending-dot { width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; animation: blink 1s infinite; flex-shrink:0; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
 </style>
 </head>
 <body>
@@ -243,7 +255,11 @@
       </select>
       <select class="filter-input" id="filtro-equipe" onchange="renderTratativas()"><option value="">Todas as equipes</option></select>
       <select class="filter-input" id="filtro-motivo" onchange="renderTratativas()"><option value="">Todos os motivos</option></select>
-      <div style="margin-left:auto;display:flex;gap:8px;">
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <div id="pending-badge" style="display:none;" class="pending-badge">
+          <span class="pending-dot"></span>
+          <span id="pending-txt">0 pendentes</span>
+        </div>
         <button class="btn" onclick="exportarCSV()">⬇ Exportar CSV</button>
         <button class="btn btn-success" id="btn-salvar" onclick="salvarTratativas()">💾 Salvar e sincronizar</button>
       </div>
@@ -253,7 +269,7 @@
         <thead><tr>
           <th>Equipe</th><th>OS</th><th>Data Rej.</th><th>Dias</th>
           <th>Motivo</th><th>Justificativa</th><th>Valor (R$)</th>
-          <th>Status</th><th>Responsável</th><th>Data Resolução</th><th>Observação</th>
+          <th>Status</th><th>Responsável</th><th>Data Resolução</th><th>Observação</th><th></th>
         </tr></thead>
         <tbody id="tratativas-body"></tbody>
       </table>
@@ -327,17 +343,28 @@ async function apiPost(action, data) {
   return r.json();
 }
 
-async function sincronizar() {
+async function sincronizar(force) {
   if (!configured) return;
+  const emTratativas = currentTab === 'tratativas';
+  const digitando = document.activeElement && ['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName);
   setSyncStatus('syncing');
   try {
     const data = await apiGet();
     if (data && !data.error) {
-      state.os     = (data.os     || []).map(normalizeOS);
-      state.cargas = data.cargas  || [];
-      state.log    = data.log     || [];
+      state.cargas = data.cargas || [];
+      state.log    = data.log    || [];
+      if (emTratativas && digitando && !force) {
+        // Preserva edições locais, só atualiza dados da planilha
+        const srvMap = {};
+        (data.os || []).forEach(o => { srvMap[o.id] = normalizeOS(o); });
+        state.os = state.os.map(o => srvMap[o.id]
+          ? { ...srvMap[o.id], status: o.status, responsavel: o.responsavel, dataResolucao: o.dataResolucao, obs: o.obs }
+          : o);
+      } else {
+        state.os = (data.os || []).map(normalizeOS);
+        renderCurrentTab();
+      }
       setSyncStatus('ok');
-      renderCurrentTab();
     } else throw new Error(data?.error || 'erro');
   } catch(e) { setSyncStatus('error'); }
 }
@@ -353,13 +380,28 @@ function setSyncStatus(s) {
 function normalizeOS(o) {
   return {
     id: o.id||'', equipe: o.equipe||'', os: o.os||'',
-    dataRejeicao: o.dataRejeicao||'-', dataRejeicaoStr: o.dataRejeicaoStr||'-',
+    dataRejeicao: o.dataRejeicao||'-',
+    dataRejeicaoStr: formatDateStr(o.dataRejeicaoStr || o.dataRejeicao),
     diasAtraso: parseInt(o.diasAtraso)||0, motivo: o.motivo||'-',
     justificativa: o.justificativa||'-', valor: parseFloat(o.valor)||0,
     status: o.status||'Pendente', responsavel: o.responsavel||'',
     dataResolucao: o.dataResolucao||'', obs: o.obs||'',
     firstSeen: o.firstSeen||''
   };
+}
+
+function formatDateStr(v) {
+  if (!v || v==='-') return '-';
+  if (typeof v==='string' && v.includes('/')) return v;
+  // ISO string from Sheets (e.g. 2025-11-18T03:00:00.000Z)
+  if (typeof v==='string' && v.includes('T')) {
+    const d = new Date(v);
+    return isNaN(d) ? v : d.toLocaleDateString('pt-BR');
+  }
+  // Excel serial
+  const n = parseInt(v);
+  if (!isNaN(n) && n > 40000) return new Date((n-25569)*86400000).toLocaleDateString('pt-BR');
+  return String(v);
 }
 
 // ================ TABS ================
@@ -452,7 +494,7 @@ async function confirmarImportacao() {
       pendingImport=null;
       document.getElementById('preview-area').style.display='none';
       document.getElementById('file-input').value='';
-      await sincronizar();
+      await sincronizar(true);
       showTab('dashboard', document.querySelectorAll('nav button')[0]);
     } else throw new Error(result?.error||'erro');
   } catch(e) { showToast('❌ Erro: '+e.message); }
@@ -557,6 +599,10 @@ function renderDashboard() {
 }
 
 // ================ TRATATIVAS ================
+let editingSet = new Set();
+let pendentesSet = new Set();
+let salvosSet = new Set();
+
 function renderTratativas() {
   const busca =(document.getElementById('filtro-busca')?.value||'').toLowerCase();
   const status = document.getElementById('filtro-status')?.value||'';
@@ -577,46 +623,103 @@ function renderTratativas() {
 
   document.getElementById('trat-empty').style.display=filtered.length?'none':'block';
   document.getElementById('trat-count').textContent=`${filtered.length} OS exibidas de ${state.os.length} total`;
+
   document.getElementById('tratativas-body').innerHTML=filtered.map(o=>{
     const idx=state.os.indexOf(o);
+    const isEdit=editingSet.has(idx);
+    const isPend=pendentesSet.has(idx);
+    const isSalvo=salvosSet.has(idx)&&!isPend;
+    const rowCls=isPend?'row-pendente':isSalvo?'row-salvo':'';
     const dc=o.diasAtraso>=90?'badge-danger':o.diasAtraso>=30?'badge-warn':'badge-ok';
     const sc=o.status==='Sanado'?'badge-ok':o.status==='Em tratativa'?'badge-trat':o.diasAtraso>=90?'badge-danger':'badge-warn';
-    return `<tr>
-      <td><strong>${o.equipe}</strong></td>
-      <td class="mono">${o.os}</td>
-      <td>${o.dataRejeicaoStr}</td>
-      <td><span class="badge ${dc}">${o.diasAtraso}d</span></td>
-      <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
-      <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
-      <td class="mono">${fmtValor(o.valor)}</td>
-      <td><select class="tbl-input" style="width:110px;" onchange="upd(${idx},'status',this.value)">
-        <option ${o.status==='Pendente'?'selected':''}>Pendente</option>
-        <option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option>
-        <option ${o.status==='Sanado'?'selected':''}>Sanado</option>
-        <option ${o.status==='Crítico'?'selected':''}>Crítico</option>
-      </select></td>
-      <td><input class="tbl-input" style="width:110px;" placeholder="Nome..." value="${o.responsavel||''}" onchange="upd(${idx},'responsavel',this.value)"></td>
-      <td><input class="tbl-input" type="date" style="width:130px;" value="${o.dataResolucao||''}" onchange="upd(${idx},'dataResolucao',this.value)"></td>
-      <td><input class="tbl-input" style="width:150px;" placeholder="Observação..." value="${o.obs||''}" onchange="upd(${idx},'obs',this.value)"></td>
-    </tr>`;
+    const stateTag=isPend?'<span class="row-state rs-pend">pendente</span>':isSalvo?'<span class="row-state rs-ok">salvo ✓</span>':'';
+
+    if (isEdit) {
+      return `<tr class="${rowCls}" id="trow-${idx}">
+        <td><strong>${o.equipe}</strong></td>
+        <td class="mono">${o.os}</td>
+        <td>${o.dataRejeicaoStr}</td>
+        <td><span class="badge ${dc}">${o.diasAtraso}d</span></td>
+        <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
+        <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
+        <td class="mono">${fmtValor(o.valor)}</td>
+        <td><select class="tbl-input" style="width:110px;" onchange="upd(${idx},'status',this.value)">
+          <option ${o.status==='Pendente'?'selected':''}>Pendente</option>
+          <option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option>
+          <option ${o.status==='Sanado'?'selected':''}>Sanado</option>
+          <option ${o.status==='Crítico'?'selected':''}>Crítico</option>
+        </select></td>
+        <td><input class="tbl-input" style="width:110px;" placeholder="Nome..." value="${o.responsavel||''}" oninput="upd(${idx},'responsavel',this.value)"></td>
+        <td><input class="tbl-input" type="date" style="width:130px;" value="${o.dataResolucao||''}" onchange="upd(${idx},'dataResolucao',this.value)"></td>
+        <td><input class="tbl-input" style="width:150px;" placeholder="Observação..." value="${o.obs||''}" oninput="upd(${idx},'obs',this.value)"></td>
+        <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Fechar edição">✕</button></td>
+      </tr>`;
+    } else {
+      return `<tr class="${rowCls}" id="trow-${idx}">
+        <td><strong>${o.equipe}</strong></td>
+        <td class="mono">${o.os}</td>
+        <td>${o.dataRejeicaoStr}</td>
+        <td><span class="badge ${dc}">${o.diasAtraso}d</span></td>
+        <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
+        <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
+        <td class="mono">${fmtValor(o.valor)}</td>
+        <td><span class="badge ${sc}">${o.status}</span></td>
+        <td style="color:${o.responsavel?'var(--text)':'var(--text3)'};">${o.responsavel||'—'}</td>
+        <td style="font-family:var(--mono);font-size:12px;color:${o.dataResolucao?'var(--text)':'var(--text3)'};">${o.dataResolucao||'—'}</td>
+        <td style="font-size:12px;color:${o.obs?'var(--text)':'var(--text3)'};max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}">${o.obs||'—'}</td>
+        <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button></td>
+      </tr>`;
+    }
   }).join('');
+  updatePendingBadge();
+}
+
+function toggleEdit(idx) {
+  if (editingSet.has(idx)) editingSet.delete(idx);
+  else editingSet.add(idx);
+  renderTratativas();
 }
 
 function upd(idx, field, value) {
   state.os[idx][field]=value;
   if (field==='dataResolucao'&&value&&state.os[idx].status==='Pendente') state.os[idx].status='Em tratativa';
+  pendentesSet.add(idx);
+  salvosSet.delete(idx);
+  updatePendingBadge();
+}
+
+function updatePendingBadge() {
+  const n=pendentesSet.size;
+  const badge=document.getElementById('pending-badge');
+  const txt=document.getElementById('pending-txt');
+  const btn=document.getElementById('btn-salvar');
+  if (n>0) {
+    badge.style.display='inline-flex';
+    txt.textContent=n+(n===1?' alteração pendente':' alterações pendentes');
+    btn.innerHTML='💾 Salvar '+n+(n===1?' alteração':' alterações');
+  } else {
+    badge.style.display='none';
+    btn.innerHTML='💾 Salvar e sincronizar';
+  }
 }
 
 async function salvarTratativas() {
   if (!configured) { showToast('⚙️ Configure a URL primeiro'); return; }
+  if (!pendentesSet.size) { showToast('Nenhuma alteração pendente'); return; }
   const btn=document.getElementById('btn-salvar');
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Salvando...';
   try {
     const result=await apiPost('saveTratativas', state.os.map(o=>({id:o.id,status:o.status,responsavel:o.responsavel,dataResolucao:o.dataResolucao,obs:o.obs})));
-    if (result&&result.ok) { showToast('✅ Salvo e sincronizado!'); await sincronizar(); }
-    else throw new Error(result?.error||'erro');
+    if (result&&result.ok) {
+      pendentesSet.forEach(i=>salvosSet.add(i));
+      pendentesSet.clear();
+      editingSet.clear();
+      showToast('✅ Salvo e sincronizado!');
+      await sincronizar(true);
+    } else throw new Error(result?.error||'erro');
   } catch(e) { showToast('❌ Erro: '+e.message); }
-  btn.disabled=false; btn.innerHTML='💾 Salvar e sincronizar';
+  btn.disabled=false;
+  updatePendingBadge();
 }
 
 // ================ HISTÓRICO ================
@@ -660,6 +763,14 @@ function showToast(msg) { const t=document.getElementById('toast'); t.textConten
 // ================ INIT ================
 if (configured) { document.getElementById('cfg-banner').style.display='none'; sincronizar(); setInterval(sincronizar, 30000); }
 else setSyncStatus('error');
+
+window.addEventListener('beforeunload', function(e) {
+  if (pendentesSet && pendentesSet.size > 0) {
+    e.preventDefault();
+    e.returnValue = 'Você tem alterações não salvas. Tem certeza que quer sair?';
+    return e.returnValue;
+  }
+});
 </script>
 </body>
 </html>
