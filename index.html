@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acompanhamento OS Rejeitadas · COSAMPA</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F5F4F0; --surface: #FFFFFF; --surface2: #EEECEA; --border: #DDDBD6;
+    --text: #1A1916; --text2: #6B6860; --text3: #A09E99;
+    --green: #2D6A4F; --green-bg: #D8F0E5;
+    --amber: #92400E; --amber-bg: #FEF3C7;
+    --red: #991B1B; --red-bg: #FEE2E2;
+    --blue: #1E40AF; --blue-bg: #DBEAFE;
+    --font: 'IBM Plex Sans', sans-serif; --mono: 'IBM Plex Mono', monospace;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  header { background: var(--text); color: #fff; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 100; }
+  .brand { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .brand span { opacity: 0.4; margin: 0 8px; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .sync-status { font-size: 11px; opacity: 0.6; font-family: var(--mono); display: flex; align-items: center; gap: 5px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; flex-shrink:0; }
+  .sync-dot.off { background: #f87171; animation: none; }
+  .sync-dot.warn { background: #FBBF24; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; }
+  nav button { background: none; border: none; border-bottom: 2px solid transparent; padding: 12px 20px; font-family: var(--font); font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: color 0.15s; margin-bottom: -1px; }
+  nav button:hover { color: var(--text); }
+  nav button.active { color: var(--text); border-bottom-color: var(--text); }
+  main { padding: 1.5rem 2rem; max-width: 1400px; margin: 0 auto; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 1rem; }
+  .screen { display: none; } .screen.active { display: block; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:900px){ .grid2{ grid-template-columns:1fr; } .metrics{ grid-template-columns:repeat(2,1fr) !important; } }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 1.25rem; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; }
+  .metric.al { border-left: 3px solid var(--red); }
+  .metric.ag { border-left: 3px solid var(--green); }
+  .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .metric-value { font-size: 28px; font-weight: 600; line-height: 1; font-family: var(--mono); }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* EVOLUÇÃO */
+  .evo-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; }
+  .evo-top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px; }
+  .evo-left-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+  .evo-valor { font-size: 38px; font-weight: 600; font-family: var(--mono); }
+  .evo-delta { font-size: 12px; font-weight: 500; margin-top: 6px; display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 4px; }
+  .delta-good { background: var(--green-bg); color: var(--green); }
+  .delta-bad  { background: var(--red-bg);   color: var(--red); }
+  .evo-right { text-align: right; }
+  .evo-right-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .evo-sanado { font-size: 24px; font-weight: 600; font-family: var(--mono); color: var(--green); margin-top: 4px; }
+  /* progress */
+  .prog-wrap { margin-bottom: 1.25rem; }
+  .prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .prog-pct { font-size: 14px; font-weight: 600; font-family: var(--mono); color: var(--green); }
+  .prog-track { height: 10px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 1s ease; }
+  .prog-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 4px; }
+  /* bar chart */
+  .bars-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .evo-bars { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
+  .evo-col { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; min-width: 0; }
+  .evo-bar-pend { width: 100%; background: var(--text); border-radius: 3px 3px 0 0; min-height: 2px; transition: height 0.7s ease; }
+  .evo-bar-san  { width: 100%; background: var(--green); border-radius: 3px 3px 0 0; min-height: 2px; transition: height 0.7s ease; }
+  .evo-bar-date { font-size: 10px; color: var(--text3); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
+  .evo-legend { display: flex; gap: 16px; margin-top: 8px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--surface2); text-align: left; padding: 9px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #FAFAF8; }
+  .mono { font-family: var(--mono); font-size: 12px; }
+
+  .tbl-input { font-family: var(--font); font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); width: 100%; }
+  .tbl-input:focus { outline: none; border-color: var(--text); background: #fff; }
+
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px; font-family: var(--mono); white-space: nowrap; }
+  .badge-ok   { background: var(--green-bg); color: var(--green); }
+  .badge-warn { background: var(--amber-bg); color: var(--amber); }
+  .badge-danger { background: var(--red-bg); color: var(--red); }
+  .badge-new  { background: var(--blue-bg);  color: var(--blue); }
+  .badge-neutral { background: var(--surface2); color: var(--text2); }
+  .badge-trat { background: #EDE9FE; color: #5B21B6; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font); font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.15s; }
+  .btn:hover { background: var(--surface2); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
+  .btn-primary:hover { background: #333; }
+  .btn-success { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-success:hover { background: #245C43; }
+  .btn-hdr { font-size: 12px; padding: 5px 10px; color: #fff; border-color: rgba(255,255,255,0.2); background: transparent; }
+  .btn-hdr:hover { background: rgba(255,255,255,0.1); }
+
+  .filters { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+  .filter-input { font-family: var(--font); font-size: 13px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+  .filter-input:focus { outline: none; border-color: var(--text); }
+
+  .upload-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 2.5rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--text); background: var(--surface2); }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
+  .bar-label { min-width: 160px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 99px; }
+  .bar-fill  { height: 6px; background: var(--text); border-radius: 99px; transition: width 0.6s ease; }
+  .bar-count { min-width: 28px; text-align: right; font-family: var(--mono); font-size: 12px; font-weight: 500; }
+
+  .hist-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; flex-wrap: wrap; }
+  .hist-row:last-child { border-bottom: none; }
+  .hist-date { min-width: 90px; font-family: var(--mono); font-size: 12px; color: var(--text2); }
+
+  #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 999; }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+  @keyframes spin { to{ transform:rotate(360deg); } }
+  .empty { text-align: center; padding: 2.5rem; color: var(--text3); }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+  #cfg-banner { background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 11px 16px; margin-bottom: 1.25rem; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+</style>
+</head>
+<body>
+
+<script>
+  // ⚙️ CONFIGURAÇÃO — substitua pela URL do seu Apps Script depois de publicar
+  'https://script.google.com/macros/s/AKfycbwUNmzQZkF7o3UFZVrZiVWNS3H1GfBbR3DwfYZ8eT1VhsR9-SHV1gpELv_vzhibRbQ4gg/exec';
+</script>
+
+<header>
+  <div class="brand">COSAMPA <span>·</span> OS Rejeitadas</div>
+  <div class="header-right">
+    <div class="sync-status" id="sync-status">
+      <span class="sync-dot off" id="sync-dot"></span>
+      <span id="sync-txt">Aguardando configuração</span>
+    </div>
+    <button class="btn btn-hdr" onclick="sincronizar()">↻ Sincronizar</button>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button onclick="showTab('tratativas',this)">Tratativas</button>
+  <button onclick="showTab('historico',this)">Histórico</button>
+  <button onclick="showTab('importar',this)">↑ Importar Planilha</button>
+</nav>
+
+<main>
+  <div id="cfg-banner">
+    ⚙️ <strong>Configure a integração:</strong> abra o <code>index.html</code> e substitua <code>COLE_SUA_URL_AQUI</code> pela URL do Apps Script. Veja o guia <strong>PASSO_A_PASSO.md</strong>.
+    <button class="btn" onclick="document.getElementById('cfg-banner').style.display='none'">Já configurei ✓</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen active" id="tab-dashboard">
+    <div id="dash-empty" class="empty" style="display:none">
+      <div class="empty-icon">📋</div>
+      <div style="font-size:15px;font-weight:500;color:var(--text2);">Nenhum dado carregado</div>
+      <div style="font-size:13px;margin-top:4px;">Vá em <strong>Importar Planilha</strong> para começar</div>
+    </div>
+    <div id="dash-content">
+      <div class="metrics" id="metrics-area">
+        <div class="metric"><div class="metric-label">Carregando...</div><div class="metric-value" style="color:var(--text3)">—</div></div>
+      </div>
+
+      <!-- CARD EVOLUÇÃO DE VALOR -->
+      <div class="evo-card">
+        <div class="evo-top">
+          <div>
+            <div class="evo-left-title">Valor total em aberto — a ser sanado</div>
+            <div class="evo-valor" id="evo-pendente">R$ —</div>
+            <div id="evo-delta-wrap" style="margin-top:6px;"></div>
+          </div>
+          <div class="evo-right">
+            <div class="evo-right-title">Total já sanado</div>
+            <div class="evo-sanado" id="evo-sanado">R$ —</div>
+          </div>
+        </div>
+
+        <div class="prog-wrap">
+          <div class="prog-header">
+            <span style="font-size:12px;color:var(--text2);">Progresso geral de saneamento</span>
+            <span class="prog-pct" id="prog-pct">0%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+          <div class="prog-labels">
+            <span id="prog-label-san">R$ 0 sanado</span>
+            <span id="prog-label-tot">R$ 0 total</span>
+          </div>
+        </div>
+
+        <div class="bars-title">Evolução carga a carga</div>
+        <div class="evo-bars" id="evo-bars">
+          <div style="color:var(--text3);font-size:12px;padding:1rem;">Nenhuma carga ainda</div>
+        </div>
+        <div class="evo-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--text)"></div>Pendente</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Sanado</div>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-bottom:1.25rem;">
+        <div class="card">
+          <div class="card-title">Motivos de rejeição</div>
+          <div id="chart-motivos"><div class="empty" style="padding:1rem">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Equipes com mais pendências</div>
+          <div id="chart-equipes"><div class="empty" style="padding:1rem">—</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">OS críticas — acima de 90 dias sem tratativa</div>
+        <div class="table-wrap" style="margin-top:8px;">
+          <table><thead><tr><th>Equipe</th><th>OS</th><th>Data Rejeição</th><th>Dias</th><th>Motivo</th><th>Valor</th></tr></thead>
+          <tbody id="criticas-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRATATIVAS -->
+  <div class="screen" id="tab-tratativas">
+    <div class="filters">
+      <input type="text" class="filter-input" placeholder="🔍  Buscar OS, equipe, motivo..." id="filtro-busca" oninput="renderTratativas()" style="width:230px;">
+      <select class="filter-input" id="filtro-status" onchange="renderTratativas()">
+        <option value="">Todos os status</option>
+        <option>Pendente</option><option>Em tratativa</option><option>Sanado</option><option value="critico">Crítico (90+ dias)</option>
+      </select>
+      <select class="filter-input" id="filtro-equipe" onchange="renderTratativas()"><option value="">Todas as equipes</option></select>
+      <select class="filter-input" id="filtro-motivo" onchange="renderTratativas()"><option value="">Todos os motivos</option></select>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn" onclick="exportarCSV()">⬇ Exportar CSV</button>
+        <button class="btn btn-success" id="btn-salvar" onclick="salvarTratativas()">💾 Salvar e sincronizar</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Equipe</th><th>OS</th><th>Data Rej.</th><th>Dias</th>
+          <th>Motivo</th><th>Justificativa</th><th>Valor (R$)</th>
+          <th>Status</th><th>Responsável</th><th>Data Resolução</th><th>Observação</th>
+        </tr></thead>
+        <tbody id="tratativas-body"></tbody>
+      </table>
+    </div>
+    <div id="trat-empty" class="empty" style="display:none;"><div class="empty-icon">🔍</div>Nenhuma OS encontrada com esses filtros</div>
+    <div style="margin-top:10px;font-size:12px;color:var(--text3);" id="trat-count"></div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="screen" id="tab-historico">
+    <div class="grid2" style="margin-bottom:12px;">
+      <div class="card">
+        <div class="card-title">Evolução por carga</div>
+        <div id="historico-list"><div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">OS persistentes sem tratativa</div>
+        <div id="persistentes-list"><div class="empty"><div class="empty-icon">⚠️</div>Nenhuma carga ainda</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Log de atividades</div>
+      <div id="log-list" style="max-height:300px;overflow-y:auto;"><div class="empty">Nenhuma atividade</div></div>
+    </div>
+  </div>
+
+  <!-- IMPORTAR -->
+  <div class="screen" id="tab-importar">
+    <div class="card" style="max-width:620px;margin:0 auto;">
+      <div class="card-title">Importar nova planilha</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.7;">
+        Selecione o <strong>.xlsx</strong> exportado no mesmo formato de sempre. O sistema detecta automaticamente o que é novo, o que continua e o que saiu. Tratativas já preenchidas pelo time são preservadas.
+      </p>
+      <div class="upload-zone" id="upload-zone"
+        onclick="document.getElementById('file-input').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event)">
+        <div style="font-size:36px;margin-bottom:8px;">📂</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:4px;">Clique para selecionar ou arraste aqui</div>
+        <div style="font-size:12px;color:var(--text3);">Aceita .xlsx — mesmo formato de sempre</div>
+      </div>
+      <input type="file" id="file-input" accept=".xlsx,.xls" style="display:none" onchange="handleFile(event)">
+      <div id="preview-area" style="display:none;margin-top:1.25rem;">
+        <div style="background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:1rem;" id="diff-area"></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button class="btn" onclick="cancelarImport()">Cancelar</button>
+          <button class="btn btn-primary" id="btn-confirmar" onclick="confirmarImportacao()">Confirmar e enviar para o Sheets</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ================ STATE ================
+let state = { os: [], cargas: [], log: [] };
+let pendingImport = null;
+let currentTab = 'dashboard';
+const configured = typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL !== 'COLE_SUA_URL_AQUI';
+
+// ================ API ================
+async function apiGet() {
+  const r = await fetch(APPS_SCRIPT_URL + '?action=getAll');
+  return r.json();
+}
+async function apiPost(action, data) {
+  const r = await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify({ action, data }) });
+  return r.json();
+}
+
+async function sincronizar() {
+  if (!configured) return;
+  setSyncStatus('syncing');
+  try {
+    const data = await apiGet();
+    if (data && !data.error) {
+      state.os     = (data.os     || []).map(normalizeOS);
+      state.cargas = data.cargas  || [];
+      state.log    = data.log     || [];
+      setSyncStatus('ok');
+      renderCurrentTab();
+    } else throw new Error(data?.error || 'erro');
+  } catch(e) { setSyncStatus('error'); }
+}
+
+function setSyncStatus(s) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-txt');
+  dot.className = 'sync-dot' + (s==='error'?' off': s==='syncing'?' warn':'');
+  txt.textContent = s==='ok' ? 'Sincronizado · ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
+    : s==='syncing' ? 'Sincronizando...' : 'Sem conexão';
+}
+
+function normalizeOS(o) {
+  return {
+    id: o.id||'', equipe: o.equipe||'', os: o.os||'',
+    dataRejeicao: o.dataRejeicao||'-', dataRejeicaoStr: o.dataRejeicaoStr||'-',
+    diasAtraso: parseInt(o.diasAtraso)||0, motivo: o.motivo||'-',
+    justificativa: o.justificativa||'-', valor: parseFloat(o.valor)||0,
+    status: o.status||'Pendente', responsavel: o.responsavel||'',
+    dataResolucao: o.dataResolucao||'', obs: o.obs||'',
+    firstSeen: o.firstSeen||''
+  };
+}
+
+// ================ TABS ================
+function showTab(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  currentTab = name;
+  renderCurrentTab();
+}
+function renderCurrentTab() {
+  if (currentTab==='dashboard') renderDashboard();
+  else if (currentTab==='tratativas') renderTratativas();
+  else if (currentTab==='historico') renderHistorico();
+}
+
+// ================ EXCEL DATE ================
+function excelDateToStr(v) {
+  if (!v || v==='-') return '-';
+  if (typeof v==='string' && v.includes('/')) return v;
+  const n = parseInt(v);
+  if (isNaN(n)) return String(v);
+  return new Date((n-25569)*86400000).toLocaleDateString('pt-BR');
+}
+
+// ================ FILE IMPORT ================
+function handleDrop(e) { e.preventDefault(); document.getElementById('upload-zone').classList.remove('drag'); processFile(e.dataTransfer.files[0]); }
+function handleFile(e) { processFile(e.target.files[0]); }
+
+function processFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+    let hi = -1;
+    for (let i=0;i<rows.length;i++) if (rows[i]&&rows[i].some(c=>String(c).toLowerCase().includes('equipe'))) { hi=i; break; }
+    if (hi===-1) { showToast('❌ Formato não reconhecido'); return; }
+    const hdr = rows[hi].map(h=>String(h||'').trim().toLowerCase());
+    const ci = {
+      eq: hdr.findIndex(h=>h.includes('equipe')),
+      os: hdr.findIndex(h=>h.includes('ordem')||h.includes('servi')),
+      dt: hdr.findIndex(h=>h.includes('data')&&h.includes('rej')),
+      di: hdr.findIndex(h=>h.includes('dias')),
+      mo: hdr.findIndex(h=>h.includes('motivo')),
+      ju: hdr.findIndex(h=>h.includes('justif')),
+      va: hdr.findIndex(h=>h.includes('valor')),
+    };
+    const newOS = []; let curEq = '';
+    for (let i=hi+1;i<rows.length;i++) {
+      const r=rows[i]; if (!r||!r.length) continue;
+      const eq=String(r[ci.eq]||'').trim(); const os=String(r[ci.os]||'').trim();
+      if (eq) curEq=eq;
+      if (!os||os==='Total'||os==='-'||os==='undefined') continue;
+      const e=curEq||eq; if (!e) continue;
+      const dias=parseInt(r[ci.di])||0;
+      newOS.push({ id:e+'|'+os, equipe:e, os, dataRejeicao:String(r[ci.dt]||'-'), dataRejeicaoStr:excelDateToStr(r[ci.dt]), diasAtraso:dias, motivo:String(r[ci.mo]||'-').trim(), justificativa:String(r[ci.ju]||'-').trim(), valor:parseFloat(r[ci.va])||0, status:dias>=90?'Crítico':'Pendente' });
+    }
+    if (!newOS.length) { showToast('❌ Nenhuma OS encontrada'); return; }
+    const existIds = new Set(state.os.map(o=>o.id));
+    const newIds   = new Set(newOS.map(o=>o.id));
+    const novas    = newOS.filter(o=>!existIds.has(o.id));
+    const removidas= state.os.filter(o=>!newIds.has(o.id));
+    const mantidas = newOS.filter(o=>existIds.has(o.id));
+    pendingImport = {newOS, novas, removidas, mantidas};
+    document.getElementById('preview-area').style.display='block';
+    document.getElementById('diff-area').innerHTML = `
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px;">${newOS.length} OS encontradas</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+        ${novas.length?`<div>✦ <span class="badge badge-new">+${novas.length} novas</span> entrarão como pendentes</div>`:''}
+        ${mantidas.length?`<div>≡ <span class="badge badge-neutral">${mantidas.length} mantidas</span> — tratativas preservadas</div>`:''}
+        ${removidas.length?`<div>✓ <span class="badge badge-ok">${removidas.length} saíram</span> — não aparecem mais</div>`:''}
+      </div>`;
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function confirmarImportacao() {
+  if (!pendingImport) return;
+  if (!configured) { showToast('⚙️ Configure a URL do Apps Script primeiro'); return; }
+  const btn=document.getElementById('btn-confirmar');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enviando...';
+  const today=new Date().toLocaleDateString('pt-BR');
+  try {
+    const result = await apiPost('importCarga', {os:pendingImport.newOS, data:today});
+    if (result&&result.ok) {
+      showToast(`✅ ${result.total} OS importadas`);
+      pendingImport=null;
+      document.getElementById('preview-area').style.display='none';
+      document.getElementById('file-input').value='';
+      await sincronizar();
+      showTab('dashboard', document.querySelectorAll('nav button')[0]);
+    } else throw new Error(result?.error||'erro');
+  } catch(e) { showToast('❌ Erro: '+e.message); }
+  btn.disabled=false; btn.innerHTML='Confirmar e enviar para o Sheets';
+}
+function cancelarImport() { pendingImport=null; document.getElementById('preview-area').style.display='none'; document.getElementById('file-input').value=''; }
+
+// ================ DASHBOARD ================
+function renderDashboard() {
+  const os=state.os, cargas=state.cargas;
+  const empty=!os.length;
+  document.getElementById('dash-empty').style.display=empty?'block':'none';
+  document.getElementById('dash-content').style.display=empty?'none':'block';
+  if (empty) return;
+
+  const pendentes = os.filter(o=>o.status!=='Sanado');
+  const sanadas   = os.filter(o=>o.status==='Sanado');
+  const criticas  = pendentes.filter(o=>o.diasAtraso>=90);
+  const emTrat    = os.filter(o=>o.status==='Em tratativa');
+  const lastCarga = cargas[cargas.length-1];
+
+  const vPend  = pendentes.reduce((s,o)=>s+o.valor,0);
+  const vSan   = sanadas.reduce((s,o)=>s+o.valor,0);
+  const vTotal = vPend+vSan;
+  const pct    = vTotal>0?Math.round(vSan/vTotal*100):0;
+
+  // Métricas
+  document.getElementById('metrics-area').innerHTML=`
+    <div class="metric al"><div class="metric-label">Pendentes</div><div class="metric-value">${pendentes.length}</div><div class="metric-sub">de ${os.length} OS</div></div>
+    <div class="metric ag"><div class="metric-label">Sanadas</div><div class="metric-value">${sanadas.length}</div><div class="metric-sub">acumulado</div></div>
+    <div class="metric"><div class="metric-label">Em tratativa</div><div class="metric-value">${emTrat.length}</div><div class="metric-sub">em andamento</div></div>
+    <div class="metric"><div class="metric-label">Novas (última carga)</div><div class="metric-value">${lastCarga?lastCarga.novas:0}</div><div class="metric-sub">${lastCarga?lastCarga.data:'—'}</div></div>
+    <div class="metric al"><div class="metric-label">Críticas 90+ dias</div><div class="metric-value">${criticas.length}</div><div class="metric-sub">${fmtShort(criticas.reduce((s,o)=>s+o.valor,0))}</div></div>
+  `;
+
+  // Evolução de valor
+  document.getElementById('evo-pendente').textContent=fmtValor(vPend);
+  document.getElementById('evo-sanado').textContent=fmtValor(vSan);
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label-san').textContent=fmtValor(vSan)+' sanado';
+  document.getElementById('prog-label-tot').textContent=fmtValor(vTotal)+' total';
+
+  // Delta vs carga anterior
+  const deltaWrap=document.getElementById('evo-delta-wrap');
+  if (cargas.length>=2) {
+    const prev=parseFloat(cargas[cargas.length-2].valorPendente)||0;
+    const delta=prev-vPend;
+    if (Math.abs(delta)>0.01) {
+      const cls=delta>0?'delta-good':'delta-bad';
+      const icon=delta>0?'↓':'↑';
+      deltaWrap.innerHTML=`<span class="evo-delta ${cls}">${icon} ${fmtValor(Math.abs(delta))} ${delta>0?'reduzido desde última carga':'aumentou desde última carga'}</span>`;
+    } else deltaWrap.innerHTML='';
+  } else deltaWrap.innerHTML='';
+
+  // Gráfico evolução por carga
+  if (cargas.length) {
+    const maxV=Math.max(...cargas.map(c=>parseFloat(c.valorPendente)||0),1);
+    const BAR=68;
+    document.getElementById('evo-bars').innerHTML=cargas.map(c=>{
+      const vp=parseFloat(c.valorPendente)||0;
+      const vs=Math.max(0,vTotal-vp);
+      const hp=Math.round(vp/maxV*BAR); const hs=Math.min(Math.round(vs/maxV*BAR),BAR-hp);
+      return `<div class="evo-col" title="${c.data}: ${fmtValor(vp)} pendente">
+        <div style="display:flex;flex-direction:column-reverse;align-items:center;height:${BAR}px;width:100%;">
+          <div class="evo-bar-pend" style="height:${hp}px;"></div>
+          <div class="evo-bar-san"  style="height:${hs}px;"></div>
+        </div>
+        <div class="evo-bar-date">${c.data.split('/').slice(0,2).join('/')}</div>
+      </div>`;
+    }).join('');
+  } else document.getElementById('evo-bars').innerHTML='<div style="color:var(--text3);font-size:12px;">Nenhuma carga ainda</div>';
+
+  // Motivos
+  const mots={};
+  pendentes.forEach(o=>{ mots[o.motivo]=(mots[o.motivo]||0)+1; });
+  const smots=Object.entries(mots).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const mm=smots[0]?.[1]||1;
+  document.getElementById('chart-motivos').innerHTML=smots.map(([m,n])=>
+    `<div class="bar-row"><div class="bar-label" title="${m}">${m}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mm*100)}%"></div></div><div class="bar-count">${n}</div></div>`
+  ).join('')||'<div class="empty" style="padding:1rem">—</div>';
+
+  // Equipes
+  const eqs={};
+  pendentes.forEach(o=>{ if(!eqs[o.equipe])eqs[o.equipe]={n:0,maxD:0,val:0}; eqs[o.equipe].n++;eqs[o.equipe].val+=o.valor;eqs[o.equipe].maxD=Math.max(eqs[o.equipe].maxD,o.diasAtraso); });
+  const seqs=Object.entries(eqs).sort((a,b)=>b[1].val-a[1].val).slice(0,7);
+  document.getElementById('chart-equipes').innerHTML=seqs.map(([eq,v])=>{
+    const cls=v.maxD>=90?'badge-danger':v.maxD>=30?'badge-warn':'badge-ok';
+    return `<div class="bar-row"><div class="bar-label">${eq}</div><div style="display:flex;gap:6px;align-items:center;"><span class="badge ${cls}">${v.n} OS</span><span style="font-size:11px;color:var(--text3);font-family:var(--mono);">${fmtShort(v.val)}</span></div></div>`;
+  }).join('')||'<div class="empty" style="padding:1rem">—</div>';
+
+  // Críticas
+  document.getElementById('criticas-body').innerHTML=criticas.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,10).map(o=>`
+    <tr>
+      <td><strong>${o.equipe}</strong></td>
+      <td class="mono">${o.os}</td>
+      <td>${o.dataRejeicaoStr}</td>
+      <td><span class="badge badge-danger">${o.diasAtraso}d</span></td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
+      <td class="mono">${fmtValor(o.valor)}</td>
+    </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.5rem;">Nenhuma OS crítica 🎉</td></tr>';
+}
+
+// ================ TRATATIVAS ================
+function renderTratativas() {
+  const busca =(document.getElementById('filtro-busca')?.value||'').toLowerCase();
+  const status = document.getElementById('filtro-status')?.value||'';
+  const equipe = document.getElementById('filtro-equipe')?.value||'';
+  const motivo = document.getElementById('filtro-motivo')?.value||'';
+  const selEq=document.getElementById('filtro-equipe'), selMo=document.getElementById('filtro-motivo');
+  if (selEq.options.length<=1) [...new Set(state.os.map(o=>o.equipe))].sort().forEach(e=>{const op=document.createElement('option');op.value=e;op.textContent=e;selEq.appendChild(op);});
+  if (selMo.options.length<=1) [...new Set(state.os.map(o=>o.motivo))].sort().forEach(m=>{const op=document.createElement('option');op.value=m;op.textContent=m;selMo.appendChild(op);});
+
+  const filtered=state.os.filter(o=>{
+    if (busca&&!o.equipe.toLowerCase().includes(busca)&&!o.os.toLowerCase().includes(busca)&&!o.motivo.toLowerCase().includes(busca)) return false;
+    if (status==='critico') return o.diasAtraso>=90&&o.status!=='Sanado';
+    if (status&&o.status!==status) return false;
+    if (equipe&&o.equipe!==equipe) return false;
+    if (motivo&&o.motivo!==motivo) return false;
+    return true;
+  });
+
+  document.getElementById('trat-empty').style.display=filtered.length?'none':'block';
+  document.getElementById('trat-count').textContent=`${filtered.length} OS exibidas de ${state.os.length} total`;
+  document.getElementById('tratativas-body').innerHTML=filtered.map(o=>{
+    const idx=state.os.indexOf(o);
+    const dc=o.diasAtraso>=90?'badge-danger':o.diasAtraso>=30?'badge-warn':'badge-ok';
+    const sc=o.status==='Sanado'?'badge-ok':o.status==='Em tratativa'?'badge-trat':o.diasAtraso>=90?'badge-danger':'badge-warn';
+    return `<tr>
+      <td><strong>${o.equipe}</strong></td>
+      <td class="mono">${o.os}</td>
+      <td>${o.dataRejeicaoStr}</td>
+      <td><span class="badge ${dc}">${o.diasAtraso}d</span></td>
+      <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
+      <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
+      <td class="mono">${fmtValor(o.valor)}</td>
+      <td><select class="tbl-input" style="width:110px;" onchange="upd(${idx},'status',this.value)">
+        <option ${o.status==='Pendente'?'selected':''}>Pendente</option>
+        <option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option>
+        <option ${o.status==='Sanado'?'selected':''}>Sanado</option>
+        <option ${o.status==='Crítico'?'selected':''}>Crítico</option>
+      </select></td>
+      <td><input class="tbl-input" style="width:110px;" placeholder="Nome..." value="${o.responsavel||''}" onchange="upd(${idx},'responsavel',this.value)"></td>
+      <td><input class="tbl-input" type="date" style="width:130px;" value="${o.dataResolucao||''}" onchange="upd(${idx},'dataResolucao',this.value)"></td>
+      <td><input class="tbl-input" style="width:150px;" placeholder="Observação..." value="${o.obs||''}" onchange="upd(${idx},'obs',this.value)"></td>
+    </tr>`;
+  }).join('');
+}
+
+function upd(idx, field, value) {
+  state.os[idx][field]=value;
+  if (field==='dataResolucao'&&value&&state.os[idx].status==='Pendente') state.os[idx].status='Em tratativa';
+}
+
+async function salvarTratativas() {
+  if (!configured) { showToast('⚙️ Configure a URL primeiro'); return; }
+  const btn=document.getElementById('btn-salvar');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Salvando...';
+  try {
+    const result=await apiPost('saveTratativas', state.os.map(o=>({id:o.id,status:o.status,responsavel:o.responsavel,dataResolucao:o.dataResolucao,obs:o.obs})));
+    if (result&&result.ok) { showToast('✅ Salvo e sincronizado!'); await sincronizar(); }
+    else throw new Error(result?.error||'erro');
+  } catch(e) { showToast('❌ Erro: '+e.message); }
+  btn.disabled=false; btn.innerHTML='💾 Salvar e sincronizar';
+}
+
+// ================ HISTÓRICO ================
+function renderHistorico() {
+  const cargas=state.cargas;
+  document.getElementById('historico-list').innerHTML=cargas.length?[...cargas].reverse().map(c=>`
+    <div class="hist-row">
+      <span class="hist-date">${c.data}</span>
+      ${parseInt(c.novas)>0?`<span class="badge badge-new">+${c.novas} novas</span>`:''}
+      ${parseInt(c.removidas)>0?`<span class="badge badge-ok">✓${c.removidas} resolvidas</span>`:''}
+      <span style="font-size:12px;color:var(--text2);">→ ${c.pendentes} pendentes</span>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">${fmtValor(parseFloat(c.valorPendente)||0)}</span>
+    </div>`).join(''):'<div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div>';
+
+  const pers=state.os.filter(o=>o.status!=='Sanado'&&cargas.length>1);
+  document.getElementById('persistentes-list').innerHTML=pers.length?
+    `<div class="table-wrap"><table><thead><tr><th>OS</th><th>Equipe</th><th>1ª vez</th><th>Dias</th></tr></thead><tbody>`+
+    pers.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,12).map(o=>`<tr><td class="mono">${o.os}</td><td>${o.equipe}</td><td style="font-size:11px;color:var(--text3)">${o.firstSeen||'—'}</td><td><span class="badge ${o.diasAtraso>=90?'badge-danger':'badge-warn'}">${o.diasAtraso}d</span></td></tr>`).join('')+
+    '</tbody></table></div>':
+    '<div class="empty"><div class="empty-icon">✅</div>Nenhuma OS persistente sem tratativa</div>';
+
+  document.getElementById('log-list').innerHTML=state.log.length?state.log.map(l=>`
+    <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="color:var(--text3);min-width:80px;font-family:var(--mono);">${l.data}</span>
+      <span>${l.msg}</span>
+    </div>`).join(''):'<div class="empty">Nenhuma atividade</div>';
+}
+
+// ================ UTILS ================
+function fmtValor(v) { return 'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtShort(v) { const n=parseFloat(v)||0; return n>=1000?'R$ '+(n/1000).toFixed(1)+'k':'R$ '+Math.round(n); }
+function exportarCSV() {
+  if (!state.os.length) { showToast('Nenhum dado'); return; }
+  const h=['Equipe','OS','Data Rej.','Dias','Motivo','Justificativa','Valor','Status','Responsável','Data Resolução','Obs'];
+  const rows=state.os.map(o=>[o.equipe,o.os,o.dataRejeicaoStr,o.diasAtraso,o.motivo,o.justificativa,o.valor,o.status,o.responsavel,o.dataResolucao,o.obs]);
+  const csv=[h,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'})); a.download='os_'+new Date().toISOString().split('T')[0]+'.csv'; a.click();
+}
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
+
+// ================ INIT ================
+if (configured) { document.getElementById('cfg-banner').style.display='none'; sincronizar(); setInterval(sincronizar, 30000); }
+else setSyncStatus('error');
+</script>
+</body>
+</html>
