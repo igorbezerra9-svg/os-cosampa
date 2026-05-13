@@ -224,6 +224,12 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Situação atual das OS</div>
+        <div id="chart-status-bars" style="display:flex;gap:8px;align-items:flex-end;height:90px;margin-bottom:8px;"></div>
+        <div id="chart-status-legend" style="display:flex;gap:20px;flex-wrap:wrap;"></div>
+      </div>
+
       <div class="grid2" style="margin-bottom:1.25rem;">
         <div class="card">
           <div class="card-title">Motivos de rejeição</div>
@@ -530,6 +536,30 @@ function renderDashboard() {
     <div class="metric al"><div class="metric-label">Críticas 90+ dias</div><div class="metric-value">${criticas.length}</div><div class="metric-sub">${fmtShort(criticas.reduce((s,o)=>s+o.valor,0))}</div></div>
   `;
 
+  // Status bar chart
+  const lastCargaNovas = lastCarga ? (parseInt(lastCarga.novas)||0) : 0;
+  const statusData = [
+    { label:'Pendentes',    val:pendentes.filter(o=>o.status==='Pendente'||o.status==='Crítico').length, color:'#991B1B', bg:'#FEE2E2' },
+    { label:'Em tratativa', val:emTrat.length,    color:'#5B21B6', bg:'#EDE9FE' },
+    { label:'Sanadas',      val:sanadas.length,   color:'#2D6A4F', bg:'#D8F0E5' },
+    { label:'Novas (carga)',val:lastCargaNovas,   color:'#1E40AF', bg:'#DBEAFE' },
+  ];
+  const maxSt = Math.max(...statusData.map(d=>d.val), 1);
+  const BAR_H = 72;
+  document.getElementById('chart-status-bars').innerHTML = statusData.map(d => {
+    const h = Math.max(Math.round(d.val/maxSt*BAR_H), d.val>0?4:0);
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:600;font-family:var(--mono);color:${d.color};">${d.val}</div>
+      <div style="width:100%;height:${h}px;background:${d.color};border-radius:4px 4px 0 0;min-height:${d.val>0?4:0}px;"></div>
+      <div style="font-size:11px;color:var(--text2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${d.label}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('chart-status-legend').innerHTML = statusData.map(d =>
+    `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);">
+      <div style="width:10px;height:10px;border-radius:2px;background:${d.color};flex-shrink:0;"></div>${d.label}: <strong>${d.val}</strong>
+    </div>`
+  ).join('');
+
   // Evolução de valor
   document.getElementById('evo-pendente').textContent=fmtValor(vPend);
   document.getElementById('evo-sanado').textContent=fmtValor(vSan);
@@ -563,7 +593,7 @@ function renderDashboard() {
           <div class="evo-bar-pend" style="height:${hp}px;"></div>
           <div class="evo-bar-san"  style="height:${hs}px;"></div>
         </div>
-        <div class="evo-bar-date">${c.data.split('/').slice(0,2).join('/')}</div>
+        <div class="evo-bar-date">${formatCargaDate(c.data)}</div>
       </div>`;
     }).join('');
   } else document.getElementById('evo-bars').innerHTML='<div style="color:var(--text3);font-size:12px;">Nenhuma carga ainda</div>';
@@ -609,8 +639,13 @@ function renderTratativas() {
   const equipe = document.getElementById('filtro-equipe')?.value||'';
   const motivo = document.getElementById('filtro-motivo')?.value||'';
   const selEq=document.getElementById('filtro-equipe'), selMo=document.getElementById('filtro-motivo');
-  if (selEq.options.length<=1) [...new Set(state.os.map(o=>o.equipe))].sort().forEach(e=>{const op=document.createElement('option');op.value=e;op.textContent=e;selEq.appendChild(op);});
-  if (selMo.options.length<=1) [...new Set(state.os.map(o=>o.motivo))].sort().forEach(m=>{const op=document.createElement('option');op.value=m;op.textContent=m;selMo.appendChild(op);});
+  const curEq=selEq.value, curMo=selMo.value;
+  while(selEq.options.length>1) selEq.remove(1);
+  while(selMo.options.length>1) selMo.remove(1);
+  [...new Set(state.os.map(o=>o.equipe))].sort().forEach(e=>{const op=document.createElement('option');op.value=e;op.textContent=e;selEq.appendChild(op);});
+  [...new Set(state.os.map(o=>o.motivo))].sort().forEach(m=>{const op=document.createElement('option');op.value=m;op.textContent=m;selMo.appendChild(op);});
+  if(curEq) selEq.value=curEq;
+  if(curMo) selMo.value=curMo;
 
   const filtered=state.os.filter(o=>{
     if (busca&&!o.equipe.toLowerCase().includes(busca)&&!o.os.toLowerCase().includes(busca)&&!o.motivo.toLowerCase().includes(busca)) return false;
@@ -750,6 +785,14 @@ function renderHistorico() {
 
 // ================ UTILS ================
 function fmtValor(v) { return 'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function formatCargaDate(d) {
+  if (!d) return '';
+  if (typeof d==='string' && d.includes('/')) return d.split('/').slice(0,2).join('/');
+  if (typeof d==='string' && d.includes('T')) {
+    const dt=new Date(d); return isNaN(dt)?d:(dt.getDate()).toString().padStart(2,'0')+'/'+(dt.getMonth()+1).toString().padStart(2,'0');
+  }
+  return String(d);
+}
 function fmtShort(v) { const n=parseFloat(v)||0; return n>=1000?'R$ '+(n/1000).toFixed(1)+'k':'R$ '+Math.round(n); }
 function exportarCSV() {
   if (!state.os.length) { showToast('Nenhum dado'); return; }
