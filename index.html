@@ -254,7 +254,7 @@
   <!-- TRATATIVAS -->
   <div class="screen" id="tab-tratativas">
     <div class="filters">
-      <input type="text" class="filter-input" placeholder="🔍  Buscar OS, equipe, motivo..." id="filtro-busca" oninput="renderTratativas()" style="width:230px;">
+      <input type="text" class="filter-input" placeholder="Buscar OS, equipe, motivo..." id="filtro-busca" oninput="renderTratativas()" style="width:230px;">
       <select class="filter-input" id="filtro-status" onchange="renderTratativas()">
         <option value="">Todos os status</option>
         <option>Pendente</option><option>Em tratativa</option><option>Sanado</option><option value="critico">Crítico (90+ dias)</option>
@@ -633,13 +633,10 @@ let editingSet = new Set();
 let pendentesSet = new Set();
 let salvosSet = new Set();
 
-function renderTratativas() {
-  const busca=(document.getElementById('filtro-busca')?.value||'').toLowerCase();
-  const selStatus=document.getElementById('filtro-status');
+function populateFilters() {
   const selEq=document.getElementById('filtro-equipe');
   const selMo=document.getElementById('filtro-motivo');
-
-  // Salva seleção atual antes de repopular
+  if (!selEq||!selMo||!state.os.length) return;
   const curEq=selEq.value, curMo=selMo.value;
   while(selEq.options.length>1) selEq.remove(1);
   while(selMo.options.length>1) selMo.remove(1);
@@ -647,14 +644,18 @@ function renderTratativas() {
   [...new Set(state.os.map(o=>o.motivo))].sort().forEach(m=>{const op=document.createElement('option');op.value=m;op.textContent=m;selMo.appendChild(op);});
   if(curEq) selEq.value=curEq;
   if(curMo) selMo.value=curMo;
+}
 
-  // Lê valores DEPOIS de restaurar
-  const status=selStatus?.value||'';
-  const equipe=selEq.value||'';
-  const motivo=selMo.value||'';
+function renderTratativas() {
+  populateFilters();
+
+  const busca=(document.getElementById('filtro-busca')?.value||'').toLowerCase().trim();
+  const status=document.getElementById('filtro-status')?.value||'';
+  const equipe=document.getElementById('filtro-equipe')?.value||'';
+  const motivo=document.getElementById('filtro-motivo')?.value||'';
 
   const filtered=state.os.filter(o=>{
-    if (busca&&!o.equipe.toLowerCase().includes(busca)&&!o.os.toLowerCase().includes(busca)&&!o.motivo.toLowerCase().includes(busca)) return false;
+    if (busca&&!o.equipe.toLowerCase().includes(busca)&&!o.os.toLowerCase().includes(busca)&&!o.motivo.toLowerCase().includes(busca)&&!o.os.toLowerCase().includes(busca)) return false;
     if (status==='critico') return o.diasAtraso>=90&&o.status!=='Sanado';
     if (status&&o.status!==status) return false;
     if (equipe&&o.equipe!==equipe) return false;
