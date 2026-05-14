@@ -95,6 +95,10 @@
   .badge-new  { background: var(--blue-bg);  color: var(--blue); }
   .badge-neutral { background: var(--surface2); color: var(--text2); }
   .badge-trat { background: #EDE9FE; color: #5B21B6; }
+  .badge-reinc { background: #FFF0E6; color: #C2410C; }
+  .hist-rejei { background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top:6px; font-size:11px; }
+  .hist-rejei-row { display:flex; gap:8px; align-items:baseline; padding:3px 0; border-bottom:0.5px solid var(--border); }
+  .hist-rejei-row:last-child { border-bottom:none; }
 
   .btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font); font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.15s; }
   .btn:hover { background: var(--surface2); }
@@ -257,7 +261,7 @@
     <div class="filters">
       <select class="filter-input" id="filtro-status" onchange="renderTratativas()">
         <option value="">Todos os status</option>
-        <option>Pendente</option><option>Em tratativa</option><option>Resolvido</option><option value="critico">Crítico (90+ dias)</option>
+        <option>Pendente</option><option>Em tratativa</option><option>Resolvido</option><option>Reincidente</option><option value="critico">Crítico (90+ dias)</option>
       </select>
       <select class="filter-input" id="filtro-equipe" onchange="renderTratativas()"><option value="">Todas as equipes</option></select>
       <select class="filter-input" id="filtro-motivo" onchange="renderTratativas()"><option value="">Todos os motivos</option></select>
@@ -310,6 +314,16 @@
 
   <!-- HIERARQUIA -->
   <div class="screen" id="tab-hierarquia">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <label style="font-size:13px;color:var(--text2);">Filtrar por centro de serviço:</label>
+      <select class="filter-input" id="hier-filtro-centro" onchange="renderHierarquia()">
+        <option value="">Todos os centros</option>
+        <option>Juazeiro do Norte</option>
+        <option>Milagres</option>
+        <option>Campos Sales</option>
+      </select>
+      <span id="hier-count" style="font-size:12px;color:var(--text3);margin-left:4px;"></span>
+    </div>
     <div class="grid2" style="margin-bottom:12px;">
       <div class="card">
         <div class="card-title">Por centro de serviço</div>
@@ -321,6 +335,10 @@
       </div>
     </div>
     <div class="card">
+      <div class="card-title">Reincidências — OS que voltaram após resolvidas</div>
+      <div id="hier-reinc"></div>
+    </div>
+    <div class="card" style="margin-top:12px;">
       <div class="card-title">Ranking de supervisores</div>
       <div id="hier-supervisor"></div>
     </div>
@@ -560,7 +578,9 @@ function normalizeOS(o) {
     justificativa: o.justificativa||'-', valor: parseFloat(o.valor)||0,
     status: o.status||'Pendente', responsavel: o.responsavel||'',
     dataResolucao: o.dataResolucao||'', obs: o.obs||'',
-    firstSeen: o.firstSeen||''
+    firstSeen: o.firstSeen||'',
+    reincidencias: parseInt(o.reincidencias)||0,
+    historicoRejeicoes: o.historicoRejeicoes||''
   };
 }
 
@@ -803,6 +823,7 @@ function renderDashboard() {
 let editingSet = new Set();
 let pendentesSet = new Set();
 let salvosSet = new Set();
+let histSet = new Set();
 
 let filtersPopulated = false;
 
@@ -853,7 +874,7 @@ function renderTratativas() {
     const isSalvo=salvosSet.has(idx)&&!isPend;
     const rowCls=isPend?'row-pendente':isSalvo?'row-salvo':'';
     const dc=o.diasAtraso>=90?'badge-danger':o.diasAtraso>=30?'badge-warn':'badge-ok';
-    const sc=o.status==='Resolvido'?'badge-ok':o.status==='Em tratativa'?'badge-trat':o.diasAtraso>=90?'badge-danger':'badge-warn';
+    const sc=o.status==='Resolvido'?'badge-ok':o.status==='Em tratativa'?'badge-trat':o.status==='Reincidente'?'badge-reinc':o.diasAtraso>=90?'badge-danger':'badge-warn';
     const stateTag=isPend?'<span class="row-state rs-pend">pendente</span>':isSalvo?'<span class="row-state rs-ok">salvo ✓</span>':'';
 
     if (isEdit) {
@@ -870,12 +891,20 @@ function renderTratativas() {
           <option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option>
           <option ${o.status==='Resolvido'?'selected':''}>Resolvido</option>
           <option ${o.status==='Crítico'?'selected':''}>Crítico</option>
+          <option ${o.status==='Reincidente'?'selected':''}>Reincidente</option>
         </select></td>
         <td><input class="tbl-input" style="width:110px;" placeholder="Nome..." value="${o.responsavel||''}" oninput="upd(${idx},'responsavel',this.value)"></td>
         <td><input class="tbl-input" type="date" style="width:130px;" value="${o.dataResolucao||''}" onchange="upd(${idx},'dataResolucao',this.value)"></td>
         <td><input class="tbl-input" style="width:150px;" placeholder="Observação..." value="${o.obs||''}" oninput="upd(${idx},'obs',this.value)"></td>
         <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Fechar edição">✕</button></td>
-      </tr>`;
+      </tr>
+    ${o.reincidencias>0&&histSet.has(idx)?`<tr id="hist-row-${idx}"><td colspan="12" style="padding:0 12px 12px;">
+      <div class="hist-rejei">
+        <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Histórico de rejeições — voltou ${o.reincidencias}x</div>
+        ${o.historicoRejeicoes.split(';;').map(h=>{const[dt,mo,dr]=h.split('|');return \`<div class="hist-rejei-row"><span style="font-family:var(--mono);color:var(--text3);min-width:80px;">\${dt||'—'}</span><span style="color:var(--text2);">\${mo||'—'}</span><span style="color:var(--text3);font-size:10px;">\${dr?'rej: '+dr:''}</span></div>\`;}).join('')}
+      </div>
+    </td></tr>`:''}
+    `;
     } else {
       return `<tr class="${rowCls}" id="trow-${idx}">
         <td><strong>${o.equipe}</strong></td>
@@ -885,11 +914,17 @@ function renderTratativas() {
         <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
         <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
         <td class="mono">${fmtValor(o.valor)}</td>
-        <td><span class="badge ${sc}">${o.status}</span></td>
+        <td>
+          <span class="badge ${sc}">${o.status}</span>
+          ${o.reincidencias>0?`<span class="badge badge-reinc" style="margin-left:4px;" title="Voltou ${o.reincidencias}x após resolvida">🔁 ${o.reincidencias}x</span>`:''}
+        </td>
         <td style="color:${o.responsavel?'var(--text)':'var(--text3)'};">${o.responsavel||'—'}</td>
         <td style="font-family:var(--mono);font-size:12px;color:${o.dataResolucao?'var(--text)':'var(--text3)'};">${o.dataResolucao?formatDateStr(o.dataResolucao):'—'}</td>
         <td style="font-size:12px;color:${o.obs?'var(--text)':'var(--text3)'};max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}">${o.obs||'—'}</td>
-        <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button></td>
+        <td style="white-space:nowrap;">
+          ${o.reincidencias>0?`<button class="edit-btn" onclick="toggleHistorico(${idx})" title="Ver histórico de rejeições" style="font-size:13px;">📋</button>`:''}
+          ${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button>
+        </td>
       </tr>`;
     }
   }).join('');
@@ -899,6 +934,12 @@ function renderTratativas() {
 function toggleEdit(idx) {
   if (editingSet.has(idx)) editingSet.delete(idx);
   else editingSet.add(idx);
+  renderTratativas();
+}
+
+function toggleHistorico(idx) {
+  if (histSet.has(idx)) histSet.delete(idx);
+  else histSet.add(idx);
   renderTratativas();
 }
 
@@ -1008,11 +1049,16 @@ function renderHierarquia() {
     });
     return;
   }
+  const filtroCentro = document.getElementById('hier-filtro-centro')?.value||'';
   const pendentes = os.filter(o=>o.status!=='Resolvido');
+  const reincidentes = os.filter(o=>o.reincidencias>0);
 
   // Enrich with info
   const enrich = o => ({...o, ...getInfo(o.equipe)});
-  const pend = pendentes.map(enrich);
+  const pend = pendentes.map(enrich).filter(o=>!filtroCentro||o.centro===filtroCentro);
+  const reinc = reincidentes.map(enrich).filter(o=>!filtroCentro||o.centro===filtroCentro);
+
+  document.getElementById('hier-count').textContent = filtroCentro ? `${pend.length} OS pendentes em ${filtroCentro}` : '';
 
   // --- Centro de serviço ---
   const centros={};
@@ -1061,6 +1107,20 @@ function renderHierarquia() {
   const sortedS=Object.entries(sups).sort((a,b)=>b[1].n-a[1].n);
   const maxS=sortedS[0]?.[1].n||1;
   const scols=['#E24B4A','#E24B4A','#EF9F27','#EF9F27','#378ADD','#378ADD','#2D6A4F','#2D6A4F'];
+  // Reincidências por equipe
+  const reincEqs={};
+  reinc.forEach(o=>{ if(!reincEqs[o.equipe]) reincEqs[o.equipe]={n:0,vezes:0}; reincEqs[o.equipe].n++; reincEqs[o.equipe].vezes+=o.reincidencias; });
+  const sortedR=Object.entries(reincEqs).sort((a,b)=>b[1].vezes-a[1].vezes).slice(0,8);
+  const reincCard = document.getElementById('hier-reinc');
+  if (reincCard) {
+    reincCard.innerHTML = sortedR.length ? sortedR.map(([eq,v])=>
+      `<div class="bar-row">
+        <div class="bar-label" style="min-width:140px;">${eq}</div>
+        <span class="badge badge-reinc">🔁 ${v.vezes}x rejeitada</span>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">${v.n} OS</span>
+      </div>`).join('') : '<div class="empty" style="padding:1rem">Nenhuma reincidência registrada 🎉</div>';
+  }
+
   document.getElementById('hier-supervisor').innerHTML=`
     <div style="display:flex;flex-direction:column;">
     ${sortedS.map(([s,v],i)=>{
