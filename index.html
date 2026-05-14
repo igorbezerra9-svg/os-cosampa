@@ -360,18 +360,45 @@
     <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
       <button class="btn" onclick="exportarConsolidadoCSV()">&#11015; Exportar Consolidado CSV</button>
     </div>
-    <div class="grid2" style="margin-bottom:12px;">
-      <div class="card">
-        <div class="card-title">Situação atual vs consolidado</div>
-        <div id="cons-kpis" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;"></div>
-        <div class="card-title" style="margin-top:4px;">Evolução diária</div>
-        <div id="cons-lista"><div class="empty"><div class="empty-icon">📅</div>Nenhum dado ainda</div></div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title">Visão geral do período</div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center;margin-bottom:1.25rem;" id="cons-narr">
+        <div style="background:var(--surface2);border-radius:0 8px 8px 0;border-left:3px solid var(--text);padding:1rem 1.25rem;text-align:center;">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);margin-bottom:6px;">Tamanho da pendência</div>
+          <div style="font-size:32px;font-weight:600;font-family:var(--mono);" id="narr-total">—</div>
+          <div style="font-size:12px;font-family:var(--mono);font-weight:500;color:var(--text2);margin-top:4px;" id="narr-total-val">R$ —</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;" id="narr-total-sub">última carga</div>
+        </div>
+        <div style="font-size:20px;color:var(--text3);padding:0 10px;text-align:center;">→</div>
+        <div style="background:var(--surface2);border-radius:0 8px 8px 0;border-left:3px solid var(--green);padding:1rem 1.25rem;text-align:center;">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--green);margin-bottom:6px;">O que foi tratado</div>
+          <div style="font-size:32px;font-weight:600;font-family:var(--mono);color:var(--green);" id="narr-tratado">—</div>
+          <div style="font-size:12px;font-family:var(--mono);font-weight:500;color:var(--green);margin-top:4px;" id="narr-tratado-val">R$ —</div>
+          <div style="font-size:10px;color:var(--green);margin-top:4px;" id="narr-tratado-sub">resolvidas · 0%</div>
+        </div>
+        <div style="font-size:20px;color:var(--text3);padding:0 10px;text-align:center;">→</div>
+        <div style="background:var(--surface2);border-radius:0 8px 8px 0;border-left:3px solid var(--red);padding:1rem 1.25rem;text-align:center;">
+          <div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--red);margin-bottom:6px;">Saldo atual</div>
+          <div style="font-size:32px;font-weight:600;font-family:var(--mono);color:var(--red);" id="narr-saldo">—</div>
+          <div style="font-size:12px;font-family:var(--mono);font-weight:500;color:var(--red);margin-top:4px;" id="narr-saldo-val">R$ —</div>
+          <div style="font-size:10px;color:var(--red);margin-top:4px;" id="narr-saldo-sub">pendentes hoje</div>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-title">Linha do tempo</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;" id="cons-legend"></div>
-        <div style="position:relative;height:260px;"><canvas id="cons-chart" role="img" aria-label="Gráfico de linha mostrando evolução de OS pendentes, resolvidas e novas entradas ao longo do tempo.">Evolução de OS ao longo do tempo.</canvas></div>
+      <div style="height:1px;background:var(--border);margin:1rem 0;"></div>
+      <div class="card-title" style="margin-bottom:8px;">Evolução diária</div>
+      <div id="cons-lista"><div class="empty"><div class="empty-icon">📅</div>Nenhum dado ainda</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Linha do tempo — por carga</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="btn" id="cons-tab-qtd" onclick="switchConsChart('qtd')" style="font-size:12px;padding:5px 12px;background:var(--text);color:#fff;border-color:var(--text);">Quantidade</button>
+        <button class="btn" id="cons-tab-val" onclick="switchConsChart('valor')" style="font-size:12px;padding:5px 12px;">Valor (R$)</button>
       </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;" id="cons-legend"></div>
+      <div style="position:relative;height:260px;" id="cons-wrap-qtd"><canvas id="cons-chart" role="img" aria-label="Gráfico de barras mostrando OS pendentes, resolvidas e novas por data de carga.">Evolução de OS ao longo do tempo.</canvas></div>
+      <div style="position:relative;height:260px;display:none;" id="cons-wrap-val"><canvas id="cons-chart-val" role="img" aria-label="Gráfico de barras mostrando valor em R$ pendente e resolvido por data de carga.">Evolução de valor ao longo do tempo.</canvas></div>
     </div>
   </div>
 
@@ -552,6 +579,7 @@ function getInfo(equipe) {
 
 // ================ STATE ================
 let state = { os: [], cargas: [], log: [], snapshots: [] };
+let consChart = null, consChartVal = null;
 let pendingImport = null;
 let currentTab = 'dashboard';
 const configured = typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL !== 'COLE_SUA_URL_AQUI' && APPS_SCRIPT_URL.includes('script.google.com');
@@ -1220,167 +1248,158 @@ function buildSnapshot() {
   return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, total: os.length };
 }
 
-let consChart = null;
 
 function renderConsolidado() {
   const snaps = state.snapshots || [];
   const cargas = state.cargas || [];
-  const os = state.os;
-  if (!os.length && !snaps.length) return;
+  const items = state.os;
+  if (!items.length && !snaps.length && !cargas.length) return;
 
-  const pendentes  = os.filter(o=>o.status!=='Resolvido').length;
-  const resolvidas = os.filter(o=>o.status==='Resolvido').length;
-  const emTrat     = os.filter(o=>o.status==='Em tratativa').length;
+  const pendentes  = items.filter(o=>o.status!=='Resolvido').length;
+  const resolvidas = items.filter(o=>o.status==='Resolvido').length;
+  const emTrat     = items.filter(o=>o.status==='Em tratativa').length;
   const lastCarga  = cargas[cargas.length-1];
-  const consolidado = lastCarga ? (parseInt(lastCarga.total)||0) : pendentes+resolvidas;
+  const totalCarga = lastCarga ? (parseInt(lastCarga.total)||0) : pendentes+resolvidas;
+  const vPend      = items.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
+  const vRes       = items.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
+  const vTotal     = vPend+vRes;
+  const vCarga     = lastCarga ? (parseFloat(lastCarga.valorPendente)||0) : vTotal;
+  const pct        = totalCarga>0?Math.round(resolvidas/totalCarga*100):0;
 
-  document.getElementById('cons-kpis').innerHTML = [
-    {label:'Consolidado (última carga)', val:consolidado, sub: lastCarga?lastCarga.data:'—', color:'var(--text)'},
-    {label:'Situação atual', val:pendentes, sub:'pendentes agora', color:'var(--red)'},
-    {label:'Resolvidas', val:resolvidas, sub:'acumulado', color:'var(--green)'},
-    {label:'Em tratativa', val:emTrat, sub:'em andamento', color:'#5B21B6'},
-  ].map(k=>`<div style="background:var(--surface2);border-radius:6px;padding:.875rem;">
-    <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${k.label}</div>
-    <div style="font-size:24px;font-weight:600;font-family:var(--mono);color:${k.color};">${k.val}</div>
-    <div style="font-size:10px;color:var(--text3);margin-top:3px;">${k.sub}</div>
-  </div>`).join('');
+  // Narrativa
+  document.getElementById('narr-total').textContent    = totalCarga;
+  document.getElementById('narr-total-val').textContent = fmtValor(vCarga);
+  document.getElementById('narr-total-sub').textContent = 'última carga · '+(lastCarga?formatCargaDate(lastCarga.data):'—');
+  document.getElementById('narr-tratado').textContent   = resolvidas;
+  document.getElementById('narr-tratado-val').textContent = fmtValor(vRes);
+  document.getElementById('narr-tratado-sub').textContent = 'resolvidas · '+pct+'%';
+  document.getElementById('narr-saldo').textContent     = pendentes;
+  document.getElementById('narr-saldo-val').textContent = fmtValor(vPend);
+  document.getElementById('narr-saldo-sub').textContent = 'pendentes hoje · '+new Date().toLocaleDateString('pt-BR');
 
-  // Build daily rows from snapshots + cargas
+  // Build points
   const allPoints = [];
   cargas.forEach(c => allPoints.push({
     data: c.data, pendentes: parseInt(c.pendentes)||0, resolvidas: 0,
     emTrat: 0, novas: parseInt(c.novas)||0, reinc: 0,
-    tipo: 'carga', valorPend: parseFloat(c.valorPendente)||0
+    tipo: 'carga', valorPend: parseFloat(c.valorPendente)||0, valorRes: 0
   }));
   snaps.forEach(s => allPoints.push({
     data: s.data, pendentes: parseInt(s.pendentes)||0,
     resolvidas: parseInt(s.resolvidas)||0, emTrat: parseInt(s.emTrat)||0,
     novas: 0, reinc: parseInt(s.reinc)||0, tipo: 'snapshot',
-    valorPend: parseFloat(s.valorPend)||0
+    valorPend: parseFloat(s.valorPend)||0, valorRes: 0
   }));
-
-  // Add today's current state
   allPoints.push({
-    data: new Date().toLocaleDateString('pt-BR'),
-    pendentes, resolvidas, emTrat,
-    novas: 0, reinc: os.filter(o=>o.reincidencias>0&&o.status!=='Resolvido').length,
-    tipo: 'hoje', valorPend: os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+o.valor,0)
+    data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat,
+    novas: 0, reinc: items.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length,
+    tipo: 'hoje', valorPend: vPend, valorRes: vRes
   });
-
-  // Dedupe by date, keep last per date
   const dateMap = {};
   allPoints.forEach(p => { dateMap[p.data] = p; });
   const points = Object.values(dateMap).sort((a,b)=>{
-    const pa=a.data.split('/').reverse().join(''), pb=b.data.split('/').reverse().join('');
+    const pa=formatCargaDate(a.data).split('/').reverse().join('');
+    const pb=formatCargaDate(b.data).split('/').reverse().join('');
     return pa.localeCompare(pb);
   });
-
   const maxP = Math.max(...points.map(p=>p.pendentes), 1);
 
-  document.getElementById('cons-lista').innerHTML = points.length ? [...points].reverse().slice(0,14).map((p,i)=>{
-    const isHoje = p.tipo==='hoje';
-    const isCarga = p.tipo==='carga';
-    const pct = Math.round(p.pendentes/maxP*100);
-    const rPct = Math.round(p.resolvidas/maxP*100);
+  // Lista diária
+  document.getElementById('cons-lista').innerHTML = points.length ? [...points].reverse().slice(0,14).map(p=>{
+    const isHoje = p.tipo==='hoje', isCarga = p.tipo==='carga';
     const dataFmt = formatCargaDate(p.data);
-    return `<div class="cons-row" ${isHoje?'style="background:var(--surface2);border-radius:6px;padding:10px;"':''}>
-      <div class="cons-date">${dataFmt}${isHoje?'<br><span style="font-size:9px;color:var(--green)">hoje</span>':''}</div>
-      <div class="cons-bars">
-        <div class="cons-bar-line">
-          <span class="cons-bar-label">Pendentes</span>
-          <div class="cons-bar-bg"><div class="cons-bar-fill" style="width:${pct}%;background:var(--text)"></div></div>
-          <span class="cons-bar-val">${p.pendentes}</span>
-        </div>
-        ${p.resolvidas>0?`<div class="cons-bar-line">
-          <span class="cons-bar-label">Resolvidas</span>
-          <div class="cons-bar-bg"><div class="cons-bar-fill" style="width:${rPct}%;background:var(--green)"></div></div>
-          <span class="cons-bar-val" style="color:var(--green)">${p.resolvidas}</span>
-        </div>`:''}
-      </div>
-      <div class="cons-badges">
-        ${isCarga?'<span class="badge badge-neutral" style="font-size:10px;">📌 carga</span>':''}
-        ${p.novas>0?`<span class="badge badge-new">+${p.novas} novas</span>`:''}
-        ${p.reinc>0?`<span class="badge badge-reinc">🔁 ${p.reinc} reinc.</span>`:''}
-        ${p.emTrat>0?`<span class="badge badge-trat">${p.emTrat} em trat.</span>`:''}
-        ${p.resolvidas>0?`<span class="badge badge-ok">↓ ${p.resolvidas} resol.</span>`:''}
-      </div>
-    </div>`;
+    const pct2 = Math.round(p.pendentes/maxP*100);
+    const rPct2 = Math.round(p.resolvidas/maxP*100);
+    return '<div class="cons-row"'+(isHoje?' style="background:var(--surface2);border-radius:6px;padding:10px;"':'')+'>'+
+      '<div class="cons-date">'+dataFmt+(isHoje?'<br><span style="font-size:9px;color:var(--green)">hoje</span>':'')+'</div>'+
+      '<div class="cons-bars">'+
+        '<div class="cons-bar-line"><span class="cons-bar-label">Pendentes</span><div class="cons-bar-bg"><div class="cons-bar-fill" style="width:'+pct2+'%;background:var(--text)"></div></div><span class="cons-bar-val">'+p.pendentes+'</span></div>'+
+        (p.resolvidas>0?'<div class="cons-bar-line"><span class="cons-bar-label">Resolvidas</span><div class="cons-bar-bg"><div class="cons-bar-fill" style="width:'+rPct2+'%;background:var(--green)"></div></div><span class="cons-bar-val" style="color:var(--green)">'+p.resolvidas+'</span></div>':'')+
+      '</div>'+
+      '<div class="cons-badges">'+
+        (isCarga?'<span class="badge badge-neutral" style="font-size:10px;">&#128204; carga</span>':'')+
+        (p.novas>0?'<span class="badge badge-new">+'+p.novas+' novas</span>':'')+
+        (p.reinc>0?'<span class="badge badge-reinc">&#128260; '+p.reinc+' reinc.</span>':'')+
+        (p.emTrat>0?'<span class="badge badge-trat">'+p.emTrat+' em trat.</span>':'')+
+        (p.resolvidas>0?'<span class="badge badge-ok">&#8595; '+p.resolvidas+' resol.</span>':'')+
+        (p.valorPend>0?'<span style="font-size:10px;font-family:var(--mono);color:var(--text3);">'+fmtShort(p.valorPend)+'</span>':'')+
+      '</div>'+
+    '</div>';
   }).join('') : '<div class="empty" style="padding:1rem">Nenhum dado ainda</div>';
 
-  // Chart
+  // Legend
+  document.getElementById('cons-legend').innerHTML = [
+    {color:'#1A1916',label:'Pendentes'},{color:'#2D6A4F',label:'Resolvidas'},
+    {color:'#378ADD',label:'Novas entradas'},{color:'#C2410C',label:'Reincidentes'}
+  ].map(l=>'<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);"><div style="width:10px;height:10px;border-radius:2px;background:'+l.color+'"></div>'+l.label+'</div>').join('');
+
   const labels  = points.map(p=>formatCargaDate(p.data).split('/').slice(0,2).join('/'));
   const datPend = points.map(p=>p.pendentes);
   const datRes  = points.map(p=>p.resolvidas);
   const datNovas= points.map(p=>p.novas);
+  const datReinc= points.map(p=>p.reinc);
+  const datVPend= points.map(p=>Math.round(p.valorPend));
+  const datVRes = points.map(p=>Math.round(p.valorRes||0));
 
-  document.getElementById('cons-legend').innerHTML = [
-    {color:'#1A1916',label:'Pendentes'},
-    {color:'#2D6A4F',label:'Resolvidas'},
-    {color:'#378ADD',label:'Novas entradas'},
-  ].map(l=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);">
-    <div style="width:10px;height:10px;border-radius:2px;background:${l.color}"></div>${l.label}
-  </div>`).join('');
-
+  // Qtd chart
   if (consChart) { consChart.destroy(); consChart = null; }
   const ctx = document.getElementById('cons-chart');
-  if (!ctx) return;
-  consChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label:'Pendentes', data:datPend, borderColor:'#1A1916', backgroundColor:'rgba(26,25,22,0.05)', borderWidth:2, pointRadius:4, pointBackgroundColor:'#1A1916', fill:true, tension:0.3 },
-        { label:'Resolvidas', data:datRes, borderColor:'#2D6A4F', backgroundColor:'rgba(45,106,79,0.05)', borderWidth:2, pointRadius:4, pointBackgroundColor:'#2D6A4F', fill:true, tension:0.3, borderDash:[4,3] },
-        { label:'Novas', data:datNovas, borderColor:'#378ADD', backgroundColor:'transparent', borderWidth:1.5, pointRadius:4, pointStyle:'rectRot', pointBackgroundColor:'#378ADD', fill:false, tension:0, borderDash:[2,3] },
-      ]
-    },
-    options: {
+  if (ctx) consChart = new Chart(ctx, {
+    type:'bar',
+    data:{labels, datasets:[
+      {label:'Pendentes', data:datPend, backgroundColor:'#1A1916', borderRadius:3, borderSkipped:false},
+      {label:'Resolvidas', data:datRes, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
+      {label:'Novas entradas', data:datNovas, backgroundColor:'#378ADD', borderRadius:3, borderSkipped:false},
+      {label:'Reincidentes', data:datReinc, backgroundColor:'#C2410C', borderRadius:3, borderSkipped:false},
+    ]},
+    options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false} },
+      plugins:{legend:{display:false}},
       scales:{
-        y:{ beginAtZero:false, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11},color:'#888780'} },
-        x:{ grid:{display:false}, ticks:{font:{size:10},color:'#888780',autoSkip:true,maxTicksLimit:8} }
+        x:{grid:{display:false}, ticks:{font:{size:11},color:'#888780',autoSkip:false,maxRotation:45}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11},color:'#888780'}}
+      }
+    }
+  });
+
+  // Valor chart
+  if (consChartVal) { consChartVal.destroy(); consChartVal = null; }
+  const ctxVal = document.getElementById('cons-chart-val');
+  if (ctxVal) consChartVal = new Chart(ctxVal, {
+    type:'bar',
+    data:{labels, datasets:[
+      {label:'Valor pendente', data:datVPend, backgroundColor:'#1A1916', borderRadius:3, borderSkipped:false},
+      {label:'Valor resolvido', data:datVRes, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2})}}},
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:11},color:'#888780',autoSkip:false,maxRotation:45}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11},color:'#888780',callback:v=>v>=1000?'R$'+(v/1000).toFixed(0)+'k':'R$'+v}}
       }
     }
   });
 }
 
-function exportarConsolidadoCSV() {
-  const cargas = state.cargas || [];
-  const snaps = state.snapshots || [];
-  const allPoints = [];
-  cargas.forEach(c => allPoints.push({
-    data: formatCargaDate(c.data), tipo: 'Carga importada',
-    pendentes: parseInt(c.pendentes)||0, resolvidas: 0,
-    emTrat: 0, novas: parseInt(c.novas)||0, reinc: 0,
-    valorPend: parseFloat(c.valorPendente)||0
-  }));
-  snaps.forEach(s => allPoints.push({
-    data: formatCargaDate(s.data), tipo: 'Snapshot diário',
-    pendentes: parseInt(s.pendentes)||0, resolvidas: parseInt(s.resolvidas)||0,
-    emTrat: parseInt(s.emTrat)||0, novas: 0, reinc: parseInt(s.reinc)||0,
-    valorPend: parseFloat(s.valorPend)||0
-  }));
-  // Add today
-  const os = state.os;
-  allPoints.push({
-    data: new Date().toLocaleDateString('pt-BR'), tipo: 'Hoje',
-    pendentes: os.filter(o=>o.status!=='Resolvido').length,
-    resolvidas: os.filter(o=>o.status==='Resolvido').length,
-    emTrat: os.filter(o=>o.status==='Em tratativa').length,
-    novas: 0, reinc: os.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length,
-    valorPend: os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0)
-  });
-  if (!allPoints.length) { showToast('Nenhum dado para exportar'); return; }
-  const h = ['Data','Tipo','Pendentes','Resolvidas','Em Tratativa','Novas','Reincidentes','Valor Pendente'];
-  const rows = allPoints.map(p=>[p.data,p.tipo,p.pendentes,p.resolvidas,p.emTrat,p.novas,p.reinc,p.valorPend.toFixed(2)]);
-  const csv = [h,...rows].map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));
-  a.download = 'consolidado_'+new Date().toISOString().split('T')[0]+'.csv';
-  a.click();
-  showToast('✅ CSV exportado!');
+function switchConsChart(tipo) {
+  const btnQtd = document.getElementById('cons-tab-qtd');
+  const btnVal = document.getElementById('cons-tab-val');
+  const wrapQtd = document.getElementById('cons-wrap-qtd');
+  const wrapVal = document.getElementById('cons-wrap-val');
+  if (tipo==='qtd') {
+    btnQtd.style.background='var(--text)'; btnQtd.style.color='#fff'; btnQtd.style.borderColor='var(--text)';
+    btnVal.style.background=''; btnVal.style.color=''; btnVal.style.borderColor='';
+    wrapQtd.style.display='block'; wrapVal.style.display='none';
+  } else {
+    btnVal.style.background='var(--text)'; btnVal.style.color='#fff'; btnVal.style.borderColor='var(--text)';
+    btnQtd.style.background=''; btnQtd.style.color=''; btnQtd.style.borderColor='';
+    wrapQtd.style.display='none'; wrapVal.style.display='block';
+    if (consChartVal) consChartVal.update();
+  }
 }
+
+
 
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
 
