@@ -906,12 +906,7 @@ function renderTratativas() {
         <td><input class="tbl-input" style="width:150px;" placeholder="Observação..." value="${o.obs||''}" oninput="upd(${idx},'obs',this.value)"></td>
         <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Fechar edição">✕</button></td>
       </tr>
-    ${o.reincidencias>0&&histSet.has(idx)?`<tr id="hist-row-${idx}"><td colspan="12" style="padding:0 12px 12px;">
-      <div class="hist-rejei">
-        <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Histórico de rejeições — voltou ${o.reincidencias}x</div>
-        ${o.historicoRejeicoes.split(';;').map(h=>{const[dt,mo,dr]=h.split('|');return \`<div class="hist-rejei-row"><span style="font-family:var(--mono);color:var(--text3);min-width:80px;">\${dt||'—'}</span><span style="color:var(--text2);">\${mo||'—'}</span><span style="color:var(--text3);font-size:10px;">\${dr?'rej: '+dr:''}</span></div>\`;}).join('')}
-      </div>
-    </td></tr>`:''}
+    ${o.reincidencias>0&&histSet.has(idx)?buildHistRow(o,idx):''}
     `;
     } else {
       return `<tr class="${rowCls}" id="trow-${idx}">
@@ -949,6 +944,25 @@ function toggleHistorico(idx) {
   if (histSet.has(idx)) histSet.delete(idx);
   else histSet.add(idx);
   renderTratativas();
+}
+
+function buildHistRow(o, idx) {
+  const rows = (o.historicoRejeicoes||'').split(';;').map(function(h) {
+    const parts = h.split('|');
+    const dt = parts[0]||'—';
+    const mo = parts[1]||'—';
+    const dr = parts[2]||'';
+    return '<div class="hist-rejei-row">' +
+      '<span style="font-family:var(--mono);color:var(--text3);min-width:80px;">' + dt + '</span>' +
+      '<span style="color:var(--text2);">' + mo + '</span>' +
+      '<span style="color:var(--text3);font-size:10px;">' + (dr?'rej: '+dr:'') + '</span>' +
+      '</div>';
+  }).join('');
+  return '<tr id="hist-row-' + idx + '"><td colspan="12" style="padding:0 12px 12px;">' +
+    '<div class="hist-rejei">' +
+    '<div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Histórico de rejeições — voltou ' + o.reincidencias + 'x</div>' +
+    rows +
+    '</div></td></tr>';
 }
 
 function upd(idx, field, value) {
