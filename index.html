@@ -78,6 +78,17 @@
 
   /* TABLE */
   .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  .table-wrap table th:last-child,
+  .table-wrap table td:last-child {
+    position: sticky;
+    right: 0;
+    background: var(--surface);
+    box-shadow: -2px 0 6px rgba(0,0,0,0.06);
+    z-index: 1;
+  }
+  .table-wrap table thead th:last-child { background: var(--surface2); }
+  tr.row-pendente td:last-child { background: #FFFBEB; }
+  tr.row-salvo td:last-child { background: #F0FDF4; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   thead th { background: var(--surface2); text-align: left; padding: 9px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border); white-space: nowrap; }
   tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
@@ -1277,31 +1288,70 @@ function renderConsolidado() {
   document.getElementById('narr-saldo-val').textContent = fmtValor(vPend);
   document.getElementById('narr-saldo-sub').textContent = 'pendentes hoje · '+new Date().toLocaleDateString('pt-BR');
 
-  // Build points
+  // Build points — cada carga é um ponto separado, não agrupa
   const allPoints = [];
-  cargas.forEach(c => allPoints.push({
-    data: c.data, pendentes: parseInt(c.pendentes)||0, resolvidas: 0,
-    emTrat: 0, novas: parseInt(c.novas)||0, reinc: 0,
-    tipo: 'carga', valorPend: parseFloat(c.valorPendente)||0, valorRes: 0
-  }));
-  snaps.forEach(s => allPoints.push({
-    data: s.data, pendentes: parseInt(s.pendentes)||0,
-    resolvidas: parseInt(s.resolvidas)||0, emTrat: parseInt(s.emTrat)||0,
-    novas: 0, reinc: parseInt(s.reinc)||0, tipo: 'snapshot',
-    valorPend: parseFloat(s.valorPend)||0, valorRes: 0
-  }));
-  allPoints.push({
-    data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat,
-    novas: 0, reinc: items.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length,
-    tipo: 'hoje', valorPend: vPend, valorRes: vRes
+
+  // Cada carga = 1 ponto com label "dd/mm (Nº)"
+  const cargasByDate = {};
+  cargas.forEach(c => {
+    const key = formatCargaDate(c.data);
+    cargasByDate[key] = (cargasByDate[key]||0) + 1;
   });
-  const dateMap = {};
-  allPoints.forEach(p => { dateMap[p.data] = p; });
-  const points = Object.values(dateMap).sort((a,b)=>{
-    const pa=formatCargaDate(a.data).split('/').reverse().join('');
-    const pb=formatCargaDate(b.data).split('/').reverse().join('');
-    return pa.localeCompare(pb);
+  const cargaCount = {};
+  cargas.forEach(c => {
+    const key = formatCargaDate(c.data);
+    cargaCount[key] = (cargaCount[key]||0) + 1;
+    const total = cargasByDate[key];
+    const label = total > 1 ? key + ' (' + cargaCount[key] + 'ª)' : key;
+    allPoints.push({
+      data: label,
+      pendentes: parseInt(c.pendentes)||0,
+      resolvidas: parseInt(c.removidas)||0,
+      emTrat: 0,
+      novas: parseInt(c.novas)||0,
+      reinc: 0,
+      tipo: 'carga',
+      valorPend: parseFloat(c.valorPendente)||0,
+      valorRes: 0,
+      sortKey: formatCargaDate(c.data).split('/').reverse().join('') + String(cargaCount[key]).padStart(3,'0')
+    });
   });
+
+  // Snapshots
+  snaps.forEach(s => {
+    const key = formatCargaDate(s.data);
+    allPoints.push({
+      data: key,
+      pendentes: parseInt(s.pendentes)||0,
+      resolvidas: parseInt(s.resolvidas)||0,
+      emTrat: parseInt(s.emTrat)||0,
+      novas: 0,
+      reinc: parseInt(s.reinc)||0,
+      tipo: 'snapshot',
+      valorPend: parseFloat(s.valorPend)||0,
+      valorRes: 0,
+      sortKey: key.split('/').reverse().join('') + '500'
+    });
+  });
+
+  // Hoje
+  const hojeKey = new Date().toLocaleDateString('pt-BR');
+  const hojeFormatted = formatCargaDate(hojeKey);
+  // Só adiciona hoje se não for igual à última carga
+  const lastCargaData = cargas.length ? formatCargaDate(cargas[cargas.length-1].data) : '';
+  if (hojeFormatted !== lastCargaData) {
+    allPoints.push({
+      data: hojeFormatted,
+      pendentes, resolvidas, emTrat,
+      novas: 0,
+      reinc: items.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length,
+      tipo: 'hoje',
+      valorPend: vPend, valorRes: vRes,
+      sortKey: hojeFormatted.split('/').reverse().join('') + '999'
+    });
+  }
+
+  const points = allPoints.sort((a,b) => (a.sortKey||'').localeCompare(b.sortKey||''));
   const maxP = Math.max(...points.map(p=>p.pendentes), 1);
 
   // Lista diária
@@ -1354,22 +1404,38 @@ function renderConsolidado() {
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{
+          afterBody: items => {
+            const i = items[0].dataIndex;
+            return ['Pendentes: '+datPend[i], 'Resolvidas: '+datRes[i], 'Novas: '+datNovas[i], 'Reinc: '+datReinc[i]];
+          }
+        }}
+      },
       scales:{
-        x:{grid:{display:false}, ticks:{font:{size:11},color:'#888780',autoSkip:false,maxRotation:45}},
-        y:{grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11},color:'#888780'}}
+        x:{grid:{display:false}, ticks:{font:{size:11},color:'#888780',autoSkip:false,maxRotation:45},
+          stacked:false},
+        y:{grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11},color:'#888780'}, stacked:false}
       }
     }
   });
 
   // Valor chart
+  // compute valorRes from snapshots properly
+  const datVResFinal = points.map((p,i) => {
+    if (p.valorRes && p.valorRes > 0) return Math.round(p.valorRes);
+    // estimate from resolvidas ratio
+    const totalV = p.valorPend + (p.valorRes||0);
+    return Math.round(p.resolvidas > 0 ? (totalV * p.resolvidas / Math.max(p.pendentes+p.resolvidas,1)) : 0);
+  });
+
   if (consChartVal) { consChartVal.destroy(); consChartVal = null; }
   const ctxVal = document.getElementById('cons-chart-val');
   if (ctxVal) consChartVal = new Chart(ctxVal, {
     type:'bar',
     data:{labels, datasets:[
       {label:'Valor pendente', data:datVPend, backgroundColor:'#1A1916', borderRadius:3, borderSkipped:false},
-      {label:'Valor resolvido', data:datVRes, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
+      {label:'Valor resolvido', data:datVResFinal, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
