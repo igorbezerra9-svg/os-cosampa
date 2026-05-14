@@ -1255,10 +1255,10 @@ function buildSnapshot() {
   const os = state.os;
   const pendentes  = os.filter(o=>o.status!=='Resolvido').length;
   const resolvidas = os.filter(o=>o.status==='Resolvido').length;
-  const emTrat     = os.filter(o=>o.status==='Em tratativa').length;
-  const reinc      = os.filter(o=>o.reincidencias>0&&o.status!=='Resolvido').length;
+  const emTrat     = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
+  const reinc      = os.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length;
   const valorPend  = os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+o.valor,0);
-  const valorTrat  = os.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+o.valor,0);
+  const valorTrat  = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').reduce((s,o)=>s+o.valor,0);
   return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, total: os.length };
 }
 
@@ -1360,8 +1360,8 @@ function renderConsolidado() {
   // Só mostra "hoje" se for um dia diferente das cargas E tiver mudança
   const hojeEhNovoDia = !cargaDates.has(hojeFormatted);
   if (hojeEhNovoDia && (pendentes !== lastCargaPend || resolvidas > 0)) {
-    const vTrat = items.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
-    const nTrat = items.filter(o=>o.status==='Resolvido').length;
+    const vTrat = items.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
+    const nTrat = items.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
     allPoints.push({
       data: hojeFormatted,
       pendentes, resolvidas: hojeResolvidas, emTrat: nTrat,
