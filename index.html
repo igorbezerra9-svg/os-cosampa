@@ -254,7 +254,6 @@
   <!-- TRATATIVAS -->
   <div class="screen" id="tab-tratativas">
     <div class="filters">
-      <input type="text" class="filter-input" placeholder="Buscar OS, equipe, motivo..." id="filtro-busca" oninput="renderTratativas()" style="width:230px;">
       <select class="filter-input" id="filtro-status" onchange="renderTratativas()">
         <option value="">Todos os status</option>
         <option>Pendente</option><option>Em tratativa</option><option>Sanado</option><option value="critico">Crítico (90+ dias)</option>
@@ -286,6 +285,9 @@
 
   <!-- HISTÓRICO -->
   <div class="screen" id="tab-historico">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+      <button class="btn" onclick="limparHistorico()" style="color:var(--red);border-color:var(--red-bg);">🗑 Limpar histórico e log</button>
+    </div>
     <div class="grid2" style="margin-bottom:12px;">
       <div class="card">
         <div class="card-title">Evolução por carga</div>
@@ -654,7 +656,7 @@ function populateFilters() {
 function renderTratativas() {
   if (!filtersPopulated) populateFilters();
 
-  const busca=(document.getElementById('filtro-busca')?.value||'').toLowerCase().trim();
+  const busca='';
   const status=document.getElementById('filtro-status')?.value||'';
   const equipe=document.getElementById('filtro-equipe')?.value||'';
   const motivo=document.getElementById('filtro-motivo')?.value||'';
@@ -819,6 +821,20 @@ function exportarCSV() {
   const csv=[h,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'})); a.download='os_'+new Date().toISOString().split('T')[0]+'.csv'; a.click();
 }
+async function limparHistorico() {
+  if (!confirm('Limpar todo o histórico de cargas e log de atividades? As OS e tratativas não serão afetadas.')) return;
+  if (!configured) { showToast('⚙️ Configure a URL primeiro'); return; }
+  try {
+    const result = await apiPost('limparHistorico', {});
+    if (result && result.ok) {
+      state.cargas = [];
+      state.log = [];
+      renderHistorico();
+      showToast('✅ Histórico limpo!');
+    } else throw new Error(result?.error||'erro');
+  } catch(e) { showToast('❌ Erro: '+e.message); }
+}
+
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
 
 // ================ INIT ================
