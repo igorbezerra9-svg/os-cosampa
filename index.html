@@ -523,15 +523,23 @@ function getInfo(equipe) {
 let state = { os: [], cargas: [], log: [] };
 let pendingImport = null;
 let currentTab = 'dashboard';
-const configured = typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL !== 'COLE_SUA_URL_AQUI';
+const configured = typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL !== 'COLE_SUA_URL_AQUI' && APPS_SCRIPT_URL.includes('script.google.com');
 
 // ================ API ================
 async function apiGet() {
-  const r = await fetch(APPS_SCRIPT_URL + '?action=getAll');
+  const r = await fetch(APPS_SCRIPT_URL + '?action=getAll', {
+    redirect: 'follow',
+    mode: 'cors',
+  });
   return r.json();
 }
 async function apiPost(action, data) {
-  const r = await fetch(APPS_SCRIPT_URL, { method:'POST', body: JSON.stringify({ action, data }) });
+  const r = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    mode: 'cors',
+    body: JSON.stringify({ action, data })
+  });
   return r.json();
 }
 
@@ -558,7 +566,7 @@ async function sincronizar(force) {
       }
       setSyncStatus('ok');
     } else throw new Error(data?.error || 'erro');
-  } catch(e) { setSyncStatus('error'); }
+  } catch(e) { setSyncStatus('error'); console.error('Sync error:', e); }
 }
 
 function setSyncStatus(s) {
