@@ -357,6 +357,9 @@
 
   <!-- CONSOLIDADO -->
   <div class="screen" id="tab-consolidado">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+      <button class="btn" onclick="exportarConsolidadoCSV()">&#11015; Exportar Consolidado CSV</button>
+    </div>
     <div class="grid2" style="margin-bottom:12px;">
       <div class="card">
         <div class="card-title">Situação atual vs consolidado</div>
@@ -1279,8 +1282,9 @@ function renderConsolidado() {
     const isCarga = p.tipo==='carga';
     const pct = Math.round(p.pendentes/maxP*100);
     const rPct = Math.round(p.resolvidas/maxP*100);
+    const dataFmt = formatCargaDate(p.data);
     return `<div class="cons-row" ${isHoje?'style="background:var(--surface2);border-radius:6px;padding:10px;"':''}>
-      <div class="cons-date">${p.data}${isHoje?'<br><span style="font-size:9px;color:var(--green)">hoje</span>':''}</div>
+      <div class="cons-date">${dataFmt}${isHoje?'<br><span style="font-size:9px;color:var(--green)">hoje</span>':''}</div>
       <div class="cons-bars">
         <div class="cons-bar-line">
           <span class="cons-bar-label">Pendentes</span>
@@ -1304,7 +1308,7 @@ function renderConsolidado() {
   }).join('') : '<div class="empty" style="padding:1rem">Nenhum dado ainda</div>';
 
   // Chart
-  const labels  = points.map(p=>p.data.split('/').slice(0,2).join('/'));
+  const labels  = points.map(p=>formatCargaDate(p.data).split('/').slice(0,2).join('/'));
   const datPend = points.map(p=>p.pendentes);
   const datRes  = points.map(p=>p.resolvidas);
   const datNovas= points.map(p=>p.novas);
@@ -1339,6 +1343,43 @@ function renderConsolidado() {
       }
     }
   });
+}
+
+function exportarConsolidadoCSV() {
+  const cargas = state.cargas || [];
+  const snaps = state.snapshots || [];
+  const allPoints = [];
+  cargas.forEach(c => allPoints.push({
+    data: formatCargaDate(c.data), tipo: 'Carga importada',
+    pendentes: parseInt(c.pendentes)||0, resolvidas: 0,
+    emTrat: 0, novas: parseInt(c.novas)||0, reinc: 0,
+    valorPend: parseFloat(c.valorPendente)||0
+  }));
+  snaps.forEach(s => allPoints.push({
+    data: formatCargaDate(s.data), tipo: 'Snapshot diário',
+    pendentes: parseInt(s.pendentes)||0, resolvidas: parseInt(s.resolvidas)||0,
+    emTrat: parseInt(s.emTrat)||0, novas: 0, reinc: parseInt(s.reinc)||0,
+    valorPend: parseFloat(s.valorPend)||0
+  }));
+  // Add today
+  const os = state.os;
+  allPoints.push({
+    data: new Date().toLocaleDateString('pt-BR'), tipo: 'Hoje',
+    pendentes: os.filter(o=>o.status!=='Resolvido').length,
+    resolvidas: os.filter(o=>o.status==='Resolvido').length,
+    emTrat: os.filter(o=>o.status==='Em tratativa').length,
+    novas: 0, reinc: os.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length,
+    valorPend: os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0)
+  });
+  if (!allPoints.length) { showToast('Nenhum dado para exportar'); return; }
+  const h = ['Data','Tipo','Pendentes','Resolvidas','Em Tratativa','Novas','Reincidentes','Valor Pendente'];
+  const rows = allPoints.map(p=>[p.data,p.tipo,p.pendentes,p.resolvidas,p.emTrat,p.novas,p.reinc,p.valorPend.toFixed(2)]);
+  const csv = [h,...rows].map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = 'consolidado_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+  showToast('✅ CSV exportado!');
 }
 
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
