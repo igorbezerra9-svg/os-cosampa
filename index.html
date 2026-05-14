@@ -1258,7 +1258,8 @@ function buildSnapshot() {
   const emTrat     = os.filter(o=>o.status==='Em tratativa').length;
   const reinc      = os.filter(o=>o.reincidencias>0&&o.status!=='Resolvido').length;
   const valorPend  = os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+o.valor,0);
-  return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, total: os.length };
+  const valorTrat  = os.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+o.valor,0);
+  return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, total: os.length };
 }
 
 
@@ -1318,13 +1319,14 @@ function renderConsolidado() {
       data: label,
       pendentes: parseInt(c.pendentes)||0,
       resolvidas: resolvidasTotal,
-      emTrat: 0,
+      emTrat: parseInt(c.emTrat)||0,
       novas: parseInt(c.novas)||0,
       reinc: 0,
       tipo: 'carga',
       valorPend: parseFloat(c.valorPendente)||0,
       valorRes: 0,
       valorNovas: parseFloat(c.valorNovas)||0,
+      valorTrat: parseFloat(c.valorTrat)||0,
       sortKey: formatCargaDate(c.data).split('/').reverse().join('') + String(cargaCount[key]).padStart(3,'0')
     });
   });
@@ -1344,6 +1346,7 @@ function renderConsolidado() {
       tipo: 'snapshot',
       valorPend: parseFloat(s.valorPend)||0,
       valorRes: 0,
+      valorTrat: parseFloat(s.valorTrat)||0,
       sortKey: key.split('/').reverse().join('') + '500'
     });
   });
@@ -1357,13 +1360,15 @@ function renderConsolidado() {
   // Só mostra "hoje" se for um dia diferente das cargas E tiver mudança
   const hojeEhNovoDia = !cargaDates.has(hojeFormatted);
   if (hojeEhNovoDia && (pendentes !== lastCargaPend || resolvidas > 0)) {
+    const vTrat = items.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
+    const nTrat = items.filter(o=>o.status==='Resolvido').length;
     allPoints.push({
       data: hojeFormatted,
-      pendentes, resolvidas: hojeResolvidas, emTrat,
+      pendentes, resolvidas: hojeResolvidas, emTrat: nTrat,
       novas: 0,
       reinc: items.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length,
       tipo: 'hoje',
-      valorPend: vPend, valorRes: vRes,
+      valorPend: vPend, valorRes: vRes, valorTrat: vTrat,
       sortKey: hojeFormatted.split('/').reverse().join('') + '999'
     });
   }
@@ -1396,8 +1401,9 @@ function renderConsolidado() {
 
   // Legend
   document.getElementById('cons-legend').innerHTML = [
-    {color:'#1A1916',label:'Pendentes'},{color:'#2D6A4F',label:'Resolvidas'},
-    {color:'#378ADD',label:'Novas entradas'},{color:'#C2410C',label:'Reincidentes'}
+    {color:'#1A1916',label:'Pendentes'},{color:'#2D6A4F',label:'Saíram/Resolvidas'},
+    {color:'#378ADD',label:'Novas entradas'},{color:'#C2410C',label:'Reincidentes'},
+    {color:'#5B21B6',label:'Tratadas pelas Adms'}
   ].map(l=>'<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);"><div style="width:10px;height:10px;border-radius:2px;background:'+l.color+'"></div>'+l.label+'</div>').join('');
 
   const labels  = points.map(p=>formatCargaDate(p.data).split('/').slice(0,2).join('/'));
@@ -1419,6 +1425,7 @@ function renderConsolidado() {
       {label:'Resolvidas', data:datRes, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
       {label:'Novas entradas', data:datNovas, backgroundColor:'#378ADD', borderRadius:3, borderSkipped:false},
       {label:'Reincidentes', data:datReinc, backgroundColor:'#C2410C', borderRadius:3, borderSkipped:false},
+      {label:'Tratadas pelas Adms', data:datTrat, backgroundColor:'#5B21B6', borderRadius:3, borderSkipped:false},
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
@@ -1450,11 +1457,9 @@ function renderConsolidado() {
   // Valor chart
   // compute valorRes from snapshots properly
   const datVNovas = points.map(p => Math.round(p.valorNovas||0));
-  const datVResFinal = points.map((p,i) => {
-    if (p.valorRes && p.valorRes > 0) return Math.round(p.valorRes);
-    // estimate from resolvidas ratio
-    const totalV = p.valorPend + (p.valorRes||0);
-    return Math.round(p.resolvidas > 0 ? (totalV * p.resolvidas / Math.max(p.pendentes+p.resolvidas,1)) : 0);
+  const datTrat  = points.map(p => parseInt(p.emTrat)||0);
+  const datVTrat = points.map(p => Math.round(p.valorTrat||0));
+  const datVResFinal = points.map(p => Math.round(p.valorRes||0));
   });
 
   if (consChartVal) { consChartVal.destroy(); consChartVal = null; }
@@ -1465,6 +1470,7 @@ function renderConsolidado() {
       {label:'Valor pendente', data:datVPend, backgroundColor:'#1A1916', borderRadius:3, borderSkipped:false},
       {label:'Valor resolvido', data:datVResFinal, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
       {label:'Valor novas entradas', data:datVNovas, backgroundColor:'#378ADD', borderRadius:3, borderSkipped:false},
+      {label:'Valor tratado Adms', data:datVTrat, backgroundColor:'#5B21B6', borderRadius:3, borderSkipped:false},
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
