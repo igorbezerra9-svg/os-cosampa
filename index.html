@@ -167,6 +167,7 @@
   <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
   <button onclick="showTab('tratativas',this)">Tratativas</button>
   <button onclick="showTab('historico',this)">Histórico</button>
+  <button onclick="showTab('hierarquia',this)">Hierarquia</button>
   <button onclick="showTab('importar',this)">↑ Importar Planilha</button>
 </nav>
 
@@ -260,6 +261,9 @@
       </select>
       <select class="filter-input" id="filtro-equipe" onchange="renderTratativas()"><option value="">Todas as equipes</option></select>
       <select class="filter-input" id="filtro-motivo" onchange="renderTratativas()"><option value="">Todos os motivos</option></select>
+      <select class="filter-input" id="filtro-centro" onchange="renderTratativas()"><option value="">Todos os centros</option></select>
+      <select class="filter-input" id="filtro-processo" onchange="renderTratativas()"><option value="">Todos os processos</option></select>
+      <select class="filter-input" id="filtro-supervisor" onchange="renderTratativas()"><option value="">Todos os supervisores</option></select>
       <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
         <div id="pending-badge" style="display:none;" class="pending-badge">
           <span class="pending-dot"></span>
@@ -304,6 +308,24 @@
     </div>
   </div>
 
+  <!-- HIERARQUIA -->
+  <div class="screen" id="tab-hierarquia">
+    <div class="grid2" style="margin-bottom:12px;">
+      <div class="card">
+        <div class="card-title">Por centro de serviço</div>
+        <div id="hier-centro"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Por processo</div>
+        <div id="hier-processo"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Ranking de supervisores</div>
+      <div id="hier-supervisor"></div>
+    </div>
+  </div>
+
   <!-- IMPORTAR -->
   <div class="screen" id="tab-importar">
     <div class="card" style="max-width:620px;margin:0 auto;">
@@ -335,6 +357,150 @@
 <div id="toast"></div>
 
 <script>
+
+const EQUIPES_INFO = {
+  'CPS-TR-11B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPR-RD-12B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPN-RD-13B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPF-RD-14B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPB-RD-15B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPE-RD-16B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPE-RD-12C':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPN-RD-13C':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPS-TR-11C':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPR-RD-14D':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPN-RD-12D':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPA-RD-13D':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
+  'CPS-LB-11B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial',centro:'Campos Sales'},
+  'CPR-LB-12B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial',centro:'Campos Sales'},
+  'CPE-LB-13B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial',centro:'Campos Sales'},
+  'CPB-LB-14B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial',centro:'Campos Sales'},
+  'CPS-MM-11B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial Moto',centro:'Campos Sales'},
+  'CPP-MM-13B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial Moto',centro:'Campos Sales'},
+  'CPE-MM-14B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial Moto',centro:'Campos Sales'},
+  'CPB-MM-15B':{supervisor:'Cirllek Nepomuceno',processo:'Comercial Moto',centro:'Campos Sales'},
+  'CPS-MP-11B':{supervisor:'Manoel Gutembergue',processo:'Manutenção Pesada',centro:'Campos Sales'},
+  'CPS-COS-02B':{supervisor:'Manoel Gutembergue',processo:'Obras',centro:'Campos Sales'},
+  'CPS-COS-03B':{supervisor:'Manoel Gutembergue',processo:'Obras',centro:'Campos Sales'},
+  'CPS-COS-01B':{supervisor:'Manoel Gutembergue',processo:'Obras',centro:'Campos Sales'},
+  'CPS-COS-04B':{supervisor:'Manoel Gutembergue',processo:'Obras',centro:'Campos Sales'},
+  'CPS-COS-05B':{supervisor:'Manoel Gutembergue',processo:'Obras',centro:'Campos Sales'},
+  'CPS-LV-11B':{supervisor:'Rogerio Barreto',processo:'Linha Viva',centro:'Campos Sales'},
+  'JZN-RD-19C':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZB-RD-16C':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-SK-11C':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-17C':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-16C':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-13D':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-15D':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-10C':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZC-RD-14D':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZC-RD-12C':{supervisor:'Jeimyson Lemos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-LB-12B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-LB-13B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-LB-14B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-LB-15B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-LB-17B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZC-LB-20B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZC-LB-21B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZC-LB-22B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'CPN-LB-28B':{supervisor:'Cicera Maria',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-COS-01B':{supervisor:'Joao Emanuel',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-COS-02B':{supervisor:'Joao Emanuel',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-COS-03B':{supervisor:'Joao Emanuel',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-COS-05B':{supervisor:'Joao Emanuel',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-COS-06B':{supervisor:'Joao Emanuel',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-COS-07B':{supervisor:'Joao Emanuel',processo:'Obras',centro:'Juazeiro do Norte'},
+  'RETRO SUL [JZN]':{supervisor:'Jose Wilson',processo:'Retro',centro:'Juazeiro do Norte'},
+  'JZN-MM-13B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZN-MM-14B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZN-MM-15B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZN-MM-21B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZN-MM-23B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZC-MM-11B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZC-MM-17B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZB-MM-16B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZB-MM-22B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'MLJ-MM-12B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZU-MM-19B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'CPN-MM-18B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'CPF-MM-24B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZN-MM-12B':{supervisor:'Jorge Luis',processo:'Comercial Moto',centro:'Juazeiro do Norte'},
+  'JZN-COS-04B':{supervisor:'Jose Wilson',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZD-COS-09B':{supervisor:'Jose Wilson',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-COS-10B':{supervisor:'Jose Wilson',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-COS-11B':{supervisor:'Jose Wilson',processo:'Obras',centro:'Juazeiro do Norte'},
+  'JZN-RD-10B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-11B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-22B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-15B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZB-RD-16B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-ML-11B':{supervisor:'Mateus Amos',processo:'Manutenção Leve',centro:'Juazeiro do Norte'},
+  'JZN-LV-11B':{supervisor:'Rogerio Barreto',processo:'Linha Viva',centro:'Juazeiro do Norte'},
+  'JZN-LV-12B':{supervisor:'Rogerio Barreto',processo:'Linha Viva',centro:'Juazeiro do Norte'},
+  'JZN-LB-11B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-LB-18B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-LB-19B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZB-LB-23B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZB-LB-24B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZB-LB-25B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'MLJ-LB-16B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZU-LB-26B':{supervisor:'Weslley Ronniery',processo:'Comercial',centro:'Juazeiro do Norte'},
+  'JZN-GA-11B':{supervisor:'Weslley Ronniery',processo:'Grupo A',centro:'Juazeiro do Norte'},
+  'JZN-SK-11B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-RD-28B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZU-RD-14B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZC-RD-17B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZC-RD-18B':{supervisor:'Mateus Amos',processo:'Emergencial',centro:'Juazeiro do Norte'},
+  'JZN-MP-11B':{supervisor:'Mateus Amos',processo:'Manutenção Pesada',centro:'Juazeiro do Norte'},
+  'MLG-TR-11B':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLV-RD-12B':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLS-RD-15B':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLM-RD-16B':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLJ-RD-17B':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLP-RD-18B':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLB-RD-13B':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLG-TR-11C':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLS-RD-12C':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLB-RD-13C':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLM-RD-14C':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLV-RD-16C':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'MLG-RD-14B':{supervisor:'Esdras Vasques',processo:'Emergencial - Centro Sul',centro:'Milagres'},
+  'MLG-ML-11B':{supervisor:'Esdras Vasques',processo:'Manutenção Leve',centro:'Milagres'},
+  'MLG-LB-11B':{supervisor:'Helenilton Silva',processo:'Comercial',centro:'Milagres'},
+  'MLV-LB-12B':{supervisor:'Helenilton Silva',processo:'Comercial',centro:'Milagres'},
+  'MLV-LB-13B':{supervisor:'Helenilton Silva',processo:'Comercial',centro:'Milagres'},
+  'MLS-LB-14B':{supervisor:'Helenilton Silva',processo:'Comercial',centro:'Milagres'},
+  'MLM-LB-18B':{supervisor:'Helenilton Silva',processo:'Comercial',centro:'Milagres'},
+  'MLA-LB-16B':{supervisor:'Helenilton Silva',processo:'Comercial',centro:'Milagres'},
+  'MLP-LB-19B':{supervisor:'Helenilton Silva',processo:'Comercial',centro:'Milagres'},
+  'MLG-MM-11B':{supervisor:'Helenilton Silva',processo:'Comercial Moto',centro:'Milagres'},
+  'MLV-MM-12B':{supervisor:'Helenilton Silva',processo:'Comercial Moto',centro:'Milagres'},
+  'MLS-MM-13B':{supervisor:'Helenilton Silva',processo:'Comercial Moto',centro:'Milagres'},
+  'MLM-MM-14B':{supervisor:'Helenilton Silva',processo:'Comercial Moto',centro:'Milagres'},
+  'MLA-MM-15B':{supervisor:'Helenilton Silva',processo:'Comercial Moto',centro:'Milagres'},
+  'MLP-MM-16B':{supervisor:'Helenilton Silva',processo:'Comercial Moto',centro:'Milagres'},
+  'MLG-MP-11B':{supervisor:'Jose Eudiano',processo:'Manutenção Pesada',centro:'Milagres'},
+  'MLG-COS-01B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-COS-03B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-COS-04B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-COS-06B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-COS-02B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-COS-05B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-COS-08B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-COS-09B':{supervisor:'Jose Eudiano',processo:'Obras',centro:'Milagres'},
+  'MLG-LV-11B':{supervisor:'Rogerio Barreto',processo:'Linha Viva',centro:'Milagres'},
+  'MLB-RD-15D':{supervisor:'Esdras Vasques',processo:'Emergencial',centro:'Milagres'},
+  'JZN-LV-11R':{supervisor:'Rogerio Barreto',processo:'Linha Viva Leve',centro:'Juazeiro do Norte'},
+  'JZN-LV-12R':{supervisor:'Rogerio Barreto',processo:'Linha Viva Leve',centro:'Juazeiro do Norte'},
+  'JZN-RD-27B':{supervisor:'Mateus Amos',processo:'Emergencial - Centro Sul',centro:'Juazeiro do Norte'},
+  'JZN-COS-12B':{supervisor:'Jose Wilson',processo:'Obras',centro:'Juazeiro do Norte'},
+};
+
+function getInfo(equipe) {
+  return EQUIPES_INFO[equipe] || {supervisor:'—',processo:'—',centro:'—'};
+}
+
 // ================ STATE ================
 let state = { os: [], cargas: [], log: [] };
 let pendingImport = null;
@@ -427,6 +593,7 @@ function renderCurrentTab() {
   if (currentTab==='dashboard') renderDashboard();
   else if (currentTab==='tratativas') renderTratativas();
   else if (currentTab==='historico') renderHistorico();
+  else if (currentTab==='hierarquia') renderHierarquia();
 }
 
 // ================ EXCEL DATE ================
@@ -640,39 +807,39 @@ let salvosSet = new Set();
 let filtersPopulated = false;
 
 function populateFilters() {
-  const selEq=document.getElementById('filtro-equipe');
-  const selMo=document.getElementById('filtro-motivo');
-  if (!selEq||!selMo||!state.os.length) return;
-  const curEq=selEq.value, curMo=selMo.value;
-  while(selEq.options.length>1) selEq.remove(1);
-  while(selMo.options.length>1) selMo.remove(1);
-  [...new Set(state.os.map(o=>o.equipe))].sort().forEach(e=>{const op=document.createElement('option');op.value=e;op.textContent=e;selEq.appendChild(op);});
-  [...new Set(state.os.map(o=>o.motivo))].sort().forEach(m=>{const op=document.createElement('option');op.value=m;op.textContent=m;selMo.appendChild(op);});
-  if(curEq) selEq.value=curEq;
-  if(curMo) selMo.value=curMo;
+  const ids=['filtro-equipe','filtro-motivo','filtro-centro','filtro-processo','filtro-supervisor'];
+  const sels=ids.map(id=>document.getElementById(id));
+  if (!sels[0]||!state.os.length) return;
+  const saved=sels.map(s=>s?s.value:'');
+  sels.forEach(s=>{ if(s) while(s.options.length>1) s.remove(1); });
+  [...new Set(state.os.map(o=>o.equipe))].sort().forEach(e=>{const op=document.createElement('option');op.value=e;op.textContent=e;sels[0].appendChild(op);});
+  [...new Set(state.os.map(o=>o.motivo))].sort().forEach(m=>{const op=document.createElement('option');op.value=m;op.textContent=m;sels[1].appendChild(op);});
+  [...new Set(state.os.map(o=>getInfo(o.equipe).centro))].filter(Boolean).sort().forEach(c=>{const op=document.createElement('option');op.value=c;op.textContent=c;sels[2].appendChild(op);});
+  [...new Set(state.os.map(o=>getInfo(o.equipe).processo))].filter(Boolean).sort().forEach(p=>{const op=document.createElement('option');op.value=p;op.textContent=p;sels[3].appendChild(op);});
+  [...new Set(state.os.map(o=>getInfo(o.equipe).supervisor))].filter(Boolean).sort().forEach(s=>{const op=document.createElement('option');op.value=s;op.textContent=s;sels[4].appendChild(op);});
+  sels.forEach((s,i)=>{ if(s&&saved[i]) s.value=saved[i]; });
   filtersPopulated=true;
 }
 
 function renderTratativas() {
   if (!filtersPopulated) populateFilters();
 
-  const busca='';
   const status=document.getElementById('filtro-status')?.value||'';
   const equipe=document.getElementById('filtro-equipe')?.value||'';
   const motivo=document.getElementById('filtro-motivo')?.value||'';
+  const centro=document.getElementById('filtro-centro')?.value||'';
+  const processo=document.getElementById('filtro-processo')?.value||'';
+  const supervisor=document.getElementById('filtro-supervisor')?.value||'';
 
   const filtered=state.os.filter(o=>{
-    if (busca) {
-      const eq=o.equipe.toLowerCase();
-      const os=o.os.toLowerCase();
-      const mo=o.motivo.toLowerCase();
-      const ju=o.justificativa.toLowerCase();
-      if (!eq.includes(busca)&&!os.includes(busca)&&!mo.includes(busca)&&!ju.includes(busca)) return false;
-    }
+    const info=getInfo(o.equipe);
     if (status==='critico') return o.diasAtraso>=90&&o.status!=='Resolvido';
     if (status&&o.status!==status) return false;
     if (equipe&&o.equipe!==equipe) return false;
     if (motivo&&o.motivo!==motivo) return false;
+    if (centro&&info.centro!==centro) return false;
+    if (processo&&info.processo!==processo) return false;
+    if (supervisor&&info.supervisor!==supervisor) return false;
     return true;
   });
 
@@ -833,6 +1000,87 @@ function exportarCSV() {
   const csv=[h,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'})); a.download='os_'+new Date().toISOString().split('T')[0]+'.csv'; a.click();
 }
+function renderHierarquia() {
+  const os = state.os;
+  if (!os.length) {
+    ['hier-centro','hier-processo','hier-supervisor'].forEach(id=>{
+      document.getElementById(id).innerHTML='<div class="empty"><div class="empty-icon">📋</div>Nenhum dado</div>';
+    });
+    return;
+  }
+  const pendentes = os.filter(o=>o.status!=='Resolvido');
+
+  // Enrich with info
+  const enrich = o => ({...o, ...getInfo(o.equipe)});
+  const pend = pendentes.map(enrich);
+
+  // --- Centro de serviço ---
+  const centros={};
+  pend.forEach(o=>{
+    const c=o.centro||'Sem centro';
+    if(!centros[c]) centros[c]={n:0,val:0};
+    centros[c].n++; centros[c].val+=o.valor;
+  });
+  const sortedC=Object.entries(centros).sort((a,b)=>b[1].n-a[1].n);
+  const maxC=sortedC[0]?.[1].n||1;
+  const cColors=['#E24B4A','#EF9F27','#2D6A4F','#378ADD'];
+  document.getElementById('hier-centro').innerHTML=sortedC.map(([c,v],i)=>{
+    const col=cColors[i]||'#888780';
+    return `<div class="bar-row">
+      <div class="bar-label" style="min-width:140px;font-weight:500;">${c}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.n/maxC*100)}%;background:${col}"></div></div>
+      <span class="badge" style="background:${col}20;color:${col};font-family:var(--mono);font-size:11px;">${v.n} OS</span>
+      <span style="font-size:11px;color:var(--text3);font-family:var(--mono);min-width:70px;text-align:right;">${fmtShort(v.val)}</span>
+    </div>`;
+  }).join('');
+
+  // --- Processo ---
+  const procs={};
+  pend.forEach(o=>{
+    const p=o.processo||'Sem processo';
+    if(!procs[p]) procs[p]={n:0,val:0};
+    procs[p].n++; procs[p].val+=o.valor;
+  });
+  const sortedP=Object.entries(procs).sort((a,b)=>b[1].n-a[1].n);
+  const maxP=sortedP[0]?.[1].n||1;
+  document.getElementById('hier-processo').innerHTML=sortedP.map(([p,v])=>
+    `<div class="bar-row">
+      <div class="bar-label" style="min-width:140px;">${p}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.n/maxP*100)}%"></div></div>
+      <span class="bar-count">${v.n}</span>
+    </div>`
+  ).join('');
+
+  // --- Supervisores ---
+  const sups={};
+  pend.forEach(o=>{
+    const s=o.supervisor||'Sem supervisor';
+    if(!sups[s]) sups[s]={n:0,val:0,centro:o.centro||'',processo:o.processo||''};
+    sups[s].n++; sups[s].val+=o.valor;
+  });
+  const sortedS=Object.entries(sups).sort((a,b)=>b[1].n-a[1].n);
+  const maxS=sortedS[0]?.[1].n||1;
+  const scols=['#E24B4A','#E24B4A','#EF9F27','#EF9F27','#378ADD','#378ADD','#2D6A4F','#2D6A4F'];
+  document.getElementById('hier-supervisor').innerHTML=`
+    <div style="display:flex;flex-direction:column;">
+    ${sortedS.map(([s,v],i)=>{
+      const col=scols[i]||'#888780';
+      const initials=s.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+      const pct=Math.round(v.n/maxS*100);
+      return `<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:0.5px solid var(--border);">
+        <div style="width:32px;height:32px;border-radius:50%;background:${col}20;color:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:500;font-size:13px;">${s}</div>
+          <div style="font-size:11px;color:var(--text2);">${v.centro} · ${v.processo}</div>
+        </div>
+        <div class="bar-track" style="width:120px;flex-shrink:0;"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
+        <span class="badge" style="background:${col}20;color:${col};font-family:var(--mono);font-size:11px;">${v.n} OS</span>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);min-width:60px;text-align:right;">${fmtShort(v.val)}</span>
+      </div>`;
+    }).join('')}
+    </div>`;
+}
+
 async function limparHistorico() {
   if (!confirm('Limpar todo o histórico de cargas e log de atividades? As OS e tratativas não serão afetadas.')) return;
   if (!configured) { showToast('⚙️ Configure a URL primeiro'); return; }
