@@ -57,7 +57,7 @@
   .delta-bad  { background: var(--red-bg);   color: var(--red); }
   .evo-right { text-align: right; }
   .evo-right-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
-  .evo-sanado { font-size: 24px; font-weight: 600; font-family: var(--mono); color: var(--green); margin-top: 4px; }
+  .evo-resolvido { font-size: 24px; font-weight: 600; font-family: var(--mono); color: var(--green); margin-top: 4px; }
   /* progress */
   .prog-wrap { margin-bottom: 1.25rem; }
   .prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -192,13 +192,13 @@
       <div class="evo-card">
         <div class="evo-top">
           <div>
-            <div class="evo-left-title">Valor total em aberto — a ser sanado</div>
+            <div class="evo-left-title">Valor total em aberto — a ser resolvido</div>
             <div class="evo-valor" id="evo-pendente">R$ —</div>
             <div id="evo-delta-wrap" style="margin-top:6px;"></div>
           </div>
           <div class="evo-right">
-            <div class="evo-right-title">Total já sanado</div>
-            <div class="evo-sanado" id="evo-sanado">R$ —</div>
+            <div class="evo-right-title">Total já resolvido</div>
+            <div class="evo-resolvido" id="evo-resolvido">R$ —</div>
           </div>
         </div>
 
@@ -209,7 +209,7 @@
           </div>
           <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
           <div class="prog-labels">
-            <span id="prog-label-san">R$ 0 sanado</span>
+            <span id="prog-label-san">R$ 0 resolvido</span>
             <span id="prog-label-tot">R$ 0 total</span>
           </div>
         </div>
@@ -220,7 +220,7 @@
         </div>
         <div class="evo-legend">
           <div class="leg-item"><div class="leg-dot" style="background:var(--text)"></div>Pendente</div>
-          <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Sanado</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Resolvido</div>
         </div>
       </div>
 
@@ -256,7 +256,7 @@
     <div class="filters">
       <select class="filter-input" id="filtro-status" onchange="renderTratativas()">
         <option value="">Todos os status</option>
-        <option>Pendente</option><option>Em tratativa</option><option>Sanado</option><option value="critico">Crítico (90+ dias)</option>
+        <option>Pendente</option><option>Em tratativa</option><option>Resolvido</option><option value="critico">Crítico (90+ dias)</option>
       </select>
       <select class="filter-input" id="filtro-equipe" onchange="renderTratativas()"><option value="">Todas as equipes</option></select>
       <select class="filter-input" id="filtro-motivo" onchange="renderTratativas()"><option value="">Todos os motivos</option></select>
@@ -520,21 +520,21 @@ function renderDashboard() {
   document.getElementById('dash-content').style.display=empty?'none':'block';
   if (empty) return;
 
-  const pendentes = os.filter(o=>o.status!=='Sanado');
-  const sanadas   = os.filter(o=>o.status==='Sanado');
+  const pendentes = os.filter(o=>o.status!=='Resolvido');
+  const resolvidas   = os.filter(o=>o.status==='Resolvido');
   const criticas  = pendentes.filter(o=>o.diasAtraso>=90);
   const emTrat    = os.filter(o=>o.status==='Em tratativa');
   const lastCarga = cargas[cargas.length-1];
 
   const vPend  = pendentes.reduce((s,o)=>s+o.valor,0);
-  const vSan   = sanadas.reduce((s,o)=>s+o.valor,0);
+  const vSan   = resolvidas.reduce((s,o)=>s+o.valor,0);
   const vTotal = vPend+vSan;
   const pct    = vTotal>0?Math.round(vSan/vTotal*100):0;
 
   // Métricas
   document.getElementById('metrics-area').innerHTML=`
     <div class="metric al"><div class="metric-label">Pendentes</div><div class="metric-value">${pendentes.length}</div><div class="metric-sub">de ${os.length} OS</div></div>
-    <div class="metric ag"><div class="metric-label">Sanadas</div><div class="metric-value">${sanadas.length}</div><div class="metric-sub">acumulado</div></div>
+    <div class="metric ag"><div class="metric-label">Resolvidas</div><div class="metric-value">${resolvidas.length}</div><div class="metric-sub">acumulado</div></div>
     <div class="metric"><div class="metric-label">Em tratativa</div><div class="metric-value">${emTrat.length}</div><div class="metric-sub">em andamento</div></div>
     <div class="metric"><div class="metric-label">Novas (última carga)</div><div class="metric-value">${lastCarga?lastCarga.novas:0}</div><div class="metric-sub">${lastCarga?lastCarga.data:'—'}</div></div>
     <div class="metric al"><div class="metric-label">Críticas 90+ dias</div><div class="metric-value">${criticas.length}</div><div class="metric-sub">${fmtShort(criticas.reduce((s,o)=>s+o.valor,0))}</div></div>
@@ -545,7 +545,7 @@ function renderDashboard() {
   const statusData = [
     { label:'Pendentes',    val:pendentes.filter(o=>o.status==='Pendente'||o.status==='Crítico').length, color:'#991B1B', bg:'#FEE2E2' },
     { label:'Em tratativa', val:emTrat.length,    color:'#5B21B6', bg:'#EDE9FE' },
-    { label:'Sanadas',      val:sanadas.length,   color:'#2D6A4F', bg:'#D8F0E5' },
+    { label:'Resolvidas',      val:resolvidas.length,   color:'#2D6A4F', bg:'#D8F0E5' },
     { label:'Novas (carga)',val:lastCargaNovas,   color:'#1E40AF', bg:'#DBEAFE' },
   ];
   const maxSt = Math.max(...statusData.map(d=>d.val), 1);
@@ -566,10 +566,10 @@ function renderDashboard() {
 
   // Evolução de valor
   document.getElementById('evo-pendente').textContent=fmtValor(vPend);
-  document.getElementById('evo-sanado').textContent=fmtValor(vSan);
+  document.getElementById('evo-resolvido').textContent=fmtValor(vSan);
   document.getElementById('prog-pct').textContent=pct+'%';
   document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('prog-label-san').textContent=fmtValor(vSan)+' sanado';
+  document.getElementById('prog-label-san').textContent=fmtValor(vSan)+' resolvido';
   document.getElementById('prog-label-tot').textContent=fmtValor(vTotal)+' total';
 
   // Delta vs carga anterior
@@ -669,7 +669,7 @@ function renderTratativas() {
       const ju=o.justificativa.toLowerCase();
       if (!eq.includes(busca)&&!os.includes(busca)&&!mo.includes(busca)&&!ju.includes(busca)) return false;
     }
-    if (status==='critico') return o.diasAtraso>=90&&o.status!=='Sanado';
+    if (status==='critico') return o.diasAtraso>=90&&o.status!=='Resolvido';
     if (status&&o.status!==status) return false;
     if (equipe&&o.equipe!==equipe) return false;
     if (motivo&&o.motivo!==motivo) return false;
@@ -686,7 +686,7 @@ function renderTratativas() {
     const isSalvo=salvosSet.has(idx)&&!isPend;
     const rowCls=isPend?'row-pendente':isSalvo?'row-salvo':'';
     const dc=o.diasAtraso>=90?'badge-danger':o.diasAtraso>=30?'badge-warn':'badge-ok';
-    const sc=o.status==='Sanado'?'badge-ok':o.status==='Em tratativa'?'badge-trat':o.diasAtraso>=90?'badge-danger':'badge-warn';
+    const sc=o.status==='Resolvido'?'badge-ok':o.status==='Em tratativa'?'badge-trat':o.diasAtraso>=90?'badge-danger':'badge-warn';
     const stateTag=isPend?'<span class="row-state rs-pend">pendente</span>':isSalvo?'<span class="row-state rs-ok">salvo ✓</span>':'';
 
     if (isEdit) {
@@ -701,7 +701,7 @@ function renderTratativas() {
         <td><select class="tbl-input" style="width:110px;" onchange="upd(${idx},'status',this.value)">
           <option ${o.status==='Pendente'?'selected':''}>Pendente</option>
           <option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option>
-          <option ${o.status==='Sanado'?'selected':''}>Sanado</option>
+          <option ${o.status==='Resolvido'?'selected':''}>Resolvido</option>
           <option ${o.status==='Crítico'?'selected':''}>Crítico</option>
         </select></td>
         <td><input class="tbl-input" style="width:110px;" placeholder="Nome..." value="${o.responsavel||''}" oninput="upd(${idx},'responsavel',this.value)"></td>
@@ -720,7 +720,7 @@ function renderTratativas() {
         <td class="mono">${fmtValor(o.valor)}</td>
         <td><span class="badge ${sc}">${o.status}</span></td>
         <td style="color:${o.responsavel?'var(--text)':'var(--text3)'};">${o.responsavel||'—'}</td>
-        <td style="font-family:var(--mono);font-size:12px;color:${o.dataResolucao?'var(--text)':'var(--text3)'};">${o.dataResolucao||'—'}</td>
+        <td style="font-family:var(--mono);font-size:12px;color:${o.dataResolucao?'var(--text)':'var(--text3)'};">${o.dataResolucao?formatDateStr(o.dataResolucao):'—'}</td>
         <td style="font-size:12px;color:${o.obs?'var(--text)':'var(--text3)'};max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}">${o.obs||'—'}</td>
         <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button></td>
       </tr>`;
@@ -789,7 +789,7 @@ function renderHistorico() {
       <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">${fmtValor(parseFloat(c.valorPendente)||0)}</span>
     </div>`).join(''):'<div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div>';
 
-  const pers=state.os.filter(o=>o.status!=='Sanado'&&cargas.length>1);
+  const pers=state.os.filter(o=>o.status!=='Resolvido'&&cargas.length>1);
   document.getElementById('persistentes-list').innerHTML=pers.length?
     `<div class="table-wrap"><table><thead><tr><th>OS</th><th>Equipe</th><th>1ª vez</th><th>Dias</th></tr></thead><tbody>`+
     pers.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,12).map(o=>`<tr><td class="mono">${o.os}</td><td>${o.equipe}</td><td style="font-size:11px;color:var(--text3)">${o.firstSeen||'—'}</td><td><span class="badge ${o.diasAtraso>=90?'badge-danger':'badge-warn'}">${o.diasAtraso}d</span></td></tr>`).join('')+
@@ -805,6 +805,18 @@ function renderHistorico() {
 
 // ================ UTILS ================
 function fmtValor(v) { return 'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function formatDateStr(v) {
+  if (!v || v==='-' || v==='—') return v||'—';
+  if (typeof v==='string' && v.includes('/')) return v;
+  if (typeof v==='string' && v.includes('T')) {
+    const d=new Date(v); return isNaN(d)?v:d.toLocaleDateString('pt-BR');
+  }
+  if (typeof v==='string' && v.includes('-') && v.length===10) {
+    const parts=v.split('-'); return parts[2]+'/'+parts[1]+'/'+parts[0];
+  }
+  return String(v);
+}
+
 function formatCargaDate(d) {
   if (!d) return '';
   if (typeof d==='string' && d.includes('/')) return d.split('/').slice(0,2).join('/');
