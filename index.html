@@ -445,6 +445,18 @@
 
 <div id="toast"></div>
 
+<div id="wa-modal" style="display:none;" class="wa-modal" onclick="if(event.target===this)closeWaModal()">
+  <div class="wa-modal-box">
+    <div class="wa-modal-title">📱 Enviar via WhatsApp</div>
+    <div class="wa-modal-sub" id="wa-modal-sub">OS — Equipe</div>
+    <input type="tel" id="wa-phone" class="wa-input" placeholder="Ex: 88999999999 (com DDD)" />
+    <div class="wa-actions">
+      <button class="btn" onclick="closeWaModal()">Cancelar</button>
+      <button class="wa-send" onclick="sendWhatsApp()">📤 Abrir WhatsApp</button>
+    </div>
+  </div>
+</div>
+
 <script>
 
 const EQUIPES_INFO = {
@@ -1511,6 +1523,48 @@ function switchConsChart(tipo) {
 
 
 
+
+let waCurrentIdx = null;
+
+function openWaModal(idx) {
+  const items = state.os;
+  const o = items[idx];
+  waCurrentIdx = idx;
+  document.getElementById('wa-modal-sub').textContent = 'OS ' + o.os + ' — ' + o.equipe;
+  document.getElementById('wa-phone').value = '';
+  document.getElementById('wa-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('wa-phone').focus(), 100);
+}
+
+function closeWaModal() {
+  document.getElementById('wa-modal').style.display = 'none';
+  waCurrentIdx = null;
+}
+
+function sendWhatsApp() {
+  const phone = document.getElementById('wa-phone').value.replace(/\D/g,'');
+  if (!phone || phone.length < 10) { showToast('⚠️ Informe um número válido com DDD'); return; }
+  const items = state.os;
+  const o = items[waCurrentIdx];
+  const msg = buildWaMsg(o);
+  const url = 'https://wa.me/55' + phone + '?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+  closeWaModal();
+}
+
+function buildWaMsg(o) {
+  return '*🔴 OS Rejeitada — Ação Necessária*\n\n'
+    + 'Olá! Identificamos uma Ordem de Serviço pendente de tratativa referente à sua equipe:\n\n'
+    + '📋 *OS:* ' + o.os + '\n'
+    + '👥 *Equipe:* ' + o.equipe + '\n'
+    + '📅 *Data de Rejeição:* ' + o.dataRejeicaoStr + '\n'
+    + '⏰ *Dias sem tratativa:* ' + o.diasAtraso + ' dias' + (o.diasAtraso >= 90 ? ' *(Status: CRÍTICO)*' : '') + '\n'
+    + '❌ *Motivo:* ' + o.motivo + '\n'
+    + '📝 *O que precisa ser feito:* ' + o.justificativa + '\n'
+    + '💰 *Valor retido no faturamento:* ' + fmtValor(o.valor) + '\n\n'
+    + 'Por gentileza, nos informe uma previsão para regularização desta OS.\n\n'
+    + 'Qualquer dúvida estamos à disposição. Obrigado! 🙏';
+}
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
 
 // ================ INIT ================
