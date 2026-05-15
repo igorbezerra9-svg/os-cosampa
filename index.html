@@ -415,7 +415,10 @@
     </div>
 
     <div class="card">
-      <div class="card-title">Linha do tempo — por carga</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;">Linha do tempo — por carga</div>
+        <button class="wa-btn" style="font-size:13px;display:flex;align-items:center;gap:6px;border:1px solid #25D366;padding:6px 12px;border-radius:6px;color:#25D366;font-weight:500;" onclick="openWaConsolidado()">💬 Enviar atualização</button>
+      </div>
       <div style="display:flex;gap:6px;margin-bottom:12px;">
         <button class="btn" id="cons-tab-qtd" onclick="switchConsChart('qtd')" style="font-size:12px;padding:5px 12px;background:var(--text);color:#fff;border-color:var(--text);">Quantidade</button>
         <button class="btn" id="cons-tab-val" onclick="switchConsChart('valor')" style="font-size:12px;padding:5px 12px;">Valor (R$)</button>
@@ -464,6 +467,19 @@
     <div class="wa-actions">
       <button class="btn" onclick="closeWaModal()">Cancelar</button>
       <button class="wa-send" onclick="sendWhatsApp()">📤 Abrir WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<div id="wa-cons-modal" style="display:none;" class="wa-modal" onclick="if(event.target===this)closeWaConsModal()">
+  <div class="wa-modal-box" style="width:420px;">
+    <div class="wa-modal-title">📊 Enviar atualização diária</div>
+    <div class="wa-modal-sub">Resumo do consolidado será enviado via WhatsApp</div>
+    <div id="wa-cons-preview" style="background:var(--surface2);border-radius:8px;padding:10px;font-size:11px;font-family:var(--mono);margin-bottom:1rem;max-height:200px;overflow-y:auto;white-space:pre-wrap;line-height:1.6;"></div>
+    <input type="tel" id="wa-cons-phone" class="wa-input" placeholder="Ex: 88999999999 (com DDD)" />
+    <div class="wa-actions">
+      <button class="btn" onclick="closeWaConsModal()">Cancelar</button>
+      <button class="wa-send" onclick="sendWaConsolidado()">📤 Abrir WhatsApp</button>
     </div>
   </div>
 </div>
@@ -1534,6 +1550,113 @@ function switchConsChart(tipo) {
 
 
 
+
+
+function openWaConsolidado() {
+  const msg = buildWaConsolidado();
+  document.getElementById('wa-cons-preview').textContent = msg;
+  document.getElementById('wa-cons-phone').value = '';
+  document.getElementById('wa-cons-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('wa-cons-phone').focus(), 100);
+}
+
+function closeWaConsModal() {
+  document.getElementById('wa-cons-modal').style.display = 'none';
+}
+
+function sendWaConsolidado() {
+  const phone = document.getElementById('wa-cons-phone').value.replace(/\D/g,'');
+  if (!phone || phone.length < 10) { showToast('⚠️ Informe um número válido com DDD'); return; }
+  const msg = buildWaConsolidado();
+  const url = 'https://wa.me/55' + phone + '?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+  closeWaConsModal();
+}
+
+function buildWaConsolidado() {
+  const cargas = state.cargas || [];
+  const snaps  = state.snapshots || [];
+  const os     = state.os;
+
+  let lines = ['*📊 Atualização Diária — OS Rejeitadas*', ''];
+
+  // Build all points same logic as chart
+  const allPoints = [];
+  const cargasByDate = {};
+  cargas.forEach(c => {
+    const key = formatCargaDate(c.data);
+    cargasByDate[key] = (cargasByDate[key]||0) + 1;
+  });
+  const cargaCount = {};
+  cargas.forEach(c => {
+    const key = formatCargaDate(c.data);
+    cargaCount[key] = (cargaCount[key]||0) + 1;
+    const resolvidasTotal = (parseInt(c.removidas)||0);
+    allPoints.push({
+      data: key, label: key,
+      pendentes: parseInt(c.pendentes)||0,
+      resolvidas: resolvidasTotal,
+      novas: parseInt(c.novas)||0,
+      tratadas: 0,
+      valorPend: parseFloat(c.valorPendente)||0,
+      tipo: 'carga'
+    });
+  });
+
+  snaps.forEach(s => {
+    const key = formatCargaDate(s.data);
+    if (cargasByDate[key]) return;
+    allPoints.push({
+      data: key, label: key,
+      pendentes: parseInt(s.pendentes)||0,
+      resolvidas: parseInt(s.resolvidas)||0,
+      novas: 0,
+      tratadas: parseInt(s.emTrat)||0,
+      valorPend: parseFloat(s.valorPend)||0,
+      valorTrat: parseFloat(s.valorTrat)||0,
+      tipo: 'snapshot'
+    });
+  });
+
+  // Hoje
+  const hojeFormatted = formatCargaDate(new Date().toLocaleDateString('pt-BR'));
+  const lastCargaData = cargas.length ? formatCargaDate(cargas[cargas.length-1].data) : '';
+  const pendentes  = os.filter(o=>o.status!=='Resolvido').length;
+  const resolvidas = os.filter(o=>o.status==='Resolvido').length;
+  const emTrat     = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
+  const vPend      = os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
+  if (!cargasByDate[hojeFormatted]) {
+    const vTratHoje = os.filter(o=>o.status==='Resolvido'||o.status==='Em tratativa').reduce((s,o)=>s+(o.valor||0),0);
+    allPoints.push({
+      data: hojeFormatted, label: hojeFormatted,
+      pendentes, resolvidas, novas: 0, tratadas: emTrat,
+      valorPend: vPend, valorTrat: vTratHoje, tipo: 'hoje'
+    });
+  }
+
+  // Sort
+  const sorted = allPoints.sort((a,b) => a.data.split('/').reverse().join('').localeCompare(b.data.split('/').reverse().join('')));
+
+  sorted.forEach(p => {
+    let line = '*' + p.label + '* — ' + p.pendentes + ' pendentes';
+    if (p.resolvidas > 0) line += ' — ' + p.resolvidas + ' resolvidas';
+    if (p.novas > 0) line += ' — ' + p.novas + ' novas';
+    if (p.tratadas > 0) line += ' — ' + p.tratadas + ' tratadas pelas Adms';
+    if (p.tipo === 'hoje' || p.tipo === 'snapshot') {
+      line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' *(previsto)*';
+      if (p.valorTrat > 0) {
+        line += ' — R$ ' + p.valorTrat.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' já marcado pelas Adms';
+      }
+    } else {
+      line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    lines.push(line);
+  });
+
+  lines.push('');
+  lines.push('_Atualização gerada em ' + new Date().toLocaleString('pt-BR') + '_');
+  return lines.join('\n');
+}
 
 let waCurrentIdx = null;
 
