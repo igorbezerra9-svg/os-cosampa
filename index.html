@@ -1610,6 +1610,7 @@ function buildWaConsolidado() {
       data: key, label: key,
       pendentes: parseInt(s.pendentes)||0,
       resolvidas: parseInt(s.resolvidas)||0,
+      emTratativa: Math.max(0, (parseInt(s.emTrat)||0) - (parseInt(s.resolvidas)||0)),
       novas: 0,
       tratadas: parseInt(s.emTrat)||0,
       valorPend: parseFloat(s.valorPend)||0,
@@ -1626,10 +1627,12 @@ function buildWaConsolidado() {
   const emTrat     = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
   const vPend      = os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
   if (!cargasByDate[hojeFormatted]) {
+    const nResolvidas = os.filter(o=>o.status==='Resolvido').length;
+    const nEmTrat = os.filter(o=>o.status==='Em tratativa').length;
     const vTratHoje = os.filter(o=>o.status==='Resolvido'||o.status==='Em tratativa').reduce((s,o)=>s+(o.valor||0),0);
     allPoints.push({
       data: hojeFormatted, label: hojeFormatted,
-      pendentes, resolvidas, novas: 0, tratadas: emTrat,
+      pendentes, resolvidas: nResolvidas, emTratativa: nEmTrat, novas: 0, tratadas: emTrat,
       valorPend: vPend, valorTrat: vTratHoje, tipo: 'hoje'
     });
   }
@@ -1641,7 +1644,9 @@ function buildWaConsolidado() {
     let line = '*' + p.label + '* — ' + p.pendentes + ' pendentes';
     if (p.resolvidas > 0) line += ' — ' + p.resolvidas + ' resolvidas';
     if (p.novas > 0) line += ' — ' + p.novas + ' novas';
-    if (p.tratadas > 0) line += ' — ' + p.tratadas + ' tratadas pelas Adms';
+    if (p.resolvidas > 0 && p.tipo !== 'carga') line += ' — ' + p.resolvidas + ' resolvidas pelas Adms';
+    if (p.emTratativa > 0) line += ' — ' + p.emTratativa + ' em tratativa';
+    if (p.tipo === 'carga' && p.tratadas > 0) line += ' — ' + p.tratadas + ' tratadas pelas Adms';
     if (p.tipo === 'hoje' || p.tipo === 'snapshot') {
       line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' *(previsto)*';
       if (p.valorTrat > 0) {
