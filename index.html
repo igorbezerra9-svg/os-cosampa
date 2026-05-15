@@ -460,13 +460,13 @@
 <div id="toast"></div>
 
 <div id="wa-modal" style="display:none;" class="wa-modal" onclick="if(event.target===this)closeWaModal()">
-  <div class="wa-modal-box">
-    <div class="wa-modal-title">📱 Enviar via WhatsApp</div>
+  <div class="wa-modal-box" style="width:460px;">
+    <div class="wa-modal-title">📋 Mensagem pronta para copiar</div>
     <div class="wa-modal-sub" id="wa-modal-sub">OS — Equipe</div>
-    <input type="tel" id="wa-phone" class="wa-input" placeholder="Ex: 88999999999 (com DDD)" />
+    <textarea id="wa-msg-text" readonly style="width:100%;height:240px;font-family:var(--font);font-size:12px;line-height:1.7;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);resize:none;margin-bottom:10px;color:var(--text);"></textarea>
     <div class="wa-actions">
-      <button class="btn" onclick="closeWaModal()">Cancelar</button>
-      <button class="wa-send" onclick="sendWhatsApp()">📤 Abrir WhatsApp</button>
+      <button class="btn" onclick="closeWaModal()">Fechar</button>
+      <button class="wa-send" id="wa-copy-btn" onclick="copyWaMsg()">📋 Copiar mensagem</button>
     </div>
   </div>
 </div>
@@ -1038,7 +1038,7 @@ function renderTratativas() {
         <td style="font-size:12px;color:${o.obs?'var(--text)':'var(--text3)'};max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}">${o.obs||'—'}</td>
         <td style="white-space:nowrap;">
           ${o.reincidencias>0?`<button class="edit-btn" onclick="toggleHistorico(${idx})" title="Ver histórico de rejeições" style="font-size:13px;">📋</button>`:''}
-          ${stateTag}<button class="wa-btn" onclick="openWaModal(${idx})" title="Enviar WhatsApp">💬</button><button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button>
+          ${stateTag}<button class="wa-btn" onclick="openWaModal(${idx})" title="Copiar mensagem">📋</button><button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button>
         </td>
       </tr>`;
     }
@@ -1666,13 +1666,12 @@ function buildWaConsolidado() {
 let waCurrentIdx = null;
 
 function openWaModal(idx) {
-  const items = state.os;
-  const o = items[idx];
+  const o = state.os[idx];
   waCurrentIdx = idx;
   document.getElementById('wa-modal-sub').textContent = 'OS ' + o.os + ' — ' + o.equipe;
-  document.getElementById('wa-phone').value = '';
+  document.getElementById('wa-msg-text').value = buildWaMsg(o);
+  document.getElementById('wa-copy-btn').textContent = '📋 Copiar mensagem';
   document.getElementById('wa-modal').style.display = 'flex';
-  setTimeout(() => document.getElementById('wa-phone').focus(), 100);
 }
 
 function closeWaModal() {
@@ -1680,15 +1679,19 @@ function closeWaModal() {
   waCurrentIdx = null;
 }
 
-function sendWhatsApp() {
-  const phone = document.getElementById('wa-phone').value.replace(/\D/g,'');
-  if (!phone || phone.length < 10) { showToast('⚠️ Informe um número válido com DDD'); return; }
-  const items = state.os;
-  const o = items[waCurrentIdx];
-  const msg = buildWaMsg(o);
-  const url = 'https://wa.me/55' + phone + '?text=' + encodeURIComponent(msg);
-  window.open(url, '_blank');
-  closeWaModal();
+function sendWhatsApp() { copyWaMsg(); }
+
+function copyWaMsg() {
+  const txt = document.getElementById('wa-msg-text');
+  txt.select();
+  navigator.clipboard.writeText(txt.value).then(() => {
+    document.getElementById('wa-copy-btn').textContent = '✅ Copiado!';
+    setTimeout(() => document.getElementById('wa-copy-btn').textContent = '📋 Copiar mensagem', 2000);
+  }).catch(() => {
+    document.execCommand('copy');
+    document.getElementById('wa-copy-btn').textContent = '✅ Copiado!';
+    setTimeout(() => document.getElementById('wa-copy-btn').textContent = '📋 Copiar mensagem', 2000);
+  });
 }
 
 function buildWaMsg(o) {
