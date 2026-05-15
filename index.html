@@ -1564,17 +1564,17 @@ function sendWhatsApp() {
 }
 
 function buildWaMsg(o) {
-  return '*🔴 OS Rejeitada — Ação Necessária*\n\n'
-    + 'Olá! Identificamos uma Ordem de Serviço pendente de tratativa referente à sua equipe:\n\n'
-    + '📋 *OS:* ' + o.os + '\n'
-    + '👥 *Equipe:* ' + o.equipe + '\n'
-    + '📅 *Data de Rejeição:* ' + o.dataRejeicaoStr + '\n'
-    + '⏰ *Dias sem tratativa:* ' + o.diasAtraso + ' dias' + (o.diasAtraso >= 90 ? ' *(Status: CRÍTICO)*' : '') + '\n'
-    + '❌ *Motivo:* ' + o.motivo + '\n'
-    + '📝 *O que precisa ser feito:* ' + o.justificativa + '\n'
-    + '💰 *Valor retido no faturamento:* ' + fmtValor(o.valor) + '\n\n'
-    + 'Por gentileza, nos informe uma previsão para regularização desta OS.\n\n'
-    + 'Qualquer dúvida estamos à disposição. Obrigado! 🙏';
+  return '*OS Rejeitada - Acao Necessaria*\n\n'
+    + 'Ola! Identificamos uma Ordem de Servico pendente de tratativa referente a sua equipe:\n\n'
+    + '*OS:* ' + o.os + '\n'
+    + '*Equipe:* ' + o.equipe + '\n'
+    + '*Data de Rejeicao:* ' + o.dataRejeicaoStr + '\n'
+    + '*Dias sem tratativa:* ' + o.diasAtraso + ' dias' + (o.diasAtraso >= 90 ? ' *(Status: CRITICO)*' : '') + '\n'
+    + '*Motivo:* ' + o.motivo + '\n'
+    + '*O que precisa ser feito:* ' + o.justificativa + '\n'
+    + '*Valor retido no faturamento:* ' + fmtValor(o.valor) + '\n\n'
+    + 'Por gentileza, nos informe uma previsao para regularizacao desta OS.\n\n'
+    + 'Qualquer duvida estamos a disposicao. Obrigado!';
 }
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
 
