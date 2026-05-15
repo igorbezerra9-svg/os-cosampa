@@ -152,6 +152,17 @@
   tr.row-salvo td:first-child { border-left: 3px solid #2D6A4F; padding-left: 9px; }
   .edit-btn { background: none; border: none; cursor: pointer; padding: 3px 6px; border-radius: 4px; color: var(--text3); font-size: 15px; line-height: 1; transition: background 0.15s; }
   .edit-btn:hover { background: var(--surface2); color: var(--text); }
+  .wa-btn { background: none; border: none; cursor: pointer; padding: 3px 6px; border-radius: 4px; color: #25D366; font-size: 15px; line-height: 1; transition: background .15s; }
+  .wa-btn:hover { background: #e8fdf0; }
+  .wa-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; display: flex; align-items: center; justify-content: center; }
+  .wa-modal-box { background: var(--surface); border-radius: 12px; padding: 1.5rem; width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+  .wa-modal-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .wa-modal-sub { font-size: 12px; color: var(--text2); margin-bottom: 1rem; }
+  .wa-input { width: 100%; font-family: var(--font); font-size: 14px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 1rem; }
+  .wa-input:focus { outline: none; border-color: #25D366; }
+  .wa-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .wa-send { background: #25D366; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .wa-send:hover { background: #1da851; }
   .row-state { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 3px; margin-right: 4px; }
   .rs-pend { background: #FEF3C7; color: #92400E; }
   .rs-ok   { background: #D8F0E5; color: #2D6A4F; }
@@ -1011,7 +1022,7 @@ function renderTratativas() {
         <td style="font-size:12px;color:${o.obs?'var(--text)':'var(--text3)'};max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}">${o.obs||'—'}</td>
         <td style="white-space:nowrap;">
           ${o.reincidencias>0?`<button class="edit-btn" onclick="toggleHistorico(${idx})" title="Ver histórico de rejeições" style="font-size:13px;">📋</button>`:''}
-          ${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button>
+          ${stateTag}<button class="wa-btn" onclick="openWaModal(${idx})" title="Enviar WhatsApp">💬</button><button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button>
         </td>
       </tr>`;
     }
