@@ -1377,24 +1377,40 @@ function renderConsolidado() {
     });
   });
 
-  // Snapshots — só adiciona se não houver carga no mesmo dia
+  // Snapshots — agrupa por data, pega o mais recente de cada dia
   const cargaDates = new Set(Object.keys(cargasByDate));
+  const snapByDate = {};
   snaps.forEach(s => {
     const key = formatCargaDate(s.data);
-    if (cargaDates.has(key)) return; // já tem carga nesse dia
-    allPoints.push({
-      data: key,
-      pendentes: parseInt(s.pendentes)||0,
-      resolvidas: parseInt(s.resolvidas)||0,
-      emTrat: parseInt(s.emTrat)||0,
-      novas: 0,
-      reinc: parseInt(s.reinc)||0,
-      tipo: 'snapshot',
-      valorPend: parseFloat(s.valorPend)||0,
-      valorRes: 0,
-      valorTrat: parseFloat(s.valorTrat)||0,
-      sortKey: key.split('/').reverse().join('') + '500'
-    });
+    // Sempre pega o último snapshot do dia (sobrescreve)
+    if (!snapByDate[key] || true) snapByDate[key] = s;
+  });
+  // Para dias com carga: adiciona emTrat do snapshot ao ponto da carga
+  Object.entries(snapByDate).forEach(([key, s]) => {
+    if (cargaDates.has(key)) {
+      // Encontra o ponto da carga desse dia e adiciona emTrat
+      allPoints.forEach(p => {
+        if (formatCargaDate(p.data) === key && p.tipo === 'carga') {
+          p.emTrat = (p.emTrat||0) + (parseInt(s.emTrat)||0);
+          p.valorTrat = (p.valorTrat||0) + (parseFloat(s.valorTrat)||0);
+        }
+      });
+    } else {
+      // Dia sem carga: adiciona como ponto separado
+      allPoints.push({
+        data: key,
+        pendentes: parseInt(s.pendentes)||0,
+        resolvidas: parseInt(s.resolvidas)||0,
+        emTrat: parseInt(s.emTrat)||0,
+        novas: 0,
+        reinc: parseInt(s.reinc)||0,
+        tipo: 'snapshot',
+        valorPend: parseFloat(s.valorPend)||0,
+        valorRes: 0,
+        valorTrat: parseFloat(s.valorTrat)||0,
+        sortKey: key.split('/').reverse().join('') + '500'
+      });
+    }
   });
 
   // Hoje — só adiciona se data for diferente de TODAS as cargas E houver mudança
