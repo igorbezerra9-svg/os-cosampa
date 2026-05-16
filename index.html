@@ -1294,10 +1294,17 @@ function buildSnapshot() {
   const os = state.os;
   const pendentes  = os.filter(o=>o.status!=='Resolvido').length;
   const resolvidas = os.filter(o=>o.status==='Resolvido').length;
-  const emTrat     = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
+  const emTratTotal = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
   const reinc      = os.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length;
   const valorPend  = os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+o.valor,0);
-  const valorTrat  = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').reduce((s,o)=>s+o.valor,0);
+  const valorTratTotal = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').reduce((s,o)=>s+o.valor,0);
+  // Delta: só o que mudou desde o último snapshot
+  const snaps = state.snapshots || [];
+  const lastSnap = snaps.length ? snaps[snaps.length-1] : null;
+  const prevTrat = lastSnap ? (parseInt(lastSnap.emTrat)||0) : 0;
+  const prevValTrat = lastSnap ? (parseFloat(lastSnap.valorTrat)||0) : 0;
+  const emTrat = Math.max(0, emTratTotal - prevTrat);
+  const valorTrat = Math.max(0, valorTratTotal - prevValTrat);
   return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, total: os.length };
 }
 
