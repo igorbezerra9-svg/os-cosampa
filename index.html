@@ -1413,14 +1413,14 @@ function renderConsolidado() {
     }
   });
 
-  // Hoje — só adiciona se data for diferente de TODAS as cargas E houver mudança
+  // Hoje — só adiciona se não houver carga NEM snapshot do mesmo dia
   const hojeKey = new Date().toLocaleDateString('pt-BR');
   const hojeFormatted = formatCargaDate(hojeKey);
   const lastCargaData = cargas.length ? formatCargaDate(cargas[cargas.length-1].data) : '';
   const lastCargaPend = cargas.length ? (parseInt(cargas[cargas.length-1].pendentes)||0) : 0;
   const hojeResolvidas = resolvidas + (cargas.length ? (parseInt(cargas[cargas.length-1].removidas)||0) : 0);
-  // Só mostra "hoje" se for um dia diferente das cargas E tiver mudança
-  const hojeEhNovoDia = !cargaDates.has(hojeFormatted);
+  const hojeTemSnapshot = hojeFormatted in snapByDate;
+  const hojeEhNovoDia = !cargaDates.has(hojeFormatted) && !hojeTemSnapshot;
   if (hojeEhNovoDia && (pendentes !== lastCargaPend || resolvidas > 0)) {
     const vTrat = items.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
     const nTrat = items.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
