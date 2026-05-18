@@ -1300,31 +1300,23 @@ async function limparHistorico() {
 
 function buildSnapshot() {
   const os = state.os;
-  const hoje = new Date().toLocaleDateString('pt-BR');
-
-  function normData(v) {
-    if (!v) return '';
-    if (typeof v === 'string' && v.includes('/')) return v.split('/').slice(0,3).join('/');
-    if (typeof v === 'string' && v.includes('T')) {
-      const d = new Date(v);
-      return isNaN(d) ? '' : d.toLocaleDateString('pt-BR');
-    }
-    if (typeof v === 'string' && v.length === 10 && v.includes('-')) {
-      const p = v.split('-');
-      return p[2]+'/'+p[1]+'/'+p[0];
-    }
-    return String(v);
-  }
-
-  const pendentes  = os.filter(o => o.status !== 'Resolvido').length;
-  const resolvidas = os.filter(o => o.status === 'Resolvido' && normData(o.dataResolucao) === hoje).length;
-  const emTrat     = os.filter(o => o.status === 'Em tratativa' && normData(o.dataResolucao) === hoje).length;
-  const reinc      = os.filter(o => (o.reincidencias||0) > 0 && o.status !== 'Resolvido').length;
-  const valorPend  = os.filter(o => o.status !== 'Resolvido').reduce((s,o) => s+o.valor, 0);
-  const valorTrat  = os.filter(o => o.status === 'Em tratativa' && normData(o.dataResolucao) === hoje).reduce((s,o) => s+o.valor, 0);
-  const valorRes   = os.filter(o => o.status === 'Resolvido' && normData(o.dataResolucao) === hoje).reduce((s,o) => s+o.valor, 0);
-
-  return { data: hoje, pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, valorRes, total: os.length };
+  const pendentes      = os.filter(o=>o.status!=='Resolvido').length;
+  const resolvidas     = os.filter(o=>o.status==='Resolvido').length;
+  const emTratTotal    = os.filter(o=>o.status==='Em tratativa').length;
+  const reinc          = os.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length;
+  const valorPend      = os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+o.valor,0);
+  const valorTratTotal = os.filter(o=>o.status==='Em tratativa').reduce((s,o)=>s+o.valor,0);
+  const valorResTotal  = os.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+o.valor,0);
+  // Delta desde último snapshot
+  const snaps = state.snapshots || [];
+  const lastSnap = snaps.length ? snaps[snaps.length-1] : null;
+  const prevTrat   = lastSnap ? (parseInt(lastSnap.emTrat)||0)     : 0;
+  const prevValTrat= lastSnap ? (parseFloat(lastSnap.valorTrat)||0) : 0;
+  const prevValRes = lastSnap ? (parseFloat(lastSnap.valorRes)||0)  : 0;
+  const emTrat     = Math.max(0, emTratTotal - prevTrat);
+  const valorTrat  = Math.max(0, valorTratTotal - prevValTrat);
+  const valorRes   = Math.max(0, valorResTotal  - prevValRes);
+  return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, valorRes, total: os.length };
 }
 
 
@@ -1599,66 +1591,77 @@ function sendWaConsolidado() {
 function buildWaConsolidado() {
   const cargas = state.cargas || [];
   const snaps  = state.snapshots || [];
-  const os     = state.os;
 
   let lines = ['*📊 Atualização Diária — OS Rejeitadas*', ''];
 
-  // Build all points same logic as chart
   const allPoints = [];
+
+  // Cargas — uma por entrada
   const cargasByDate = {};
   cargas.forEach(c => {
     const key = formatCargaDate(c.data);
     cargasByDate[key] = (cargasByDate[key]||0) + 1;
   });
-  const cargaCount = {};
   cargas.forEach(c => {
     const key = formatCargaDate(c.data);
-    cargaCount[key] = (cargaCount[key]||0) + 1;
-    const resolvidasTotal = (parseInt(c.removidas)||0);
     allPoints.push({
-      data: key, label: key,
+      data: key,
       pendentes: parseInt(c.pendentes)||0,
-      resolvidas: resolvidasTotal,
+      resolvidas: parseInt(c.removidas)||0,
       novas: parseInt(c.novas)||0,
-      tratadas: 0,
+      emTrat: 0,
       valorPend: parseFloat(c.valorPendente)||0,
+      valorTrat: 0,
       tipo: 'carga'
     });
   });
 
+  // Snapshots — agrupa por data, fica só o mais recente de cada dia
+  const snapByDate = {};
   snaps.forEach(s => {
     const key = formatCargaDate(s.data);
-    if (cargasByDate[key]) return;
-    allPoints.push({
-      data: key, label: key,
-      pendentes: parseInt(s.pendentes)||0,
-      resolvidas: parseInt(s.resolvidas)||0,
-      emTratativa: Math.max(0, (parseInt(s.emTrat)||0) - (parseInt(s.resolvidas)||0)),
-      novas: 0,
-      tratadas: parseInt(s.emTrat)||0,
-      valorPend: parseFloat(s.valorPend)||0,
-      valorTrat: parseFloat(s.valorTrat)||0,
-      tipo: 'snapshot'
-    });
+    // sobrescreve — o último no array é o mais recente (saveSnapshot sempre atualiza)
+    snapByDate[key] = s;
   });
 
-  // Hoje removido — só mostra dias com dados salvos (carga ou snapshot)
+  Object.entries(snapByDate).forEach(([key, s]) => {
+    if (cargasByDate[key]) {
+      // Dia com carga: enriquece o ponto da carga com dados do snapshot
+      allPoints.forEach(p => {
+        if (p.data === key && p.tipo === 'carga') {
+          p.emTrat    = (parseInt(s.emTrat)||0);
+          p.resolvidas= (p.resolvidas||0) + (parseInt(s.resolvidas)||0);
+          p.valorTrat = (parseFloat(s.valorTrat)||0);
+        }
+      });
+    } else {
+      // Dia sem carga: ponto independente
+      allPoints.push({
+        data: key,
+        pendentes: parseInt(s.pendentes)||0,
+        resolvidas: parseInt(s.resolvidas)||0,
+        novas: 0,
+        emTrat: parseInt(s.emTrat)||0,
+        valorPend: parseFloat(s.valorPend)||0,
+        valorTrat: parseFloat(s.valorTrat)||0,
+        tipo: 'snapshot'
+      });
+    }
+  });
 
-  // Sort
-  const sorted = allPoints.sort((a,b) => a.data.split('/').reverse().join('').localeCompare(b.data.split('/').reverse().join('')));
+  // Ordena por data
+  const sorted = allPoints.sort((a,b) =>
+    a.data.split('/').reverse().join('').localeCompare(b.data.split('/').reverse().join(''))
+  );
 
   sorted.forEach(p => {
-    let line = '*' + p.label + '* — ' + p.pendentes + ' pendentes';
+    let line = '*' + p.data + '* — ' + p.pendentes + ' pendentes';
+    if (p.novas > 0)      line += ' — ' + p.novas + ' novas';
     if (p.resolvidas > 0) line += ' — ' + p.resolvidas + ' resolvidas';
-    if (p.novas > 0) line += ' — ' + p.novas + ' novas';
-    if (p.resolvidas > 0 && p.tipo !== 'carga') line += ' — ' + p.resolvidas + ' resolvidas pelas Adms';
-    if (p.emTratativa > 0) line += ' — ' + p.emTratativa + ' em tratativa';
-    if (p.tipo === 'carga' && p.tratadas > 0) line += ' — ' + p.tratadas + ' tratadas pelas Adms';
-    if (p.tipo === 'hoje' || p.tipo === 'snapshot') {
-      line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' *(previsto)*';
-      if (p.valorTrat > 0) {
-        line += ' — R$ ' + p.valorTrat.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' já marcado pelas Adms';
-      }
+    if (p.emTrat > 0)     line += ' — ' + p.emTrat + ' em tratativa';
+    if (p.tipo === 'snapshot') {
+      line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
+      if (p.valorTrat > 0) line += ' — R$ ' + p.valorTrat.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' já marcado';
     } else {
       line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
     }
