@@ -1402,8 +1402,10 @@ function renderConsolidado() {
       // Encontra o ponto da carga desse dia e adiciona emTrat
       allPoints.forEach(p => {
         if (formatCargaDate(p.data) === key && p.tipo === 'carga') {
-          p.emTrat = (p.emTrat||0) + (parseInt(s.emTrat)||0);
+          p.emTrat    = (p.emTrat||0)    + (parseInt(s.emTrat)||0);
           p.valorTrat = (p.valorTrat||0) + (parseFloat(s.valorTrat)||0);
+          p.valorRes  = (p.valorRes||0)  + (parseFloat(s.valorRes)||0);
+          p.resolvidas= (p.resolvidas||0)+ (parseInt(s.resolvidas)||0);
         }
       });
     } else {
