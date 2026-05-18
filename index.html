@@ -1388,14 +1388,12 @@ function renderConsolidado() {
     });
   });
 
-  // Snapshots — agrupa por data, pega o mais recente de cada dia, ignora hoje
-  const hojeKey2 = formatCargaDate(new Date().toLocaleDateString('pt-BR'));
+  // Snapshots — agrupa por data, pega o mais recente de cada dia (inclui hoje se tiver snapshot)
   const cargaDates = new Set(Object.keys(cargasByDate));
   const snapByDate = {};
   snaps.forEach(s => {
     const key = formatCargaDate(s.data);
-    if (key === hojeKey2) return; // ignora snapshot de hoje
-    snapByDate[key] = s;
+    snapByDate[key] = s; // sempre pega o mais recente
   });
   // Para dias com carga: adiciona emTrat do snapshot ao ponto da carga
   Object.entries(snapByDate).forEach(([key, s]) => {
@@ -1620,11 +1618,9 @@ function buildWaConsolidado() {
     });
   });
 
-  const hojeWa = formatCargaDate(new Date().toLocaleDateString('pt-BR'));
   snaps.forEach(s => {
     const key = formatCargaDate(s.data);
     if (cargasByDate[key]) return;
-    if (key === hojeWa) return; // ignora snapshot de hoje
     allPoints.push({
       data: key, label: key,
       pendentes: parseInt(s.pendentes)||0,
