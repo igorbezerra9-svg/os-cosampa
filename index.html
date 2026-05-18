@@ -1310,12 +1310,13 @@ function buildSnapshot() {
   // Delta desde último snapshot
   const snaps = state.snapshots || [];
   const lastSnap = snaps.length ? snaps[snaps.length-1] : null;
-  const prevTrat    = lastSnap ? (parseInt(lastSnap.emTrat)||0)    : 0;
-  const prevRes     = lastSnap ? (parseInt(lastSnap.resolvidas)||0) : 0;
-  const prevValTrat = lastSnap ? (parseFloat(lastSnap.valorTrat)||0) : 0;
-  const emTrat   = Math.max(0, emTratTotal - prevTrat);
-  const valorTrat = Math.max(0, valorTratTotal - prevValTrat);
-  return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, total: os.length };
+  const prevTrat   = lastSnap ? (parseInt(lastSnap.emTrat)||0)     : 0;
+  const prevValTrat= lastSnap ? (parseFloat(lastSnap.valorTrat)||0) : 0;
+  const prevValRes = lastSnap ? (parseFloat(lastSnap.valorRes)||0)  : 0;
+  const emTrat     = Math.max(0, emTratTotal - prevTrat);
+  const valorTrat  = Math.max(0, valorTratTotal - prevValTrat);
+  const valorRes   = Math.max(0, valorResTotal  - prevValRes);
+  return { data: new Date().toLocaleDateString('pt-BR'), pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, valorRes, total: os.length };
 }
 
 
@@ -1416,7 +1417,7 @@ function renderConsolidado() {
         reinc: parseInt(s.reinc)||0,
         tipo: 'snapshot',
         valorPend: parseFloat(s.valorPend)||0,
-        valorRes: 0,
+        valorRes: parseFloat(s.valorRes)||0,
         valorTrat: parseFloat(s.valorTrat)||0,
         sortKey: key.split('/').reverse().join('') + '500'
       });
@@ -1468,9 +1469,9 @@ function renderConsolidado() {
 
   // Qtd chart
   if (window.ChartDataLabels) Chart.register(ChartDataLabels);
-  const datVNovas = points.map(p => Math.round(p.valorNovas||0));
-  const datTrat  = points.map(p => parseInt(p.emTrat)||0);
-  const datVTrat = points.map(p => Math.round(p.valorTrat||0));
+  const datVNovas    = points.map(p => Math.round(p.valorNovas||0));
+  const datTrat      = points.map(p => parseInt(p.emTrat)||0);
+  const datVTrat     = points.map(p => Math.round(p.valorTrat||0));
   const datVResFinal = points.map(p => Math.round(p.valorRes||0));
   if (consChart) { consChart.destroy(); consChart = null; }
   const ctx = document.getElementById('cons-chart');
@@ -1518,9 +1519,9 @@ function renderConsolidado() {
     type:'bar',
     data:{labels, datasets:[
       {label:'Valor pendente', data:datVPend, backgroundColor:'#1A1916', borderRadius:3, borderSkipped:false},
-      {label:'Valor resolvido', data:datVResFinal, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
+      {label:'Valor resolvido (Adms)', data:datVResFinal, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
       {label:'Valor novas entradas', data:datVNovas, backgroundColor:'#378ADD', borderRadius:3, borderSkipped:false},
-      {label:'Valor tratado Adms', data:datVTrat, backgroundColor:'#5B21B6', borderRadius:3, borderSkipped:false},
+      {label:'Valor em tratativa', data:datVTrat, backgroundColor:'#5B21B6', borderRadius:3, borderSkipped:false},
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
