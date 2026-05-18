@@ -664,6 +664,7 @@ async function sincronizar(force) {
     if (data && !data.error) {
       state.cargas = data.cargas || [];
       state.log    = data.log    || [];
+      state.snapshots = data.snapshots || [];
       if (emTratativas && digitando && !force) {
         // Preserva edições locais, só atualiza dados da planilha
         const srvMap = {};
