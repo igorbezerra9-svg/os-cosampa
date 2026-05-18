@@ -1164,7 +1164,14 @@ function formatCargaDate(d) {
   if (!d) return '';
   if (typeof d==='string' && d.includes('/')) return d.split('/').slice(0,2).join('/');
   if (typeof d==='string' && d.includes('T')) {
-    const dt=new Date(d); return isNaN(dt)?d:(dt.getDate()).toString().padStart(2,'0')+'/'+(dt.getMonth()+1).toString().padStart(2,'0');
+    // Parse ISO date using UTC to avoid timezone shift
+    const dt=new Date(d);
+    if (!isNaN(dt)) {
+      const day = String(dt.getUTCDate()).padStart(2,'0');
+      const mon = String(dt.getUTCMonth()+1).padStart(2,'0');
+      return day+'/'+mon;
+    }
+    return d;
   }
   return String(d);
 }
