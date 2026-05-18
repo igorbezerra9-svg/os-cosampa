@@ -1388,13 +1388,14 @@ function renderConsolidado() {
     });
   });
 
-  // Snapshots — agrupa por data, pega o mais recente de cada dia
+  // Snapshots — agrupa por data, pega o mais recente de cada dia, ignora hoje
+  const hojeKey2 = formatCargaDate(new Date().toLocaleDateString('pt-BR'));
   const cargaDates = new Set(Object.keys(cargasByDate));
   const snapByDate = {};
   snaps.forEach(s => {
     const key = formatCargaDate(s.data);
-    // Sempre pega o último snapshot do dia (sobrescreve)
-    if (!snapByDate[key] || true) snapByDate[key] = s;
+    if (key === hojeKey2) return; // ignora snapshot de hoje
+    snapByDate[key] = s;
   });
   // Para dias com carga: adiciona emTrat do snapshot ao ponto da carga
   Object.entries(snapByDate).forEach(([key, s]) => {
@@ -1619,9 +1620,11 @@ function buildWaConsolidado() {
     });
   });
 
+  const hojeWa = formatCargaDate(new Date().toLocaleDateString('pt-BR'));
   snaps.forEach(s => {
     const key = formatCargaDate(s.data);
     if (cargasByDate[key]) return;
+    if (key === hojeWa) return; // ignora snapshot de hoje
     allPoints.push({
       data: key, label: key,
       pendentes: parseInt(s.pendentes)||0,
@@ -1635,23 +1638,7 @@ function buildWaConsolidado() {
     });
   });
 
-  // Hoje
-  const hojeFormatted = formatCargaDate(new Date().toLocaleDateString('pt-BR'));
-  const lastCargaData = cargas.length ? formatCargaDate(cargas[cargas.length-1].data) : '';
-  const pendentes  = os.filter(o=>o.status!=='Resolvido').length;
-  const resolvidas = os.filter(o=>o.status==='Resolvido').length;
-  const emTrat     = os.filter(o=>o.status==='Em tratativa'||o.status==='Resolvido').length;
-  const vPend      = os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
-  if (!cargasByDate[hojeFormatted]) {
-    const nResolvidas = os.filter(o=>o.status==='Resolvido').length;
-    const nEmTrat = os.filter(o=>o.status==='Em tratativa').length;
-    const vTratHoje = os.filter(o=>o.status==='Resolvido'||o.status==='Em tratativa').reduce((s,o)=>s+(o.valor||0),0);
-    allPoints.push({
-      data: hojeFormatted, label: hojeFormatted,
-      pendentes, resolvidas: nResolvidas, emTratativa: nEmTrat, novas: 0, tratadas: emTrat,
-      valorPend: vPend, valorTrat: vTratHoje, tipo: 'hoje'
-    });
-  }
+  // Hoje removido — só mostra dias com dados salvos (carga ou snapshot)
 
   // Sort
   const sorted = allPoints.sort((a,b) => a.data.split('/').reverse().join('').localeCompare(b.data.split('/').reverse().join('')));
