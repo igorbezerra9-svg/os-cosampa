@@ -1544,7 +1544,7 @@ function buildWaSemanal(s) {
       if (c.entQtd)  parts.push('+'+c.entQtd+' novas');
       l += parts.join(' · ') + ' → '+c.pendQtd+' pendentes ('+fmtValor(c.pendVal)+')';
     } else {
-      if (c.admQtd) parts.push('−'+c.admQtd+' adm');
+      if (c.admQtd) parts.push('−'+c.admQtd+' adm ('+fmtValor(c.admVal||0)+')');
       l += parts.join(' · ') + (c.pendQtd ? ' → '+c.pendQtd+' pendentes' : '');
     }
     lines.push(l);
