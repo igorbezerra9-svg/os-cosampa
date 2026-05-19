@@ -464,14 +464,15 @@
 </div>
 
 <div id="wa-cons-modal" style="display:none;" class="wa-modal" onclick="if(event.target===this)closeWaConsModal()">
-  <div class="wa-modal-box" style="width:420px;">
-    <div class="wa-modal-title">📊 Enviar atualização semanal</div>
-    <div class="wa-modal-sub">Resumo da semana selecionada</div>
-    <div id="wa-cons-preview" style="background:var(--surface2);border-radius:8px;padding:10px;font-size:11px;font-family:var(--mono);margin-bottom:1rem;max-height:200px;overflow-y:auto;white-space:pre-wrap;line-height:1.6;"></div>
-    <input type="tel" id="wa-cons-phone" class="wa-input" placeholder="Ex: 88999999999 (com DDD)" />
+  <div class="wa-modal-box" style="width:460px;">
+    <div class="wa-modal-title">📋 Preview da mensagem</div>
+    <div class="wa-modal-sub" id="wa-cons-modal-sub">Semana</div>
+    <div id="wa-cons-preview" style="background:var(--surface2);border-radius:8px;padding:10px;font-size:11px;font-family:var(--mono);margin-bottom:1rem;max-height:260px;overflow-y:auto;white-space:pre-wrap;line-height:1.6;"></div>
+    <input type="tel" id="wa-cons-phone" class="wa-input" placeholder="Ex: 88999999999 (com DDD)" style="display:none;" />
     <div class="wa-actions">
-      <button class="btn" onclick="closeWaConsModal()">Cancelar</button>
-      <button class="wa-send" onclick="sendWaConsolidado()">📤 Abrir WhatsApp</button>
+      <button class="btn" onclick="closeWaConsModal()">Fechar</button>
+      <button class="wa-send" id="wa-cons-send-btn" onclick="sendWaConsolidado()" style="display:none;">📤 Abrir WhatsApp</button>
+      <button class="wa-send" id="wa-cons-copy-btn" onclick="copiarTextoSemanal()" style="background:var(--text);">📋 Copiar</button>
     </div>
   </div>
 </div>
@@ -966,7 +967,7 @@ async function salvarTratativas() {
 
 function renderHistorico() {
   const cargas=state.cargas;
-  document.getElementById('historico-list').innerHTML=cargas.length?[...cargas].reverse().map(c=>`<div class="hist-row"><span class="hist-date">${c.data}</span>${parseInt(c.novas)>0?`<span class="badge badge-new">+${c.novas} novas</span>`:''}${parseInt(c.removidas)>0?`<span class="badge badge-ok">✓${c.removidas} resolvidas</span>`:''}<span style="font-size:12px;color:var(--text2);">→ ${c.pendentes} pendentes</span><span style="font-family:var(--mono);font-size:11px;color:var(--text3);">${fmtValor(parseFloat(c.valorPendente)||0)}</span></div>`).join(''):'<div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div>';
+  document.getElementById('historico-list').innerHTML=cargas.length?[...cargas].reverse().map(c=>`<div class="hist-row"><span class="hist-date">${formatDateStr(c.data)}</span>${parseInt(c.novas)>0?`<span class="badge badge-new">+${c.novas} novas</span>`:''}${parseInt(c.removidas)>0?`<span class="badge badge-ok">✓${c.removidas} resolvidas</span>`:''}<span style="font-size:12px;color:var(--text2);">→ ${c.pendentes} pendentes</span><span style="font-family:var(--mono);font-size:11px;color:var(--text3);">${fmtValor(parseFloat(c.valorPendente)||0)}</span></div>`).join(''):'<div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div>';
   const pers=state.os.filter(o=>o.status!=='Resolvido'&&cargas.length>1);
   document.getElementById('persistentes-list').innerHTML=pers.length?`<div class="table-wrap"><table><thead><tr><th>OS</th><th>Equipe</th><th>1ª vez</th><th>Dias</th></tr></thead><tbody>`+pers.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,12).map(o=>`<tr><td class="mono">${o.os}</td><td>${o.equipe}</td><td style="font-size:11px;color:var(--text3)">${o.firstSeen||'—'}</td><td><span class="badge ${o.diasAtraso>=90?'badge-danger':'badge-warn'}">${o.diasAtraso}d</span></td></tr>`).join('')+'</tbody></table></div>':'<div class="empty"><div class="empty-icon">✅</div>Nenhuma OS persistente</div>';
   document.getElementById('log-list').innerHTML=state.log.length?state.log.map(l=>`<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text3);min-width:80px;font-family:var(--mono);">${l.data}</span><span>${l.msg}</span></div>`).join(''):'<div class="empty">Nenhuma atividade</div>';
@@ -1200,23 +1201,27 @@ function buildSemanas() {
   todasDatas.forEach(function(item) {
     var str = item.str, dt = item.dt;
     var c = cargaMap[str];
-    var diasDesdeInicio = Math.round((dt - semInicioDt) / 86400000);
+    var diasDesdeInicio = semAtual ? Math.round((dt - semInicioDt) / 86400000) : 0;
 
-    // Primeira vez: abre semana 1, a carga inaugural eh so a abertura
+    // Primeira carga: abre semana 1 como abertura pura (sem linha)
     if (!semAtual) {
+      semInicioDt = dt;
       semAtual = abrirSemana(str, c.pendentes, c.valorPendente);
       return;
     }
 
-    // Carga >= 7 dias apos inicio = fecha semana atual e abre nova
-    // A propria carga entra como primeira linha da NOVA semana
+    // Carga com 7+ dias desde inicio: fecha semana atual e usa essa carga como abertura da proxima
     if (c.tipo === 'carga' && diasDesdeInicio >= 7) {
       _semanas.push(semAtual);
       semInicioDt = dt;
       var prev = _semanas[_semanas.length - 1];
-      semAtual = abrirSemana(str, prev.fechQtd !== null ? prev.fechQtd : c.pendentes, prev.fechVal !== null ? prev.fechVal : c.valorPendente);
+      var abQtd = prev.fechQtd !== null ? prev.fechQtd : c.pendentes;
+      var abVal = prev.fechVal !== null ? prev.fechVal : c.valorPendente;
+      semAtual = abrirSemana(str, abQtd, abVal);
+      return; // nao adiciona linha - eh so abertura
     }
 
+    // Linha normal dentro da semana
     if (c.tipo === 'carga') {
       var pendAnteriorVal = semAtual.fechVal !== null ? semAtual.fechVal : semAtual.abertura.val;
       var saiuValEstimado = pendAnteriorVal - c.valorPendente + (c.valorNovas||0);
@@ -1244,64 +1249,36 @@ function buildSemanas() {
   });
   if (semAtual) _semanas.push(semAtual);
 
-  // Atualiza fechamento da ultima semana com snapshot mais recente do mesmo dia
-  // (para refletir o que as adms marcaram hoje em tempo real)
+  // Atualiza a ultima linha da ultima semana com snapshot do mesmo dia (tempo real)
   if (_semanas.length) {
     var ultSem = _semanas[_semanas.length - 1];
-    if (ultSem.linhas.length > 0) {
-      var ultLinha = ultSem.linhas[ultSem.linhas.length - 1];
-      var snapUlt = snapLatest[ultLinha.data];
-      if (snapUlt) {
-        var snapPendQtd = parseInt(snapUlt.pendentes)||0;
-        var snapPendVal = parseFloat(snapUlt.valorPend)||0;
-        var snapAdmQtd  = (parseInt(snapUlt.emTrat)||0) + (parseInt(snapUlt.resolvidas)||0);
-        var snapAdmVal  = (parseFloat(snapUlt.valorTrat)||0) + (parseFloat(snapUlt.valorRes)||0);
-        // Atualiza a linha da ultima carga com dados do snapshot
-        if (snapPendQtd > 0) {
+    // Verifica tanto linhas quanto abertura (semana pode ter so abertura)
+    var ultLinha = ultSem.linhas.length > 0 ? ultSem.linhas[ultSem.linhas.length - 1] : null;
+    var dataRef = ultLinha ? ultLinha.data : ultSem.abertura.data;
+    var snapUlt = snapLatest[dataRef];
+    if (snapUlt) {
+      var snapPendQtd = parseInt(snapUlt.pendentes)||0;
+      var snapPendVal = parseFloat(snapUlt.valorPend)||0;
+      var snapAdmQtd  = (parseInt(snapUlt.emTrat)||0) + (parseInt(snapUlt.resolvidas)||0);
+      var snapAdmVal  = (parseFloat(snapUlt.valorTrat)||0) + (parseFloat(snapUlt.valorRes)||0);
+      if (snapPendQtd > 0) {
+        if (ultLinha) {
           ultLinha.pendQtd = snapPendQtd;
           ultLinha.pendVal = snapPendVal;
-          if (snapAdmQtd > 0) {
-            ultLinha.admQtd = snapAdmQtd;
-            ultLinha.admVal = snapAdmVal;
-          }
-          // Atualiza fechamento da semana
+          if (snapAdmQtd > 0) { ultLinha.admQtd = snapAdmQtd; ultLinha.admVal = snapAdmVal; }
           ultSem.fechQtd = snapPendQtd;
           ultSem.fechVal = snapPendVal;
+        } else {
+          // Semana so com abertura: atualiza abertura com snapshot
+          ultSem.abertura.qtd = snapPendQtd;
+          ultSem.abertura.val = snapPendVal;
         }
       }
     }
   }
 
-  // Adiciona semana seguinte vazia se a semana atual ja tem fechamento (todas as cargas foram)
-  // e ainda nao ha dados da proxima semana
-  if (_semanas.length) {
-    var ult = _semanas[_semanas.length-1];
-    var temProxima = _semanas.length >= 2;
-    // Sempre garante que existe pelo menos uma semana futura vazia
-    if (ult.fechQtd !== null && !temProxima) {
-      _semanas.push({
-        titulo: 'Semana ' + (_semanas.length + 1),
-        abertura: { data: 'próxima', qtd: ult.fechQtd, val: ult.fechVal },
-        linhas: [], fechQtd: null, fechVal: null, atual: false, placeholder: true
-      });
-    } else if (ult.fechQtd !== null) {
-      // Verifica se a ultima semana do array eh placeholder ou real
-      var proxIdx = _semanas.length - 1;
-      var proxSem = _semanas[proxIdx];
-      if (!proxSem.placeholder) {
-        _semanas.push({
-          titulo: 'Semana ' + (_semanas.length + 1),
-          abertura: { data: new Date().toLocaleDateString('pt-BR').split('/').slice(0,2).join('/'), qtd: ult.fechQtd, val: ult.fechVal },
-          linhas: [], fechQtd: null, fechVal: null, atual: false, placeholder: true, _parentRef: ult
-        });
-      }
-    }
-  }
-
-  // Marca a semana mais recente nao-placeholder como atual
-  for (var si = _semanas.length-1; si >= 0; si--) {
-    if (!_semanas[si].placeholder) { _semanas[si].atual = true; break; }
-  }
+  // Marca a semana mais recente como atual
+  if (_semanas.length) _semanas[_semanas.length-1].atual = true;
 
   // Popula select
   var sel = document.getElementById('sem-sel');
@@ -1472,12 +1449,23 @@ function copiarMensagemSemanal() {
   const s = _semanas[idx] || _semanas[_semanas.length-1];
   if (!s) { showToast('Nenhuma semana disponível'); return; }
   const msg = buildWaSemanal(s);
-  navigator.clipboard.writeText(msg).then(() => {
-    showToast('✅ Mensagem copiada!');
+  // Abre modal de preview
+  document.getElementById('wa-cons-preview').textContent = msg;
+  document.getElementById('wa-cons-phone').style.display = 'none';
+  document.getElementById('wa-cons-send-btn').style.display = 'none';
+  document.getElementById('wa-cons-copy-btn').style.display = 'inline-flex';
+  document.getElementById('wa-cons-modal').querySelector('.wa-modal-title').textContent = '📋 Preview da mensagem';
+  document.getElementById('wa-cons-modal').querySelector('.wa-modal-sub').textContent = s.titulo + ' — ' + s.abertura.data;
+  document.getElementById('wa-cons-modal').style.display = 'flex';
+}
+function copiarTextoSemanal() {
+  const txt = document.getElementById('wa-cons-preview').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    document.getElementById('wa-cons-copy-btn').textContent = '✅ Copiado!';
+    setTimeout(() => { document.getElementById('wa-cons-copy-btn').textContent = '📋 Copiar'; }, 2000);
   }).catch(() => {
-    // fallback
     const ta = document.createElement('textarea');
-    ta.value = msg; document.body.appendChild(ta); ta.select();
+    ta.value = txt; document.body.appendChild(ta); ta.select();
     document.execCommand('copy'); document.body.removeChild(ta);
     showToast('✅ Mensagem copiada!');
   });
