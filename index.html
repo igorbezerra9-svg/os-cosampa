@@ -38,7 +38,6 @@
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media(max-width:900px){ .grid2{ grid-template-columns:1fr; } .metrics{ grid-template-columns:repeat(2,1fr) !important; } }
 
-  /* METRICS */
   .metrics { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 1.25rem; }
   .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; }
   .metric.al { border-left: 3px solid var(--red); }
@@ -47,7 +46,6 @@
   .metric-value { font-size: 28px; font-weight: 600; line-height: 1; font-family: var(--mono); }
   .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
-  /* EVOLUÇÃO */
   .evo-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem; }
   .evo-top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px; }
   .evo-left-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
@@ -58,14 +56,12 @@
   .evo-right { text-align: right; }
   .evo-right-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
   .evo-resolvido { font-size: 24px; font-weight: 600; font-family: var(--mono); color: var(--green); margin-top: 4px; }
-  /* progress */
   .prog-wrap { margin-bottom: 1.25rem; }
   .prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
   .prog-pct { font-size: 14px; font-weight: 600; font-family: var(--mono); color: var(--green); }
   .prog-track { height: 10px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
   .prog-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 1s ease; }
   .prog-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 4px; }
-  /* bar chart */
   .bars-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
   .evo-bars { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
   .evo-col { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; min-width: 0; }
@@ -76,16 +72,9 @@
   .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
   .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
 
-  /* TABLE */
   .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
   .table-wrap table th:last-child,
-  .table-wrap table td:last-child {
-    position: sticky;
-    right: 0;
-    background: var(--surface);
-    box-shadow: -2px 0 6px rgba(0,0,0,0.06);
-    z-index: 1;
-  }
+  .table-wrap table td:last-child { position: sticky; right: 0; background: var(--surface); box-shadow: -2px 0 6px rgba(0,0,0,0.06); z-index: 1; }
   .table-wrap table thead th:last-child { background: var(--surface2); }
   tr.row-pendente td:last-child { background: #FFFBEB; }
   tr.row-salvo td:last-child { background: #F0FDF4; }
@@ -95,10 +84,8 @@
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: #FAFAF8; }
   .mono { font-family: var(--mono); font-size: 12px; }
-
   .tbl-input { font-family: var(--font); font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); width: 100%; }
   .tbl-input:focus { outline: none; border-color: var(--text); background: #fff; }
-
   .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px; font-family: var(--mono); white-space: nowrap; }
   .badge-ok   { background: var(--green-bg); color: var(--green); }
   .badge-warn { background: var(--amber-bg); color: var(--amber); }
@@ -110,7 +97,6 @@
   .hist-rejei { background: var(--surface2); border-radius: 6px; padding: 8px 10px; margin-top:6px; font-size:11px; }
   .hist-rejei-row { display:flex; gap:8px; align-items:baseline; padding:3px 0; border-bottom:0.5px solid var(--border); }
   .hist-rejei-row:last-child { border-bottom:none; }
-
   .btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font); font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.15s; }
   .btn:hover { background: var(--surface2); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -120,31 +106,25 @@
   .btn-success:hover { background: #245C43; }
   .btn-hdr { font-size: 12px; padding: 5px 10px; color: #fff; border-color: rgba(255,255,255,0.2); background: transparent; }
   .btn-hdr:hover { background: rgba(255,255,255,0.1); }
-
   .filters { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
   .filter-input { font-family: var(--font); font-size: 13px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
   .filter-input:focus { outline: none; border-color: var(--text); }
-
   .upload-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 2.5rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
   .upload-zone:hover, .upload-zone.drag { border-color: var(--text); background: var(--surface2); }
-
   .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
   .bar-label { min-width: 160px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 99px; }
   .bar-fill  { height: 6px; background: var(--text); border-radius: 99px; transition: width 0.6s ease; }
   .bar-count { min-width: 28px; text-align: right; font-family: var(--mono); font-size: 12px; font-weight: 500; }
-
   .hist-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; flex-wrap: wrap; }
   .hist-row:last-child { border-bottom: none; }
   .hist-date { min-width: 90px; font-family: var(--mono); font-size: 12px; color: var(--text2); }
-
   #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 999; }
   #toast.show { opacity: 1; transform: translateY(0); }
   .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
   @keyframes spin { to{ transform:rotate(360deg); } }
   .empty { text-align: center; padding: 2.5rem; color: var(--text3); }
   .empty-icon { font-size: 36px; margin-bottom: 10px; }
-
   #cfg-banner { background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 11px 16px; margin-bottom: 1.25rem; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   tr.row-pendente td { background: #FFFBEB; }
   tr.row-pendente td:first-child { border-left: 3px solid #F59E0B; padding-left: 9px; }
@@ -179,6 +159,34 @@
   .cons-bar-fill{height:5px;border-radius:99px;}
   .cons-bar-val{min-width:24px;text-align:right;font-family:var(--mono);font-size:11px;font-weight:500;}
   .cons-badges{display:flex;gap:5px;flex-wrap:wrap;min-width:180px;justify-content:flex-end;align-items:flex-start;padding-top:2px;}
+
+  /* ── Semanal ── */
+  .sem-toggle-wrap { display:flex; background:var(--surface2); border-radius:6px; padding:3px; gap:2px; }
+  .sem-tog { font-size:12px; padding:5px 14px; border-radius:4px; border:none; background:transparent; color:var(--text2); cursor:pointer; font-weight:500; transition:background .15s,color .15s; font-family:var(--font); }
+  .sem-tog.on { background:var(--surface); color:var(--text); border:1px solid var(--border); }
+  .sem-select { font-family:var(--font); font-size:12px; padding:5px 10px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; }
+  .sem-card-inner { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 20px; }
+  .sem-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+  .sem-title { font-size:13px; font-weight:600; color:var(--text); }
+  .sem-range { font-size:11px; color:var(--text3); }
+  .badge-atual-sem { font-size:10px; padding:2px 7px; border-radius:4px; background:var(--blue-bg); color:var(--blue); margin-left:8px; font-weight:500; }
+  .sem-cols { display:grid; grid-template-columns:64px repeat(3,1fr) 90px; gap:0; }
+  .sem-col-head { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.05em; padding:0 6px 8px; text-align:center; }
+  .sem-col-head.left { text-align:left; padding-left:0; }
+  .sem-col-head.right { text-align:right; padding-right:0; }
+  .sem-cell { padding:4px 6px; display:flex; align-items:center; justify-content:center; border-top:0.5px solid var(--border); }
+  .sem-cell.left { justify-content:flex-start; padding-left:0; }
+  .sem-cell.right { justify-content:flex-end; padding-right:0; }
+  .sem-bar { width:100%; height:34px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; }
+  .sem-empty { width:100%; height:34px; border-radius:4px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text3); }
+  .sem-pend { font-size:17px; font-weight:600; color:var(--text); font-family:var(--mono); }
+  .sem-pend.muted { color:var(--text3); }
+  .sem-divider { grid-column:1/-1; height:1px; background:var(--border); margin:8px 0 4px; }
+  .sem-fech-num { font-size:20px; font-weight:600; font-family:var(--mono); }
+  .sem-fech-sub { font-size:10px; color:var(--text3); }
+  .sem-leg { display:flex; gap:14px; flex-wrap:wrap; padding:10px 0 2px; }
+  .sem-leg-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text2); }
+  .sem-leg-sq { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -186,7 +194,6 @@
 <body>
 
 <script>
-  // ⚙️ CONFIGURAÇÃO — substitua pela URL do seu Apps Script depois de publicar
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9LlfhTW5kAinJq4NFkg2B-sQzNpwH0xbzx8j8nFoZxbDPfkr-Oa-lxlttSsaBBtrjVQ/exec';
 </script>
 
@@ -212,7 +219,7 @@
 
 <main>
   <div id="cfg-banner">
-    ⚙️ <strong>Configure a integração:</strong> abra o <code>index.html</code> e substitua <code>COLE_SUA_URL_AQUI</code> pela URL do Apps Script. Veja o guia <strong>PASSO_A_PASSO.md</strong>.
+    ⚙️ <strong>Configure a integração:</strong> abra o <code>index.html</code> e substitua <code>COLE_SUA_URL_AQUI</code> pela URL do Apps Script.
     <button class="btn" onclick="document.getElementById('cfg-banner').style.display='none'">Já configurei ✓</button>
   </div>
 
@@ -227,8 +234,6 @@
       <div class="metrics" id="metrics-area">
         <div class="metric"><div class="metric-label">Carregando...</div><div class="metric-value" style="color:var(--text3)">—</div></div>
       </div>
-
-      <!-- CARD EVOLUÇÃO DE VALOR -->
       <div class="evo-card">
         <div class="evo-top">
           <div>
@@ -241,7 +246,6 @@
             <div class="evo-resolvido" id="evo-resolvido">R$ —</div>
           </div>
         </div>
-
         <div class="prog-wrap">
           <div class="prog-header">
             <span style="font-size:12px;color:var(--text2);">Progresso geral de saneamento</span>
@@ -253,23 +257,18 @@
             <span id="prog-label-tot">R$ 0 total</span>
           </div>
         </div>
-
         <div class="bars-title">Evolução carga a carga</div>
-        <div class="evo-bars" id="evo-bars">
-          <div style="color:var(--text3);font-size:12px;padding:1rem;">Nenhuma carga ainda</div>
-        </div>
+        <div class="evo-bars" id="evo-bars"><div style="color:var(--text3);font-size:12px;padding:1rem;">Nenhuma carga ainda</div></div>
         <div class="evo-legend">
           <div class="leg-item"><div class="leg-dot" style="background:var(--text)"></div>Pendente</div>
           <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Resolvido</div>
         </div>
       </div>
-
       <div class="card" style="margin-bottom:1.25rem;">
         <div class="card-title">Situação atual das OS</div>
         <div id="chart-status-bars" style="display:flex;gap:8px;align-items:flex-end;height:90px;margin-bottom:8px;"></div>
         <div id="chart-status-legend" style="display:flex;gap:20px;flex-wrap:wrap;"></div>
       </div>
-
       <div class="grid2" style="margin-bottom:1.25rem;">
         <div class="card">
           <div class="card-title">Motivos de rejeição</div>
@@ -280,7 +279,6 @@
           <div id="chart-equipes"><div class="empty" style="padding:1rem">—</div></div>
         </div>
       </div>
-
       <div class="card">
         <div class="card-title">OS críticas — acima de 90 dias sem tratativa</div>
         <div class="table-wrap" style="margin-top:8px;">
@@ -360,29 +358,17 @@
       <span id="hier-count" style="font-size:12px;color:var(--text3);margin-left:4px;"></span>
     </div>
     <div class="grid2" style="margin-bottom:12px;">
-      <div class="card">
-        <div class="card-title">Por centro de serviço</div>
-        <div id="hier-centro"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Por processo</div>
-        <div id="hier-processo"></div>
-      </div>
+      <div class="card"><div class="card-title">Por centro de serviço</div><div id="hier-centro"></div></div>
+      <div class="card"><div class="card-title">Por processo</div><div id="hier-processo"></div></div>
     </div>
-    <div class="card">
-      <div class="card-title">Reincidências — OS que voltaram após resolvidas</div>
-      <div id="hier-reinc"></div>
-    </div>
-    <div class="card" style="margin-top:12px;">
-      <div class="card-title">Ranking de supervisores</div>
-      <div id="hier-supervisor"></div>
-    </div>
+    <div class="card"><div class="card-title">Reincidências — OS que voltaram após resolvidas</div><div id="hier-reinc"></div></div>
+    <div class="card" style="margin-top:12px;"><div class="card-title">Ranking de supervisores</div><div id="hier-supervisor"></div></div>
   </div>
 
   <!-- CONSOLIDADO -->
   <div class="screen" id="tab-consolidado">
     <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-      <button class="btn" onclick="exportarConsolidadoCSV()">&#11015; Exportar Consolidado CSV</button>
+      <button class="btn" onclick="exportarConsolidadoCSV()">⬇ Exportar Consolidado CSV</button>
     </div>
 
     <div class="card" style="margin-bottom:12px;">
@@ -414,18 +400,26 @@
       <div id="cons-lista"><div class="empty"><div class="empty-icon">📅</div>Nenhum dado ainda</div></div>
     </div>
 
+    <!-- LINHA DO TEMPO SEMANAL -->
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div class="card-title" style="margin-bottom:0;">Linha do tempo — por carga</div>
-        <button class="wa-btn" style="font-size:13px;display:flex;align-items:center;gap:6px;border:1px solid #25D366;padding:6px 12px;border-radius:6px;color:#25D366;font-weight:500;" onclick="openWaConsolidado()">💬 Enviar atualização</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+        <div class="card-title" style="margin-bottom:0;">Linha do tempo — semanal</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="sem-toggle-wrap">
+            <button class="sem-tog on" id="sem-tog-qtd" onclick="setSemModo('qtd')">Quantidade</button>
+            <button class="sem-tog" id="sem-tog-val" onclick="setSemModo('val')">Valor (R$)</button>
+          </div>
+          <select class="sem-select" id="sem-sel" onchange="renderSemanal()"></select>
+          <button class="wa-btn" style="font-size:13px;display:flex;align-items:center;gap:6px;border:1px solid #25D366;padding:6px 12px;border-radius:6px;color:#25D366;font-weight:500;" onclick="openWaConsolidado()">💬 Enviar atualização</button>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:12px;">
-        <button class="btn" id="cons-tab-qtd" onclick="switchConsChart('qtd')" style="font-size:12px;padding:5px 12px;background:var(--text);color:#fff;border-color:var(--text);">Quantidade</button>
-        <button class="btn" id="cons-tab-val" onclick="switchConsChart('valor')" style="font-size:12px;padding:5px 12px;">Valor (R$)</button>
+      <div id="sem-body"></div>
+      <div class="sem-leg" style="margin-top:10px;">
+        <div class="sem-leg-item"><div class="sem-leg-sq" style="background:#1A1916;"></div>Abertura da semana</div>
+        <div class="sem-leg-item"><div class="sem-leg-sq" style="background:#27500A;"></div>Saíram real</div>
+        <div class="sem-leg-item"><div class="sem-leg-sq" style="background:#3C3489;"></div>Tratado pelas Adms</div>
+        <div class="sem-leg-item"><div class="sem-leg-sq" style="background:#0C447C;"></div>Novas entradas</div>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;" id="cons-legend"></div>
-      <div style="position:relative;height:260px;" id="cons-wrap-qtd"><canvas id="cons-chart" role="img" aria-label="Gráfico de barras mostrando OS pendentes, resolvidas e novas por data de carga.">Evolução de OS ao longo do tempo.</canvas></div>
-      <div style="position:relative;height:260px;display:none;" id="cons-wrap-val"><canvas id="cons-chart-val" role="img" aria-label="Gráfico de barras mostrando valor em R$ pendente e resolvido por data de carga.">Evolução de valor ao longo do tempo.</canvas></div>
     </div>
   </div>
 
@@ -434,7 +428,7 @@
     <div class="card" style="max-width:620px;margin:0 auto;">
       <div class="card-title">Importar nova planilha</div>
       <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.7;">
-        Selecione o <strong>.xlsx</strong> exportado no mesmo formato de sempre. O sistema detecta automaticamente o que é novo, o que continua e o que saiu. Tratativas já preenchidas pelo time são preservadas.
+        Selecione o <strong>.xlsx</strong> exportado no mesmo formato de sempre. O sistema detecta automaticamente o que é novo, o que continua e o que saiu.
       </p>
       <div class="upload-zone" id="upload-zone"
         onclick="document.getElementById('file-input').click()"
@@ -473,8 +467,8 @@
 
 <div id="wa-cons-modal" style="display:none;" class="wa-modal" onclick="if(event.target===this)closeWaConsModal()">
   <div class="wa-modal-box" style="width:420px;">
-    <div class="wa-modal-title">📊 Enviar atualização diária</div>
-    <div class="wa-modal-sub">Resumo do consolidado será enviado via WhatsApp</div>
+    <div class="wa-modal-title">📊 Enviar atualização semanal</div>
+    <div class="wa-modal-sub">Resumo da semana selecionada</div>
     <div id="wa-cons-preview" style="background:var(--surface2);border-radius:8px;padding:10px;font-size:11px;font-family:var(--mono);margin-bottom:1rem;max-height:200px;overflow-y:auto;white-space:pre-wrap;line-height:1.6;"></div>
     <input type="tel" id="wa-cons-phone" class="wa-input" placeholder="Ex: 88999999999 (com DDD)" />
     <div class="wa-actions">
@@ -485,7 +479,6 @@
 </div>
 
 <script>
-
 const EQUIPES_INFO = {
   'CPS-TR-11B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
   'CPR-RD-12B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
@@ -625,32 +618,20 @@ const EQUIPES_INFO = {
   'JZN-COS-12B':{supervisor:'Jose Wilson',processo:'Obras',centro:'Juazeiro do Norte'},
 };
 
-function getInfo(equipe) {
-  return EQUIPES_INFO[equipe] || {supervisor:'—',processo:'—',centro:'—'};
-}
+function getInfo(equipe) { return EQUIPES_INFO[equipe] || {supervisor:'—',processo:'—',centro:'—'}; }
 
-// ================ STATE ================
 let state = { os: [], cargas: [], log: [], snapshots: [] };
-let consChart = null, consChartVal = null;
 let pendingImport = null;
 let currentTab = 'dashboard';
+let semModo = 'qtd';
 const configured = typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL !== 'COLE_SUA_URL_AQUI' && APPS_SCRIPT_URL.includes('script.google.com');
 
-// ================ API ================
 async function apiGet() {
-  const r = await fetch(APPS_SCRIPT_URL + '?action=getAll', {
-    redirect: 'follow',
-    mode: 'cors',
-  });
+  const r = await fetch(APPS_SCRIPT_URL + '?action=getAll', { redirect:'follow', mode:'cors' });
   return r.json();
 }
 async function apiPost(action, data) {
-  const r = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    redirect: 'follow',
-    mode: 'cors',
-    body: JSON.stringify({ action, data })
-  });
+  const r = await fetch(APPS_SCRIPT_URL, { method:'POST', redirect:'follow', mode:'cors', body: JSON.stringify({action, data}) });
   return r.json();
 }
 
@@ -666,12 +647,9 @@ async function sincronizar(force) {
       state.log    = data.log    || [];
       state.snapshots = data.snapshots || [];
       if (emTratativas && digitando && !force) {
-        // Preserva edições locais, só atualiza dados da planilha
         const srvMap = {};
         (data.os || []).forEach(o => { srvMap[o.id] = normalizeOS(o); });
-        state.os = state.os.map(o => srvMap[o.id]
-          ? { ...srvMap[o.id], status: o.status, responsavel: o.responsavel, dataResolucao: o.dataResolucao, obs: o.obs }
-          : o);
+        state.os = state.os.map(o => srvMap[o.id] ? {...srvMap[o.id], status:o.status, responsavel:o.responsavel, dataResolucao:o.dataResolucao, obs:o.obs} : o);
       } else {
         state.os = (data.os || []).map(normalizeOS);
         renderCurrentTab();
@@ -685,50 +663,52 @@ function setSyncStatus(s) {
   const dot = document.getElementById('sync-dot');
   const txt = document.getElementById('sync-txt');
   dot.className = 'sync-dot' + (s==='error'?' off': s==='syncing'?' warn':'');
-  txt.textContent = s==='ok' ? 'Sincronizado · ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
-    : s==='syncing' ? 'Sincronizando...' : 'Sem conexão';
+  txt.textContent = s==='ok' ? 'Sincronizado · ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : s==='syncing' ? 'Sincronizando...' : 'Sem conexão';
 }
 
 function normalizeOS(o) {
   return {
-    id: o.id||'', equipe: o.equipe||'', os: o.os||'',
-    dataRejeicao: o.dataRejeicao||'-',
-    dataRejeicaoStr: formatDateStr(o.dataRejeicaoStr || o.dataRejeicao),
-    diasAtraso: parseInt(o.diasAtraso)||0, motivo: o.motivo||'-',
-    justificativa: o.justificativa||'-', valor: parseFloat(o.valor)||0,
-    status: o.status||'Pendente', responsavel: o.responsavel||'',
-    dataResolucao: o.dataResolucao||'', obs: o.obs||'',
-    firstSeen: o.firstSeen||'',
-    reincidencias: parseInt(o.reincidencias)||0,
-    historicoRejeicoes: o.historicoRejeicoes||''
+    id:o.id||'', equipe:o.equipe||'', os:o.os||'',
+    dataRejeicao:o.dataRejeicao||'-',
+    dataRejeicaoStr:formatDateStr(o.dataRejeicaoStr||o.dataRejeicao),
+    diasAtraso:parseInt(o.diasAtraso)||0, motivo:o.motivo||'-',
+    justificativa:o.justificativa||'-', valor:parseFloat(o.valor)||0,
+    status:o.status||'Pendente', responsavel:o.responsavel||'',
+    dataResolucao:o.dataResolucao||'', obs:o.obs||'',
+    firstSeen:o.firstSeen||'', reincidencias:parseInt(o.reincidencias)||0, historicoRejeicoes:o.historicoRejeicoes||''
   };
 }
 
 function formatDateStr(v) {
-  if (!v || v==='-') return '-';
-  if (typeof v==='string' && v.includes('/')) return v;
-  // ISO string from Sheets (e.g. 2025-11-18T03:00:00.000Z)
-  if (typeof v==='string' && v.includes('T')) {
-    const d = new Date(v);
-    return isNaN(d) ? v : d.toLocaleDateString('pt-BR');
-  }
-  // Excel serial
-  const n = parseInt(v);
-  if (!isNaN(n) && n > 40000) return new Date((n-25569)*86400000).toLocaleDateString('pt-BR');
+  if (!v||v==='-'||v==='—') return v||'—';
+  if (typeof v==='string'&&v.includes('/')) return v;
+  if (typeof v==='string'&&v.includes('T')) { const d=new Date(v); return isNaN(d)?v:d.toLocaleDateString('pt-BR'); }
+  if (typeof v==='string'&&v.includes('-')&&v.length===10) { const p=v.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
   return String(v);
 }
 
-// ================ TABS ================
+function formatCargaDate(d) {
+  if (!d) return '';
+  if (typeof d==='string'&&d.includes('/')) return d.split('/').slice(0,2).join('/');
+  if (typeof d==='string'&&d.includes('T')) {
+    const dt=new Date(d);
+    if (!isNaN(dt)) return String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0');
+    return d;
+  }
+  return String(d);
+}
+
 function showTab(name, btn) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
   if (btn) btn.classList.add('active');
   currentTab = name;
   renderCurrentTab();
 }
+
 function renderCurrentTab() {
-  filtersPopulated=false;
+  filtersPopulated = false;
   populateFilters();
   if (currentTab==='dashboard') renderDashboard();
   else if (currentTab==='tratativas') renderTratativas();
@@ -737,16 +717,13 @@ function renderCurrentTab() {
   else if (currentTab==='consolidado') renderConsolidado();
 }
 
-// ================ EXCEL DATE ================
 function excelDateToStr(v) {
-  if (!v || v==='-') return '-';
-  if (typeof v==='string' && v.includes('/')) return v;
-  const n = parseInt(v);
-  if (isNaN(n)) return String(v);
+  if (!v||v==='-') return '-';
+  if (typeof v==='string'&&v.includes('/')) return v;
+  const n=parseInt(v); if (isNaN(n)) return String(v);
   return new Date((n-25569)*86400000).toLocaleDateString('pt-BR');
 }
 
-// ================ FILE IMPORT ================
 function handleDrop(e) { e.preventDefault(); document.getElementById('upload-zone').classList.remove('drag'); processFile(e.dataTransfer.files[0]); }
 function handleFile(e) { processFile(e.target.files[0]); }
 
@@ -762,15 +739,11 @@ function processFile(file) {
     if (hi===-1) { showToast('❌ Formato não reconhecido'); return; }
     const hdr = rows[hi].map(h=>String(h||'').trim().toLowerCase());
     const ci = {
-      eq: hdr.findIndex(h=>h.includes('equipe')),
-      os: hdr.findIndex(h=>h.includes('ordem')||h.includes('servi')),
-      dt: hdr.findIndex(h=>h.includes('data')&&h.includes('rej')),
-      di: hdr.findIndex(h=>h.includes('dias')),
-      mo: hdr.findIndex(h=>h.includes('motivo')),
-      ju: hdr.findIndex(h=>h.includes('justif')),
-      va: hdr.findIndex(h=>h.includes('valor')),
+      eq:hdr.findIndex(h=>h.includes('equipe')), os:hdr.findIndex(h=>h.includes('ordem')||h.includes('servi')),
+      dt:hdr.findIndex(h=>h.includes('data')&&h.includes('rej')), di:hdr.findIndex(h=>h.includes('dias')),
+      mo:hdr.findIndex(h=>h.includes('motivo')), ju:hdr.findIndex(h=>h.includes('justif')), va:hdr.findIndex(h=>h.includes('valor')),
     };
-    const newOS = []; let curEq = '';
+    const newOS=[]; let curEq='';
     for (let i=hi+1;i<rows.length;i++) {
       const r=rows[i]; if (!r||!r.length) continue;
       const eq=String(r[ci.eq]||'').trim(); const os=String(r[ci.os]||'').trim();
@@ -778,23 +751,14 @@ function processFile(file) {
       if (!os||os==='Total'||os==='-'||os==='undefined') continue;
       const e=curEq||eq; if (!e) continue;
       const dias=parseInt(r[ci.di])||0;
-      newOS.push({ id:e+'|'+os, equipe:e, os, dataRejeicao:String(r[ci.dt]||'-'), dataRejeicaoStr:excelDateToStr(r[ci.dt]), diasAtraso:dias, motivo:String(r[ci.mo]||'-').trim(), justificativa:String(r[ci.ju]||'-').trim(), valor:parseFloat(r[ci.va])||0, status:dias>=90?'Crítico':'Pendente' });
+      newOS.push({id:e+'|'+os,equipe:e,os,dataRejeicao:String(r[ci.dt]||'-'),dataRejeicaoStr:excelDateToStr(r[ci.dt]),diasAtraso:dias,motivo:String(r[ci.mo]||'-').trim(),justificativa:String(r[ci.ju]||'-').trim(),valor:parseFloat(r[ci.va])||0,status:dias>=90?'Crítico':'Pendente'});
     }
     if (!newOS.length) { showToast('❌ Nenhuma OS encontrada'); return; }
-    const existIds = new Set(state.os.map(o=>o.id));
-    const newIds   = new Set(newOS.map(o=>o.id));
-    const novas    = newOS.filter(o=>!existIds.has(o.id));
-    const removidas= state.os.filter(o=>!newIds.has(o.id));
-    const mantidas = newOS.filter(o=>existIds.has(o.id));
-    pendingImport = {newOS, novas, removidas, mantidas};
+    const existIds=new Set(state.os.map(o=>o.id)); const newIds=new Set(newOS.map(o=>o.id));
+    const novas=newOS.filter(o=>!existIds.has(o.id)); const removidas=state.os.filter(o=>!newIds.has(o.id)); const mantidas=newOS.filter(o=>existIds.has(o.id));
+    pendingImport={newOS,novas,removidas,mantidas};
     document.getElementById('preview-area').style.display='block';
-    document.getElementById('diff-area').innerHTML = `
-      <div style="font-size:13px;font-weight:500;margin-bottom:10px;">${newOS.length} OS encontradas</div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
-        ${novas.length?`<div>✦ <span class="badge badge-new">+${novas.length} novas</span> entrarão como pendentes</div>`:''}
-        ${mantidas.length?`<div>≡ <span class="badge badge-neutral">${mantidas.length} mantidas</span> — tratativas preservadas</div>`:''}
-        ${removidas.length?`<div>✓ <span class="badge badge-ok">${removidas.length} saíram</span> — não aparecem mais</div>`:''}
-      </div>`;
+    document.getElementById('diff-area').innerHTML=`<div style="font-size:13px;font-weight:500;margin-bottom:10px;">${newOS.length} OS encontradas</div><div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">${novas.length?`<div>✦ <span class="badge badge-new">+${novas.length} novas</span> entrarão como pendentes</div>`:''}${mantidas.length?`<div>≡ <span class="badge badge-neutral">${mantidas.length} mantidas</span> — tratativas preservadas</div>`:''}${removidas.length?`<div>✓ <span class="badge badge-ok">${removidas.length} saíram</span> — não aparecem mais</div>`:''}</div>`;
   };
   reader.readAsArrayBuffer(file);
 }
@@ -806,173 +770,112 @@ async function confirmarImportacao() {
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enviando...';
   const today=new Date().toLocaleDateString('pt-BR');
   try {
-    const result = await apiPost('importCarga', {os:pendingImport.newOS, data:today});
+    const result=await apiPost('importCarga',{os:pendingImport.newOS,data:today});
     if (result&&result.ok) {
       showToast(`✅ ${result.total} OS importadas`);
-      pendingImport=null;
-      document.getElementById('preview-area').style.display='none';
-      document.getElementById('file-input').value='';
-      await sincronizar(true);
-      showTab('dashboard', document.querySelectorAll('nav button')[0]);
+      pendingImport=null; document.getElementById('preview-area').style.display='none'; document.getElementById('file-input').value='';
+      await sincronizar(true); showTab('dashboard',document.querySelectorAll('nav button')[0]);
     } else throw new Error(result?.error||'erro');
   } catch(e) { showToast('❌ Erro: '+e.message); }
   btn.disabled=false; btn.innerHTML='Confirmar e enviar para o Sheets';
 }
 function cancelarImport() { pendingImport=null; document.getElementById('preview-area').style.display='none'; document.getElementById('file-input').value=''; }
 
-// ================ DASHBOARD ================
 function renderDashboard() {
   const os=state.os, cargas=state.cargas;
   const empty=!os.length;
   document.getElementById('dash-empty').style.display=empty?'block':'none';
   document.getElementById('dash-content').style.display=empty?'none':'block';
   if (empty) return;
-
-  const pendentes = os.filter(o=>o.status!=='Resolvido');
-  const resolvidas   = os.filter(o=>o.status==='Resolvido');
-  const criticas  = pendentes.filter(o=>o.diasAtraso>=90);
-  const emTrat    = os.filter(o=>o.status==='Em tratativa');
-  const lastCarga = cargas[cargas.length-1];
-
-  const vPend  = pendentes.reduce((s,o)=>s+o.valor,0);
-  const vSan   = resolvidas.reduce((s,o)=>s+o.valor,0);
-  const vTotal = vPend+vSan;
-  const pct    = vTotal>0?Math.round(vSan/vTotal*100):0;
-
-  // Métricas
+  const pendentes=os.filter(o=>o.status!=='Resolvido');
+  const resolvidas=os.filter(o=>o.status==='Resolvido');
+  const criticas=pendentes.filter(o=>o.diasAtraso>=90);
+  const emTrat=os.filter(o=>o.status==='Em tratativa');
+  const lastCarga=cargas[cargas.length-1];
+  const vPend=pendentes.reduce((s,o)=>s+o.valor,0);
+  const vSan=resolvidas.reduce((s,o)=>s+o.valor,0);
+  const vTotal=vPend+vSan;
+  const pct=vTotal>0?Math.round(vSan/vTotal*100):0;
   document.getElementById('metrics-area').innerHTML=`
     <div class="metric al"><div class="metric-label">Pendentes</div><div class="metric-value">${pendentes.length}</div><div class="metric-sub">de ${os.length} OS</div></div>
     <div class="metric ag"><div class="metric-label">Resolvidas</div><div class="metric-value">${resolvidas.length}</div><div class="metric-sub">acumulado</div></div>
     <div class="metric"><div class="metric-label">Em tratativa</div><div class="metric-value">${emTrat.length}</div><div class="metric-sub">em andamento</div></div>
     <div class="metric"><div class="metric-label">Novas (última carga)</div><div class="metric-value">${lastCarga?lastCarga.novas:0}</div><div class="metric-sub">${lastCarga?lastCarga.data:'—'}</div></div>
-    <div class="metric al"><div class="metric-label">Críticas 90+ dias</div><div class="metric-value">${criticas.length}</div><div class="metric-sub">${fmtShort(criticas.reduce((s,o)=>s+o.valor,0))}</div></div>
-  `;
-
-  // Status bar chart
-  const lastCargaNovas = lastCarga ? (parseInt(lastCarga.novas)||0) : 0;
-  const statusData = [
-    { label:'Pendentes',    val:pendentes.filter(o=>o.status==='Pendente'||o.status==='Crítico').length, color:'#991B1B', bg:'#FEE2E2' },
-    { label:'Em tratativa', val:emTrat.length,    color:'#5B21B6', bg:'#EDE9FE' },
-    { label:'Resolvidas',      val:resolvidas.length,   color:'#2D6A4F', bg:'#D8F0E5' },
-    { label:'Novas (carga)',val:lastCargaNovas,   color:'#1E40AF', bg:'#DBEAFE' },
+    <div class="metric al"><div class="metric-label">Críticas 90+ dias</div><div class="metric-value">${criticas.length}</div><div class="metric-sub">${fmtShort(criticas.reduce((s,o)=>s+o.valor,0))}</div></div>`;
+  const lastCargaNovas=lastCarga?(parseInt(lastCarga.novas)||0):0;
+  const statusData=[
+    {label:'Pendentes',val:pendentes.filter(o=>o.status==='Pendente'||o.status==='Crítico').length,color:'#991B1B',bg:'#FEE2E2'},
+    {label:'Em tratativa',val:emTrat.length,color:'#5B21B6',bg:'#EDE9FE'},
+    {label:'Resolvidas',val:resolvidas.length,color:'#2D6A4F',bg:'#D8F0E5'},
+    {label:'Novas (carga)',val:lastCargaNovas,color:'#1E40AF',bg:'#DBEAFE'},
   ];
-  const maxSt = Math.max(...statusData.map(d=>d.val), 1);
-  const BAR_H = 72;
-  document.getElementById('chart-status-bars').innerHTML = statusData.map(d => {
-    const h = Math.max(Math.round(d.val/maxSt*BAR_H), d.val>0?4:0);
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:0;">
-      <div style="font-size:13px;font-weight:600;font-family:var(--mono);color:${d.color};">${d.val}</div>
-      <div style="width:100%;height:${h}px;background:${d.color};border-radius:4px 4px 0 0;min-height:${d.val>0?4:0}px;"></div>
-      <div style="font-size:11px;color:var(--text2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${d.label}</div>
-    </div>`;
+  const maxSt=Math.max(...statusData.map(d=>d.val),1); const BAR_H=72;
+  document.getElementById('chart-status-bars').innerHTML=statusData.map(d=>{
+    const h=Math.max(Math.round(d.val/maxSt*BAR_H),d.val>0?4:0);
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;font-family:var(--mono);color:${d.color};">${d.val}</div><div style="width:100%;height:${h}px;background:${d.color};border-radius:4px 4px 0 0;min-height:${d.val>0?4:0}px;"></div><div style="font-size:11px;color:var(--text2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;">${d.label}</div></div>`;
   }).join('');
-  document.getElementById('chart-status-legend').innerHTML = statusData.map(d =>
-    `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);">
-      <div style="width:10px;height:10px;border-radius:2px;background:${d.color};flex-shrink:0;"></div>${d.label}: <strong>${d.val}</strong>
-    </div>`
-  ).join('');
-
-  // Evolução de valor
+  document.getElementById('chart-status-legend').innerHTML=statusData.map(d=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><div style="width:10px;height:10px;border-radius:2px;background:${d.color};flex-shrink:0;"></div>${d.label}: <strong>${d.val}</strong></div>`).join('');
   document.getElementById('evo-pendente').textContent=fmtValor(vPend);
   document.getElementById('evo-resolvido').textContent=fmtValor(vSan);
   document.getElementById('prog-pct').textContent=pct+'%';
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('prog-label-san').textContent=fmtValor(vSan)+' resolvido';
   document.getElementById('prog-label-tot').textContent=fmtValor(vTotal)+' total';
-
-  // Delta vs carga anterior
   const deltaWrap=document.getElementById('evo-delta-wrap');
   if (cargas.length>=2) {
-    const prev=parseFloat(cargas[cargas.length-2].valorPendente)||0;
-    const delta=prev-vPend;
+    const prev=parseFloat(cargas[cargas.length-2].valorPendente)||0; const delta=prev-vPend;
     if (Math.abs(delta)>0.01) {
-      const cls=delta>0?'delta-good':'delta-bad';
-      const icon=delta>0?'↓':'↑';
+      const cls=delta>0?'delta-good':'delta-bad'; const icon=delta>0?'↓':'↑';
       deltaWrap.innerHTML=`<span class="evo-delta ${cls}">${icon} ${fmtValor(Math.abs(delta))} ${delta>0?'reduzido desde última carga':'aumentou desde última carga'}</span>`;
     } else deltaWrap.innerHTML='';
   } else deltaWrap.innerHTML='';
-
-  // Gráfico evolução por carga
   if (cargas.length) {
-    const maxV=Math.max(...cargas.map(c=>parseFloat(c.valorPendente)||0),1);
-    const BAR=68;
+    const maxV=Math.max(...cargas.map(c=>parseFloat(c.valorPendente)||0),1); const BAR=68;
     document.getElementById('evo-bars').innerHTML=cargas.map(c=>{
-      const vp=parseFloat(c.valorPendente)||0;
-      const vs=Math.max(0,vTotal-vp);
+      const vp=parseFloat(c.valorPendente)||0; const vs=Math.max(0,vTotal-vp);
       const hp=Math.round(vp/maxV*BAR); const hs=Math.min(Math.round(vs/maxV*BAR),BAR-hp);
-      return `<div class="evo-col" title="${c.data}: ${fmtValor(vp)} pendente">
-        <div style="display:flex;flex-direction:column-reverse;align-items:center;height:${BAR}px;width:100%;">
-          <div class="evo-bar-pend" style="height:${hp}px;"></div>
-          <div class="evo-bar-san"  style="height:${hs}px;"></div>
-        </div>
-        <div class="evo-bar-date">${formatCargaDate(c.data)}</div>
-      </div>`;
+      return `<div class="evo-col" title="${c.data}: ${fmtValor(vp)} pendente"><div style="display:flex;flex-direction:column-reverse;align-items:center;height:${BAR}px;width:100%;"><div class="evo-bar-pend" style="height:${hp}px;"></div><div class="evo-bar-san" style="height:${hs}px;"></div></div><div class="evo-bar-date">${formatCargaDate(c.data)}</div></div>`;
     }).join('');
   } else document.getElementById('evo-bars').innerHTML='<div style="color:var(--text3);font-size:12px;">Nenhuma carga ainda</div>';
-
-  // Motivos
   const mots={};
-  pendentes.forEach(o=>{ mots[o.motivo]=(mots[o.motivo]||0)+1; });
-  const smots=Object.entries(mots).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const mm=smots[0]?.[1]||1;
-  document.getElementById('chart-motivos').innerHTML=smots.map(([m,n])=>
-    `<div class="bar-row"><div class="bar-label" title="${m}">${m}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mm*100)}%"></div></div><div class="bar-count">${n}</div></div>`
-  ).join('')||'<div class="empty" style="padding:1rem">—</div>';
-
-  // Equipes
+  pendentes.forEach(o=>{mots[o.motivo]=(mots[o.motivo]||0)+1;});
+  const smots=Object.entries(mots).sort((a,b)=>b[1]-a[1]).slice(0,6); const mm=smots[0]?.[1]||1;
+  document.getElementById('chart-motivos').innerHTML=smots.map(([m,n])=>`<div class="bar-row"><div class="bar-label" title="${m}">${m}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mm*100)}%"></div></div><div class="bar-count">${n}</div></div>`).join('')||'<div class="empty" style="padding:1rem">—</div>';
   const eqs={};
-  pendentes.forEach(o=>{ if(!eqs[o.equipe])eqs[o.equipe]={n:0,maxD:0,val:0}; eqs[o.equipe].n++;eqs[o.equipe].val+=o.valor;eqs[o.equipe].maxD=Math.max(eqs[o.equipe].maxD,o.diasAtraso); });
+  pendentes.forEach(o=>{if(!eqs[o.equipe])eqs[o.equipe]={n:0,maxD:0,val:0};eqs[o.equipe].n++;eqs[o.equipe].val+=o.valor;eqs[o.equipe].maxD=Math.max(eqs[o.equipe].maxD,o.diasAtraso);});
   const seqs=Object.entries(eqs).sort((a,b)=>b[1].val-a[1].val).slice(0,7);
   document.getElementById('chart-equipes').innerHTML=seqs.map(([eq,v])=>{
     const cls=v.maxD>=90?'badge-danger':v.maxD>=30?'badge-warn':'badge-ok';
     return `<div class="bar-row"><div class="bar-label">${eq}</div><div style="display:flex;gap:6px;align-items:center;"><span class="badge ${cls}">${v.n} OS</span><span style="font-size:11px;color:var(--text3);font-family:var(--mono);">${fmtShort(v.val)}</span></div></div>`;
   }).join('')||'<div class="empty" style="padding:1rem">—</div>';
-
-  // Críticas
-  document.getElementById('criticas-body').innerHTML=criticas.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,10).map(o=>`
-    <tr>
-      <td><strong>${o.equipe}</strong></td>
-      <td class="mono">${o.os}</td>
-      <td>${o.dataRejeicaoStr}</td>
-      <td><span class="badge badge-danger">${o.diasAtraso}d</span></td>
-      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
-      <td class="mono">${fmtValor(o.valor)}</td>
-    </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.5rem;">Nenhuma OS crítica 🎉</td></tr>';
+  document.getElementById('criticas-body').innerHTML=criticas.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,10).map(o=>`<tr><td><strong>${o.equipe}</strong></td><td class="mono">${o.os}</td><td>${o.dataRejeicaoStr}</td><td><span class="badge badge-danger">${o.diasAtraso}d</span></td><td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td><td class="mono">${fmtValor(o.valor)}</td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.5rem;">Nenhuma OS crítica 🎉</td></tr>';
 }
 
-// ================ TRATATIVAS ================
-let editingSet = new Set();
-let pendentesSet = new Set();
-let salvosSet = new Set();
-let histSet = new Set();
-
-let filtersPopulated = false;
+let editingSet=new Set(), pendentesSet=new Set(), salvosSet=new Set(), histSet=new Set(), filtersPopulated=false;
 
 function populateFilters() {
   const ids=['filtro-equipe','filtro-motivo','filtro-centro','filtro-processo','filtro-supervisor'];
   const sels=ids.map(id=>document.getElementById(id));
   if (!sels[0]||!state.os.length) return;
   const saved=sels.map(s=>s?s.value:'');
-  sels.forEach(s=>{ if(s) while(s.options.length>1) s.remove(1); });
+  sels.forEach(s=>{if(s) while(s.options.length>1) s.remove(1);});
   [...new Set(state.os.map(o=>o.equipe))].sort().forEach(e=>{const op=document.createElement('option');op.value=e;op.textContent=e;sels[0].appendChild(op);});
   [...new Set(state.os.map(o=>o.motivo))].sort().forEach(m=>{const op=document.createElement('option');op.value=m;op.textContent=m;sels[1].appendChild(op);});
   [...new Set(state.os.map(o=>getInfo(o.equipe).centro))].filter(Boolean).sort().forEach(c=>{const op=document.createElement('option');op.value=c;op.textContent=c;sels[2].appendChild(op);});
   [...new Set(state.os.map(o=>getInfo(o.equipe).processo))].filter(Boolean).sort().forEach(p=>{const op=document.createElement('option');op.value=p;op.textContent=p;sels[3].appendChild(op);});
   [...new Set(state.os.map(o=>getInfo(o.equipe).supervisor))].filter(Boolean).sort().forEach(s=>{const op=document.createElement('option');op.value=s;op.textContent=s;sels[4].appendChild(op);});
-  sels.forEach((s,i)=>{ if(s&&saved[i]) s.value=saved[i]; });
+  sels.forEach((s,i)=>{if(s&&saved[i]) s.value=saved[i];});
   filtersPopulated=true;
 }
 
 function renderTratativas() {
   if (!filtersPopulated) populateFilters();
-
   const status=document.getElementById('filtro-status')?.value||'';
   const equipe=document.getElementById('filtro-equipe')?.value||'';
   const motivo=document.getElementById('filtro-motivo')?.value||'';
   const centro=document.getElementById('filtro-centro')?.value||'';
   const processo=document.getElementById('filtro-processo')?.value||'';
   const supervisor=document.getElementById('filtro-supervisor')?.value||'';
-
   const filtered=state.os.filter(o=>{
     const info=getInfo(o.equipe);
     if (status==='critico') return o.diasAtraso>=90&&o.status!=='Resolvido';
@@ -984,121 +887,65 @@ function renderTratativas() {
     if (supervisor&&info.supervisor!==supervisor) return false;
     return true;
   });
-
   document.getElementById('trat-empty').style.display=filtered.length?'none':'block';
   document.getElementById('trat-count').textContent=`${filtered.length} OS exibidas de ${state.os.length} total`;
-
   document.getElementById('tratativas-body').innerHTML=filtered.map(o=>{
     const idx=state.os.indexOf(o);
-    const isEdit=editingSet.has(idx);
-    const isPend=pendentesSet.has(idx);
-    const isSalvo=salvosSet.has(idx)&&!isPend;
+    const isEdit=editingSet.has(idx), isPend=pendentesSet.has(idx), isSalvo=salvosSet.has(idx)&&!isPend;
     const rowCls=isPend?'row-pendente':isSalvo?'row-salvo':'';
     const dc=o.diasAtraso>=90?'badge-danger':o.diasAtraso>=30?'badge-warn':'badge-ok';
     const sc=o.status==='Resolvido'?'badge-ok':o.status==='Em tratativa'?'badge-trat':o.status==='Reincidente'?'badge-reinc':o.diasAtraso>=90?'badge-danger':'badge-warn';
     const stateTag=isPend?'<span class="row-state rs-pend">pendente</span>':isSalvo?'<span class="row-state rs-ok">salvo ✓</span>':'';
-
     if (isEdit) {
       return `<tr class="${rowCls}" id="trow-${idx}">
-        <td><strong>${o.equipe}</strong></td>
-        <td class="mono">${o.os}</td>
-        <td>${o.dataRejeicaoStr}</td>
+        <td><strong>${o.equipe}</strong></td><td class="mono">${o.os}</td><td>${o.dataRejeicaoStr}</td>
         <td><span class="badge ${dc}">${o.diasAtraso}d</span></td>
         <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
         <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
         <td class="mono">${fmtValor(o.valor)}</td>
-        <td><select class="tbl-input" style="width:110px;" onchange="upd(${idx},'status',this.value)">
-          <option ${o.status==='Pendente'?'selected':''}>Pendente</option>
-          <option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option>
-          <option ${o.status==='Resolvido'?'selected':''}>Resolvido</option>
-          <option ${o.status==='Crítico'?'selected':''}>Crítico</option>
-          <option ${o.status==='Reincidente'?'selected':''}>Reincidente</option>
-        </select></td>
+        <td><select class="tbl-input" style="width:110px;" onchange="upd(${idx},'status',this.value)"><option ${o.status==='Pendente'?'selected':''}>Pendente</option><option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option><option ${o.status==='Resolvido'?'selected':''}>Resolvido</option><option ${o.status==='Crítico'?'selected':''}>Crítico</option><option ${o.status==='Reincidente'?'selected':''}>Reincidente</option></select></td>
         <td><select class="tbl-input" style="width:180px;" onchange="upd(${idx},'responsavel',this.value)"><option value="">Selecionar Adm...</option><option value='Nayane - Juazeiro do Norte' ${o.responsavel==='Nayane - Juazeiro do Norte'?'selected':''}>Nayane - Juazeiro do Norte</option><option value='Cicera Rodrigues - Juazeiro do Norte' ${o.responsavel==='Cicera Rodrigues - Juazeiro do Norte'?'selected':''}>Cicera Rodrigues - Juazeiro do Norte</option><option value='Joselianny Chaves - Milagres' ${o.responsavel==='Joselianny Chaves - Milagres'?'selected':''}>Joselianny Chaves - Milagres</option><option value='Ana Cleomar - Milagres' ${o.responsavel==='Ana Cleomar - Milagres'?'selected':''}>Ana Cleomar - Milagres</option><option value='Delgaria Silva - Campos Sales' ${o.responsavel==='Delgaria Silva - Campos Sales'?'selected':''}>Delgaria Silva - Campos Sales</option><option value='Mireli Maria - Campos Sales' ${o.responsavel==='Mireli Maria - Campos Sales'?'selected':''}>Mireli Maria - Campos Sales</option><option value='Amanda Vasques - Juazeiro do Norte' ${o.responsavel==='Amanda Vasques - Juazeiro do Norte'?'selected':''}>Amanda Vasques - Juazeiro do Norte</option></select></td>
         <td><input class="tbl-input" type="date" style="width:130px;" value="${o.dataResolucao||''}" onchange="upd(${idx},'dataResolucao',this.value)"></td>
         <td><input class="tbl-input" style="width:150px;" placeholder="Observação..." value="${o.obs||''}" oninput="upd(${idx},'obs',this.value)"></td>
         <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Fechar edição">✕</button></td>
-      </tr>
-    ${o.reincidencias>0&&histSet.has(idx)?buildHistRow(o,idx):''}
-    `;
+      </tr>${o.reincidencias>0&&histSet.has(idx)?buildHistRow(o,idx):''}`;
     } else {
       return `<tr class="${rowCls}" id="trow-${idx}">
-        <td><strong>${o.equipe}</strong></td>
-        <td class="mono">${o.os}</td>
-        <td>${o.dataRejeicaoStr}</td>
+        <td><strong>${o.equipe}</strong></td><td class="mono">${o.os}</td><td>${o.dataRejeicaoStr}</td>
         <td><span class="badge ${dc}">${o.diasAtraso}d</span></td>
         <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.motivo}">${o.motivo}</td>
         <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
         <td class="mono">${fmtValor(o.valor)}</td>
-        <td>
-          <span class="badge ${sc}">${o.status}</span>
-          ${o.reincidencias>0?`<span class="badge badge-reinc" style="margin-left:4px;" title="Voltou ${o.reincidencias}x após resolvida">🔁 ${o.reincidencias}x</span>`:''}
-        </td>
+        <td><span class="badge ${sc}">${o.status}</span>${o.reincidencias>0?`<span class="badge badge-reinc" style="margin-left:4px;" title="Voltou ${o.reincidencias}x após resolvida">🔁 ${o.reincidencias}x</span>`:''}</td>
         <td style="color:${o.responsavel?'var(--text)':'var(--text3)'};">${o.responsavel||'—'}</td>
         <td style="font-family:var(--mono);font-size:12px;color:${o.dataResolucao?'var(--text)':'var(--text3)'};">${o.dataResolucao?formatDateStr(o.dataResolucao):'—'}</td>
         <td style="font-size:12px;color:${o.obs?'var(--text)':'var(--text3)'};max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}">${o.obs||'—'}</td>
-        <td style="white-space:nowrap;">
-          ${o.reincidencias>0?`<button class="edit-btn" onclick="toggleHistorico(${idx})" title="Ver histórico de rejeições" style="font-size:13px;">📋</button>`:''}
-          ${stateTag}<button class="wa-btn" onclick="openWaModal(${idx})" title="Copiar mensagem">📋</button><button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button>
-        </td>
+        <td style="white-space:nowrap;">${o.reincidencias>0?`<button class="edit-btn" onclick="toggleHistorico(${idx})" title="Ver histórico">📋</button>`:''}<span>${stateTag}</span><button class="wa-btn" onclick="openWaModal(${idx})" title="Copiar mensagem">📋</button><button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button></td>
       </tr>`;
     }
   }).join('');
   updatePendingBadge();
 }
 
-function toggleEdit(idx) {
-  if (editingSet.has(idx)) editingSet.delete(idx);
-  else editingSet.add(idx);
-  renderTratativas();
+function toggleEdit(idx) { if(editingSet.has(idx))editingSet.delete(idx);else editingSet.add(idx); renderTratativas(); }
+function toggleHistorico(idx) { if(histSet.has(idx))histSet.delete(idx);else histSet.add(idx); renderTratativas(); }
+
+function buildHistRow(o,idx) {
+  const rows=(o.historicoRejeicoes||'').split(';;').map(h=>{const p=h.split('|');return`<div class="hist-rejei-row"><span style="font-family:var(--mono);color:var(--text3);min-width:80px;">${p[0]||'—'}</span><span style="color:var(--text2);">${p[1]||'—'}</span><span style="color:var(--text3);font-size:10px;">${p[2]?'rej: '+p[2]:''}</span></div>`;}).join('');
+  return `<tr id="hist-row-${idx}"><td colspan="12" style="padding:0 12px 12px;"><div class="hist-rejei"><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Histórico de rejeições — voltou ${o.reincidencias}x</div>${rows}</div></td></tr>`;
 }
 
-function toggleHistorico(idx) {
-  if (histSet.has(idx)) histSet.delete(idx);
-  else histSet.add(idx);
-  renderTratativas();
-}
-
-function buildHistRow(o, idx) {
-  const rows = (o.historicoRejeicoes||'').split(';;').map(function(h) {
-    const parts = h.split('|');
-    const dt = parts[0]||'—';
-    const mo = parts[1]||'—';
-    const dr = parts[2]||'';
-    return '<div class="hist-rejei-row">' +
-      '<span style="font-family:var(--mono);color:var(--text3);min-width:80px;">' + dt + '</span>' +
-      '<span style="color:var(--text2);">' + mo + '</span>' +
-      '<span style="color:var(--text3);font-size:10px;">' + (dr?'rej: '+dr:'') + '</span>' +
-      '</div>';
-  }).join('');
-  return '<tr id="hist-row-' + idx + '"><td colspan="12" style="padding:0 12px 12px;">' +
-    '<div class="hist-rejei">' +
-    '<div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Histórico de rejeições — voltou ' + o.reincidencias + 'x</div>' +
-    rows +
-    '</div></td></tr>';
-}
-
-function upd(idx, field, value) {
+function upd(idx,field,value) {
   state.os[idx][field]=value;
   if (field==='dataResolucao'&&value&&state.os[idx].status==='Pendente') state.os[idx].status='Em tratativa';
-  pendentesSet.add(idx);
-  salvosSet.delete(idx);
-  updatePendingBadge();
+  pendentesSet.add(idx); salvosSet.delete(idx); updatePendingBadge();
 }
 
 function updatePendingBadge() {
   const n=pendentesSet.size;
-  const badge=document.getElementById('pending-badge');
-  const txt=document.getElementById('pending-txt');
-  const btn=document.getElementById('btn-salvar');
-  if (n>0) {
-    badge.style.display='inline-flex';
-    txt.textContent=n+(n===1?' alteração pendente':' alterações pendentes');
-    btn.innerHTML='💾 Salvar '+n+(n===1?' alteração':' alterações');
-  } else {
-    badge.style.display='none';
-    btn.innerHTML='💾 Salvar e sincronizar';
-  }
+  const badge=document.getElementById('pending-badge'); const txt=document.getElementById('pending-txt'); const btn=document.getElementById('btn-salvar');
+  if (n>0) { badge.style.display='inline-flex'; txt.textContent=n+(n===1?' alteração pendente':' alterações pendentes'); btn.innerHTML='💾 Salvar '+n+(n===1?' alteração':' alterações'); }
+  else { badge.style.display='none'; btn.innerHTML='💾 Salvar e sincronizar'; }
 }
 
 async function salvarTratativas() {
@@ -1107,632 +954,429 @@ async function salvarTratativas() {
   const btn=document.getElementById('btn-salvar');
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Salvando...';
   try {
-    const result=await apiPost('saveTratativas', state.os.map(o=>({id:o.id,status:o.status,responsavel:o.responsavel,dataResolucao:o.dataResolucao,obs:o.obs})));
+    const result=await apiPost('saveTratativas',state.os.map(o=>({id:o.id,status:o.status,responsavel:o.responsavel,dataResolucao:o.dataResolucao,obs:o.obs})));
     if (result&&result.ok) {
-      pendentesSet.forEach(i=>salvosSet.add(i));
-      pendentesSet.clear();
-      editingSet.clear();
+      pendentesSet.forEach(i=>salvosSet.add(i)); pendentesSet.clear(); editingSet.clear();
       showToast('✅ Salvo e sincronizado!');
-      await apiPost('saveSnapshot', buildSnapshot());
+      await apiPost('saveSnapshot',buildSnapshot());
       await sincronizar(true);
     } else throw new Error(result?.error||'erro');
   } catch(e) { showToast('❌ Erro: '+e.message); }
-  btn.disabled=false;
-  updatePendingBadge();
+  btn.disabled=false; updatePendingBadge();
 }
 
-// ================ HISTÓRICO ================
 function renderHistorico() {
   const cargas=state.cargas;
-  document.getElementById('historico-list').innerHTML=cargas.length?[...cargas].reverse().map(c=>`
-    <div class="hist-row">
-      <span class="hist-date">${c.data}</span>
-      ${parseInt(c.novas)>0?`<span class="badge badge-new">+${c.novas} novas</span>`:''}
-      ${parseInt(c.removidas)>0?`<span class="badge badge-ok">✓${c.removidas} resolvidas</span>`:''}
-      <span style="font-size:12px;color:var(--text2);">→ ${c.pendentes} pendentes</span>
-      <span style="font-family:var(--mono);font-size:11px;color:var(--text3);">${fmtValor(parseFloat(c.valorPendente)||0)}</span>
-    </div>`).join(''):'<div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div>';
-
+  document.getElementById('historico-list').innerHTML=cargas.length?[...cargas].reverse().map(c=>`<div class="hist-row"><span class="hist-date">${c.data}</span>${parseInt(c.novas)>0?`<span class="badge badge-new">+${c.novas} novas</span>`:''}${parseInt(c.removidas)>0?`<span class="badge badge-ok">✓${c.removidas} resolvidas</span>`:''}<span style="font-size:12px;color:var(--text2);">→ ${c.pendentes} pendentes</span><span style="font-family:var(--mono);font-size:11px;color:var(--text3);">${fmtValor(parseFloat(c.valorPendente)||0)}</span></div>`).join(''):'<div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div>';
   const pers=state.os.filter(o=>o.status!=='Resolvido'&&cargas.length>1);
-  document.getElementById('persistentes-list').innerHTML=pers.length?
-    `<div class="table-wrap"><table><thead><tr><th>OS</th><th>Equipe</th><th>1ª vez</th><th>Dias</th></tr></thead><tbody>`+
-    pers.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,12).map(o=>`<tr><td class="mono">${o.os}</td><td>${o.equipe}</td><td style="font-size:11px;color:var(--text3)">${o.firstSeen||'—'}</td><td><span class="badge ${o.diasAtraso>=90?'badge-danger':'badge-warn'}">${o.diasAtraso}d</span></td></tr>`).join('')+
-    '</tbody></table></div>':
-    '<div class="empty"><div class="empty-icon">✅</div>Nenhuma OS persistente sem tratativa</div>';
-
-  document.getElementById('log-list').innerHTML=state.log.length?state.log.map(l=>`
-    <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
-      <span style="color:var(--text3);min-width:80px;font-family:var(--mono);">${l.data}</span>
-      <span>${l.msg}</span>
-    </div>`).join(''):'<div class="empty">Nenhuma atividade</div>';
+  document.getElementById('persistentes-list').innerHTML=pers.length?`<div class="table-wrap"><table><thead><tr><th>OS</th><th>Equipe</th><th>1ª vez</th><th>Dias</th></tr></thead><tbody>`+pers.sort((a,b)=>b.diasAtraso-a.diasAtraso).slice(0,12).map(o=>`<tr><td class="mono">${o.os}</td><td>${o.equipe}</td><td style="font-size:11px;color:var(--text3)">${o.firstSeen||'—'}</td><td><span class="badge ${o.diasAtraso>=90?'badge-danger':'badge-warn'}">${o.diasAtraso}d</span></td></tr>`).join('')+'</tbody></table></div>':'<div class="empty"><div class="empty-icon">✅</div>Nenhuma OS persistente</div>';
+  document.getElementById('log-list').innerHTML=state.log.length?state.log.map(l=>`<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;"><span style="color:var(--text3);min-width:80px;font-family:var(--mono);">${l.data}</span><span>${l.msg}</span></div>`).join(''):'<div class="empty">Nenhuma atividade</div>';
 }
 
-// ================ UTILS ================
 function fmtValor(v) { return 'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function formatDateStr(v) {
-  if (!v || v==='-' || v==='—') return v||'—';
-  if (typeof v==='string' && v.includes('/')) return v;
-  if (typeof v==='string' && v.includes('T')) {
-    const d=new Date(v); return isNaN(d)?v:d.toLocaleDateString('pt-BR');
-  }
-  if (typeof v==='string' && v.includes('-') && v.length===10) {
-    const parts=v.split('-'); return parts[2]+'/'+parts[1]+'/'+parts[0];
-  }
-  return String(v);
+function fmtShort(v) { const n=parseFloat(v)||0; return n>=1000?'R$ '+(n/1000).toFixed(1)+'k':'R$ '+Math.round(n); }
+function fmtSem(v,m) {
+  if (v===null||v===undefined) return '—';
+  if (m==='val') return 'R$\u00a0'+(Math.round(v)).toLocaleString('pt-BR');
+  return String(Math.round(v));
+}
+function fmtSemPend(v,m) {
+  if (v===null||v===undefined) return '—';
+  if (m==='val') { const k=v/1000; return 'R$\u00a0'+k.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'k'; }
+  return String(Math.round(v));
 }
 
-function formatCargaDate(d) {
-  if (!d) return '';
-  if (typeof d==='string' && d.includes('/')) return d.split('/').slice(0,2).join('/');
-  if (typeof d==='string' && d.includes('T')) {
-    // Parse ISO date using UTC to avoid timezone shift
-    const dt=new Date(d);
-    if (!isNaN(dt)) {
-      const day = String(dt.getUTCDate()).padStart(2,'0');
-      const mon = String(dt.getUTCMonth()+1).padStart(2,'0');
-      return day+'/'+mon;
-    }
-    return d;
-  }
-  return String(d);
-}
-function fmtShort(v) { const n=parseFloat(v)||0; return n>=1000?'R$ '+(n/1000).toFixed(1)+'k':'R$ '+Math.round(n); }
 function exportarCSV() {
   if (!state.os.length) { showToast('Nenhum dado'); return; }
   const h=['Equipe','OS','Data Rej.','Dias','Motivo','Justificativa','Valor','Status','Responsável','Data Resolução','Obs'];
   const rows=state.os.map(o=>[o.equipe,o.os,o.dataRejeicaoStr,o.diasAtraso,o.motivo,o.justificativa,o.valor,o.status,o.responsavel,o.dataResolucao,o.obs]);
   const csv=[h,...rows].map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'})); a.download='os_'+new Date().toISOString().split('T')[0]+'.csv'; a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download='os_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
 }
+
+function exportarConsolidadoCSV() { showToast('Em breve'); }
+
 function renderHierarquia() {
-  const os = state.os;
-  if (!os.length) {
-    ['hier-centro','hier-processo','hier-supervisor'].forEach(id=>{
-      document.getElementById(id).innerHTML='<div class="empty"><div class="empty-icon">📋</div>Nenhum dado</div>';
-    });
-    return;
-  }
-  const filtroCentro = document.getElementById('hier-filtro-centro')?.value||'';
-  const pendentes = os.filter(o=>o.status!=='Resolvido');
-  const reincidentes = os.filter(o=>o.reincidencias>0);
-
-  // Enrich with info
-  const enrich = o => ({...o, ...getInfo(o.equipe)});
-  const pend = pendentes.map(enrich).filter(o=>!filtroCentro||o.centro===filtroCentro);
-  const reinc = reincidentes.map(enrich).filter(o=>!filtroCentro||o.centro===filtroCentro);
-
-  document.getElementById('hier-count').textContent = filtroCentro ? `${pend.length} OS pendentes em ${filtroCentro}` : '';
-
-  // --- Centro de serviço ---
+  const os=state.os;
+  if (!os.length) { ['hier-centro','hier-processo','hier-supervisor'].forEach(id=>{document.getElementById(id).innerHTML='<div class="empty"><div class="empty-icon">📋</div>Nenhum dado</div>';}); return; }
+  const filtroCentro=document.getElementById('hier-filtro-centro')?.value||'';
+  const pendentes=os.filter(o=>o.status!=='Resolvido');
+  const reincidentes=os.filter(o=>o.reincidencias>0);
+  const enrich=o=>({...o,...getInfo(o.equipe)});
+  const pend=pendentes.map(enrich).filter(o=>!filtroCentro||o.centro===filtroCentro);
+  const reinc=reincidentes.map(enrich).filter(o=>!filtroCentro||o.centro===filtroCentro);
+  document.getElementById('hier-count').textContent=filtroCentro?`${pend.length} OS pendentes em ${filtroCentro}`:'';
   const centros={};
-  pend.forEach(o=>{
-    const c=o.centro||'Sem centro';
-    if(!centros[c]) centros[c]={n:0,val:0};
-    centros[c].n++; centros[c].val+=o.valor;
-  });
-  const sortedC=Object.entries(centros).sort((a,b)=>b[1].n-a[1].n);
-  const maxC=sortedC[0]?.[1].n||1;
+  pend.forEach(o=>{const c=o.centro||'Sem centro';if(!centros[c])centros[c]={n:0,val:0};centros[c].n++;centros[c].val+=o.valor;});
+  const sortedC=Object.entries(centros).sort((a,b)=>b[1].n-a[1].n); const maxC=sortedC[0]?.[1].n||1;
   const cColors=['#E24B4A','#EF9F27','#2D6A4F','#378ADD'];
-  document.getElementById('hier-centro').innerHTML=sortedC.map(([c,v],i)=>{
-    const col=cColors[i]||'#888780';
-    return `<div class="bar-row">
-      <div class="bar-label" style="min-width:140px;font-weight:500;">${c}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.n/maxC*100)}%;background:${col}"></div></div>
-      <span class="badge" style="background:${col}20;color:${col};font-family:var(--mono);font-size:11px;">${v.n} OS</span>
-      <span style="font-size:11px;color:var(--text3);font-family:var(--mono);min-width:70px;text-align:right;">${fmtShort(v.val)}</span>
-    </div>`;
-  }).join('');
-
-  // --- Processo ---
+  document.getElementById('hier-centro').innerHTML=sortedC.map(([c,v],i)=>{const col=cColors[i]||'#888780';return`<div class="bar-row"><div class="bar-label" style="min-width:140px;font-weight:500;">${c}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.n/maxC*100)}%;background:${col}"></div></div><span class="badge" style="background:${col}20;color:${col};font-family:var(--mono);font-size:11px;">${v.n} OS</span><span style="font-size:11px;color:var(--text3);font-family:var(--mono);min-width:70px;text-align:right;">${fmtShort(v.val)}</span></div>`;}).join('');
   const procs={};
-  pend.forEach(o=>{
-    const p=o.processo||'Sem processo';
-    if(!procs[p]) procs[p]={n:0,val:0};
-    procs[p].n++; procs[p].val+=o.valor;
-  });
-  const sortedP=Object.entries(procs).sort((a,b)=>b[1].n-a[1].n);
-  const maxP=sortedP[0]?.[1].n||1;
-  document.getElementById('hier-processo').innerHTML=sortedP.map(([p,v])=>
-    `<div class="bar-row">
-      <div class="bar-label" style="min-width:140px;">${p}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.n/maxP*100)}%"></div></div>
-      <span class="bar-count">${v.n}</span>
-    </div>`
-  ).join('');
-
-  // --- Supervisores ---
-  const sups={};
-  pend.forEach(o=>{
-    const s=o.supervisor||'Sem supervisor';
-    if(!sups[s]) sups[s]={n:0,val:0,centro:o.centro||'',processo:o.processo||''};
-    sups[s].n++; sups[s].val+=o.valor;
-  });
-  const sortedS=Object.entries(sups).sort((a,b)=>b[1].n-a[1].n);
-  const maxS=sortedS[0]?.[1].n||1;
-  const scols=['#E24B4A','#E24B4A','#EF9F27','#EF9F27','#378ADD','#378ADD','#2D6A4F','#2D6A4F'];
-  // Reincidências por equipe
+  pend.forEach(o=>{const p=o.processo||'Sem processo';if(!procs[p])procs[p]={n:0,val:0};procs[p].n++;procs[p].val+=o.valor;});
+  const sortedP=Object.entries(procs).sort((a,b)=>b[1].n-a[1].n); const maxP=sortedP[0]?.[1].n||1;
+  document.getElementById('hier-processo').innerHTML=sortedP.map(([p,v])=>`<div class="bar-row"><div class="bar-label" style="min-width:140px;">${p}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.n/maxP*100)}%"></div></div><span class="bar-count">${v.n}</span></div>`).join('');
   const reincEqs={};
-  reinc.forEach(o=>{ if(!reincEqs[o.equipe]) reincEqs[o.equipe]={n:0,vezes:0}; reincEqs[o.equipe].n++; reincEqs[o.equipe].vezes+=o.reincidencias; });
+  reinc.forEach(o=>{if(!reincEqs[o.equipe])reincEqs[o.equipe]={n:0,vezes:0};reincEqs[o.equipe].n++;reincEqs[o.equipe].vezes+=o.reincidencias;});
   const sortedR=Object.entries(reincEqs).sort((a,b)=>b[1].vezes-a[1].vezes).slice(0,8);
-  const reincCard = document.getElementById('hier-reinc');
-  if (reincCard) {
-    reincCard.innerHTML = sortedR.length ? sortedR.map(([eq,v])=>
-      `<div class="bar-row">
-        <div class="bar-label" style="min-width:140px;">${eq}</div>
-        <span class="badge badge-reinc">🔁 ${v.vezes}x rejeitada</span>
-        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">${v.n} OS</span>
-      </div>`).join('') : '<div class="empty" style="padding:1rem">Nenhuma reincidência registrada 🎉</div>';
-  }
-
-  document.getElementById('hier-supervisor').innerHTML=`
-    <div style="display:flex;flex-direction:column;">
-    ${sortedS.map(([s,v],i)=>{
-      const col=scols[i]||'#888780';
-      const initials=s.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-      const pct=Math.round(v.n/maxS*100);
-      return `<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:0.5px solid var(--border);">
-        <div style="width:32px;height:32px;border-radius:50%;background:${col}20;color:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${initials}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:500;font-size:13px;">${s}</div>
-          <div style="font-size:11px;color:var(--text2);">${v.centro} · ${v.processo}</div>
-        </div>
-        <div class="bar-track" style="width:120px;flex-shrink:0;"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div>
-        <span class="badge" style="background:${col}20;color:${col};font-family:var(--mono);font-size:11px;">${v.n} OS</span>
-        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);min-width:60px;text-align:right;">${fmtShort(v.val)}</span>
-      </div>`;
-    }).join('')}
-    </div>`;
+  document.getElementById('hier-reinc').innerHTML=sortedR.length?sortedR.map(([eq,v])=>`<div class="bar-row"><div class="bar-label" style="min-width:140px;">${eq}</div><span class="badge badge-reinc">🔁 ${v.vezes}x rejeitada</span><span style="font-size:11px;color:var(--text3);font-family:var(--mono);">${v.n} OS</span></div>`).join(''):'<div class="empty" style="padding:1rem">Nenhuma reincidência 🎉</div>';
+  const sups={};
+  pend.forEach(o=>{const s=o.supervisor||'Sem supervisor';if(!sups[s])sups[s]={n:0,val:0,centro:o.centro||'',processo:o.processo||''};sups[s].n++;sups[s].val+=o.valor;});
+  const sortedS=Object.entries(sups).sort((a,b)=>b[1].n-a[1].n); const maxS=sortedS[0]?.[1].n||1;
+  const scols=['#E24B4A','#E24B4A','#EF9F27','#EF9F27','#378ADD','#378ADD','#2D6A4F','#2D6A4F'];
+  document.getElementById('hier-supervisor').innerHTML=`<div style="display:flex;flex-direction:column;">${sortedS.map(([s,v],i)=>{const col=scols[i]||'#888780';const initials=s.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();const pct=Math.round(v.n/maxS*100);return`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:0.5px solid var(--border);"><div style="width:32px;height:32px;border-radius:50%;background:${col}20;color:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${initials}</div><div style="flex:1;min-width:0;"><div style="font-weight:500;font-size:13px;">${s}</div><div style="font-size:11px;color:var(--text2);">${v.centro} · ${v.processo}</div></div><div class="bar-track" style="width:120px;flex-shrink:0;"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><span class="badge" style="background:${col}20;color:${col};font-family:var(--mono);font-size:11px;">${v.n} OS</span><span style="font-size:11px;color:var(--text3);font-family:var(--mono);min-width:60px;text-align:right;">${fmtShort(v.val)}</span></div>`;}).join('')}</div>`;
 }
 
 async function limparHistorico() {
-  if (!confirm('Limpar todo o histórico de cargas e log de atividades? As OS e tratativas não serão afetadas.')) return;
+  if (!confirm('Limpar todo o histórico de cargas e log de atividades?')) return;
   if (!configured) { showToast('⚙️ Configure a URL primeiro'); return; }
   try {
-    const result = await apiPost('limparHistorico', {});
-    if (result && result.ok) {
-      state.cargas = [];
-      state.log = [];
-      renderHistorico();
-      showToast('✅ Histórico limpo!');
-    } else throw new Error(result?.error||'erro');
+    const result=await apiPost('limparHistorico',{});
+    if (result&&result.ok) { state.cargas=[]; state.log=[]; renderHistorico(); showToast('✅ Histórico limpo!'); } else throw new Error(result?.error||'erro');
   } catch(e) { showToast('❌ Erro: '+e.message); }
 }
 
 function buildSnapshot() {
-  const os = state.os;
-
-  // Extrai YYYY-MM-DD de qualquer formato (ISO, YYYY-MM-DD, dd/MM/yyyy)
+  const os=state.os;
   function extraiData(v) {
     if (!v) return '';
-    const s = String(v);
+    const s=String(v);
     if (s.includes('T')) return s.split('T')[0];
-    if (s.length === 10 && s[4] === '-') return s;
-    if (s.includes('/')) {
-      const p = s.split('/');
-      if (p.length >= 3) return p[2].substring(0,4)+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
-    }
+    if (s.length===10&&s[4]==='-') return s;
+    if (s.includes('/')) { const p=s.split('/'); if(p.length>=3) return p[2].substring(0,4)+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0'); }
     return s;
   }
-
-  const hojeISO  = new Date().toISOString().split('T')[0];
-  const hojeStr  = new Date().toLocaleDateString('pt-BR');
-
-  const pendentes  = os.filter(o => o.status !== 'Resolvido').length;
-  const resolvidas = os.filter(o => o.status === 'Resolvido'     && extraiData(o.dataResolucao) === hojeISO).length;
-  const emTrat     = os.filter(o => o.status === 'Em tratativa'  && extraiData(o.dataResolucao) === hojeISO).length;
-  const reinc      = os.filter(o => (o.reincidencias||0) > 0 && o.status !== 'Resolvido').length;
-  const valorPend  = os.filter(o => o.status !== 'Resolvido').reduce((s,o) => s+o.valor, 0);
-  const valorTrat  = os.filter(o => o.status === 'Em tratativa'  && extraiData(o.dataResolucao) === hojeISO).reduce((s,o) => s+o.valor, 0);
-  const valorRes   = os.filter(o => o.status === 'Resolvido'     && extraiData(o.dataResolucao) === hojeISO).reduce((s,o) => s+o.valor, 0);
-
-  return { data: hojeStr, pendentes, resolvidas, emTrat, reinc, valorPend, valorTrat, valorRes, total: os.length };
+  const hojeISO=new Date().toISOString().split('T')[0];
+  const hojeStr=new Date().toLocaleDateString('pt-BR');
+  const pendentes=os.filter(o=>o.status!=='Resolvido').length;
+  const resolvidas=os.filter(o=>o.status==='Resolvido'&&extraiData(o.dataResolucao)===hojeISO).length;
+  const emTrat=os.filter(o=>o.status==='Em tratativa'&&extraiData(o.dataResolucao)===hojeISO).length;
+  const reinc=os.filter(o=>(o.reincidencias||0)>0&&o.status!=='Resolvido').length;
+  const valorPend=os.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+o.valor,0);
+  const valorTrat=os.filter(o=>o.status==='Em tratativa'&&extraiData(o.dataResolucao)===hojeISO).reduce((s,o)=>s+o.valor,0);
+  const valorRes=os.filter(o=>o.status==='Resolvido'&&extraiData(o.dataResolucao)===hojeISO).reduce((s,o)=>s+o.valor,0);
+  return {data:hojeStr,pendentes,resolvidas,emTrat,reinc,valorPend,valorTrat,valorRes,total:os.length};
 }
 
-
+// ── CONSOLIDADO ──
 function renderConsolidado() {
-  const snaps = state.snapshots || [];
-  const cargas = state.cargas || [];
-  const items = state.os;
-  if (!items.length && !snaps.length && !cargas.length) return;
+  const cargas=state.cargas||[], snaps=state.snapshots||[], items=state.os;
+  const pendentes=items.filter(o=>o.status!=='Resolvido').length;
+  const resolvidas=items.filter(o=>o.status==='Resolvido').length;
+  const lastCarga=cargas[cargas.length-1];
+  const totalCarga=lastCarga?(parseInt(lastCarga.total)||0):pendentes+resolvidas;
+  const vPend=items.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
+  const vRes=items.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
+  const vCarga=lastCarga?(parseFloat(lastCarga.valorPendente)||0):vPend+vRes;
+  const pct=totalCarga>0?Math.round(resolvidas/totalCarga*100):0;
+  document.getElementById('narr-total').textContent=totalCarga;
+  document.getElementById('narr-total-val').textContent=fmtValor(vCarga);
+  document.getElementById('narr-total-sub').textContent='última carga · '+(lastCarga?formatCargaDate(lastCarga.data):'—');
+  document.getElementById('narr-tratado').textContent=resolvidas;
+  document.getElementById('narr-tratado-val').textContent=fmtValor(vRes);
+  document.getElementById('narr-tratado-sub').textContent='resolvidas · '+pct+'%';
+  document.getElementById('narr-saldo').textContent=pendentes;
+  document.getElementById('narr-saldo-val').textContent=fmtValor(vPend);
+  document.getElementById('narr-saldo-sub').textContent='pendentes hoje · '+new Date().toLocaleDateString('pt-BR');
 
-  const pendentes  = items.filter(o=>o.status!=='Resolvido').length;
-  const resolvidas = items.filter(o=>o.status==='Resolvido').length;
-  const emTrat     = items.filter(o=>o.status==='Em tratativa').length;
-  const lastCarga  = cargas[cargas.length-1];
-  const totalCarga = lastCarga ? (parseInt(lastCarga.total)||0) : pendentes+resolvidas;
-  const vPend      = items.filter(o=>o.status!=='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
-  const vRes       = items.filter(o=>o.status==='Resolvido').reduce((s,o)=>s+(o.valor||0),0);
-  const vTotal     = vPend+vRes;
-  const vCarga     = lastCarga ? (parseFloat(lastCarga.valorPendente)||0) : vTotal;
-  const pct        = totalCarga>0?Math.round(resolvidas/totalCarga*100):0;
-
-  // Narrativa
-  document.getElementById('narr-total').textContent    = totalCarga;
-  document.getElementById('narr-total-val').textContent = fmtValor(vCarga);
-  document.getElementById('narr-total-sub').textContent = 'última carga · '+(lastCarga?formatCargaDate(lastCarga.data):'—');
-  document.getElementById('narr-tratado').textContent   = resolvidas;
-  document.getElementById('narr-tratado-val').textContent = fmtValor(vRes);
-  document.getElementById('narr-tratado-sub').textContent = 'resolvidas · '+pct+'%';
-  document.getElementById('narr-saldo').textContent     = pendentes;
-  document.getElementById('narr-saldo-val').textContent = fmtValor(vPend);
-  document.getElementById('narr-saldo-sub').textContent = 'pendentes hoje · '+new Date().toLocaleDateString('pt-BR');
-
-  // Build points — cada carga é um ponto separado, não agrupa
-  const allPoints = [];
-
-  // Cada carga = 1 ponto com label "dd/mm (Nº)"
-  const cargasByDate = {};
-  cargas.forEach(c => {
-    const key = formatCargaDate(c.data);
-    cargasByDate[key] = (cargasByDate[key]||0) + 1;
+  // Evolução diária (lista compacta)
+  const allPoints=[];
+  const cargasByDate={};
+  cargas.forEach(c=>{const key=formatCargaDate(c.data);cargasByDate[key]=(cargasByDate[key]||0)+1;});
+  const cargaCount={};
+  cargas.forEach(c=>{
+    const key=formatCargaDate(c.data);
+    cargaCount[key]=(cargaCount[key]||0)+1;
+    const total=cargasByDate[key];
+    const label=total>1?key+' ('+cargaCount[key]+'ª)':key;
+    allPoints.push({data:label,pendentes:parseInt(c.pendentes)||0,resolvidas:(parseInt(c.removidas)||0),emTrat:0,novas:parseInt(c.novas)||0,reinc:0,tipo:'carga',valorPend:parseFloat(c.valorPendente)||0,valorRes:0,valorNovas:parseFloat(c.valorNovas)||0,sortKey:formatCargaDate(c.data).split('/').reverse().join('')+String(cargaCount[key]).padStart(3,'0')});
   });
-  const cargaCount = {};
-  // Acumula resolvidas por data (soma de removidas de todas as cargas daquele dia)
-  const resolvidasPorData = {};
-  cargas.forEach(c => {
-    const key = formatCargaDate(c.data);
-    resolvidasPorData[key] = (resolvidasPorData[key]||0) + (parseInt(c.removidas)||0);
-  });
-  cargas.forEach(c => {
-    const key = formatCargaDate(c.data);
-    cargaCount[key] = (cargaCount[key]||0) + 1;
-    const total = cargasByDate[key];
-    const label = total > 1 ? key + ' (' + cargaCount[key] + 'ª)' : key;
-    // Resolvidas = removidas desta carga + os marcados como Resolvido pelas adm
-    const resolvidasAdm = parseInt(c.resolvidasAdm)||0;
-    const resolvidasTotal = (parseInt(c.removidas)||0) + resolvidasAdm;
-    allPoints.push({
-      data: label,
-      pendentes: parseInt(c.pendentes)||0,
-      resolvidas: resolvidasTotal,
-      emTrat: parseInt(c.emTrat)||0,
-      novas: parseInt(c.novas)||0,
-      reinc: 0,
-      tipo: 'carga',
-      valorPend: parseFloat(c.valorPendente)||0,
-      valorRes: 0,
-      valorNovas: parseFloat(c.valorNovas)||0,
-      valorTrat: parseFloat(c.valorTrat)||0,
-      sortKey: formatCargaDate(c.data).split('/').reverse().join('') + String(cargaCount[key]).padStart(3,'0')
-    });
-  });
-
-  // Snapshots — agrupa por data, pega o mais recente de cada dia (inclui hoje se tiver snapshot)
-  const cargaDates = new Set(Object.keys(cargasByDate));
-  const snapByDate = {};
-  snaps.forEach(s => {
-    const key = formatCargaDate(s.data);
-    snapByDate[key] = s; // sempre pega o mais recente
-  });
-  // Para dias com carga: adiciona emTrat do snapshot ao ponto da carga
-  Object.entries(snapByDate).forEach(([key, s]) => {
-    if (cargaDates.has(key)) {
-      // Encontra o ponto da carga desse dia e adiciona emTrat
-      allPoints.forEach(p => {
-        if (formatCargaDate(p.data) === key && p.tipo === 'carga') {
-          p.emTrat    = (p.emTrat||0)    + (parseInt(s.emTrat)||0);
-          p.valorTrat = (p.valorTrat||0) + (parseFloat(s.valorTrat)||0);
-          p.valorRes  = (p.valorRes||0)  + (parseFloat(s.valorRes)||0);
-          p.resolvidas= (p.resolvidas||0)+ (parseInt(s.resolvidas)||0);
-        }
-      });
+  const snapByDate={};
+  snaps.forEach(s=>{const key=formatCargaDate(s.data);snapByDate[key]=s;});
+  Object.entries(snapByDate).forEach(([key,s])=>{
+    if (cargasByDate[key]) {
+      allPoints.forEach(p=>{if(formatCargaDate(p.data)===key&&p.tipo==='carga'){p.emTrat=(p.emTrat||0)+(parseInt(s.emTrat)||0);p.valorRes=(p.valorRes||0)+(parseFloat(s.valorRes)||0);p.resolvidas=(p.resolvidas||0)+(parseInt(s.resolvidas)||0);}});
     } else {
-      // Dia sem carga: adiciona como ponto separado
-      allPoints.push({
-        data: key,
-        pendentes: parseInt(s.pendentes)||0,
-        resolvidas: parseInt(s.resolvidas)||0,
-        emTrat: parseInt(s.emTrat)||0,
-        novas: 0,
-        reinc: parseInt(s.reinc)||0,
-        tipo: 'snapshot',
-        valorPend: parseFloat(s.valorPend)||0,
-        valorRes: parseFloat(s.valorRes)||0,
-        valorTrat: parseFloat(s.valorTrat)||0,
-        sortKey: key.split('/').reverse().join('') + '500'
-      });
+      allPoints.push({data:key,pendentes:parseInt(s.pendentes)||0,resolvidas:parseInt(s.resolvidas)||0,emTrat:parseInt(s.emTrat)||0,novas:0,reinc:parseInt(s.reinc)||0,tipo:'snapshot',valorPend:parseFloat(s.valorPend)||0,valorRes:parseFloat(s.valorRes)||0,sortKey:key.split('/').reverse().join('')+'500'});
     }
   });
+  const points=allPoints.sort((a,b)=>(a.sortKey||'').localeCompare(b.sortKey||''));
+  const maxP=Math.max(...points.map(p=>p.pendentes),1);
+  document.getElementById('cons-lista').innerHTML=points.length?[...points].reverse().slice(0,14).map(p=>{
+    const isCarga=p.tipo==='carga'; const dataFmt=formatCargaDate(p.data);
+    const pct2=Math.round(p.pendentes/maxP*100); const rPct2=Math.round(p.resolvidas/maxP*100);
+    return '<div class="cons-row"><div class="cons-date">'+dataFmt+'</div><div class="cons-bars"><div class="cons-bar-line"><span class="cons-bar-label">Pendentes</span><div class="cons-bar-bg"><div class="cons-bar-fill" style="width:'+pct2+'%;background:var(--text)"></div></div><span class="cons-bar-val">'+p.pendentes+'</span></div>'+(p.resolvidas>0?'<div class="cons-bar-line"><span class="cons-bar-label">Resolvidas</span><div class="cons-bar-bg"><div class="cons-bar-fill" style="width:'+rPct2+'%;background:var(--green)"></div></div><span class="cons-bar-val" style="color:var(--green)">'+p.resolvidas+'</span></div>':'')+'</div><div class="cons-badges">'+(isCarga?'<span class="badge badge-neutral" style="font-size:10px;">carga</span>':'')+(p.novas>0?'<span class="badge badge-new">+'+p.novas+'</span>':'')+(p.emTrat>0?'<span class="badge badge-trat">'+p.emTrat+' trat.</span>':'')+(p.resolvidas>0?'<span class="badge badge-ok">↓'+p.resolvidas+'</span>':'')+'<span style="font-size:10px;font-family:var(--mono);color:var(--text3);">'+fmtShort(p.valorPend)+'</span></div></div>';
+  }).join(''):'<div class="empty" style="padding:1rem">Nenhum dado ainda</div>';
 
-  // "Hoje" removido — só aparece quando alguém salvar um snapshot
-
-  const points = allPoints.sort((a,b) => (a.sortKey||'').localeCompare(b.sortKey||''));
-  const maxP = Math.max(...points.map(p=>p.pendentes), 1);
-
-  // Lista diária
-  document.getElementById('cons-lista').innerHTML = points.length ? [...points].reverse().slice(0,14).map(p=>{
-    const isHoje = p.tipo==='hoje', isCarga = p.tipo==='carga';
-    const dataFmt = formatCargaDate(p.data);
-    const pct2 = Math.round(p.pendentes/maxP*100);
-    const rPct2 = Math.round(p.resolvidas/maxP*100);
-    return '<div class="cons-row"'+(isHoje?' style="background:var(--surface2);border-radius:6px;padding:10px;"':'')+'>'+
-      '<div class="cons-date">'+dataFmt+(isHoje?'<br><span style="font-size:9px;color:var(--green)">hoje</span>':'')+'</div>'+
-      '<div class="cons-bars">'+
-        '<div class="cons-bar-line"><span class="cons-bar-label">Pendentes</span><div class="cons-bar-bg"><div class="cons-bar-fill" style="width:'+pct2+'%;background:var(--text)"></div></div><span class="cons-bar-val">'+p.pendentes+'</span></div>'+
-        (p.resolvidas>0?'<div class="cons-bar-line"><span class="cons-bar-label">Resolvidas</span><div class="cons-bar-bg"><div class="cons-bar-fill" style="width:'+rPct2+'%;background:var(--green)"></div></div><span class="cons-bar-val" style="color:var(--green)">'+p.resolvidas+'</span></div>':'')+
-      '</div>'+
-      '<div class="cons-badges">'+
-        (isCarga?'<span class="badge badge-neutral" style="font-size:10px;">&#128204; carga</span>':'')+
-        (p.novas>0?'<span class="badge badge-new">+'+p.novas+' novas</span>':'')+
-        (p.reinc>0?'<span class="badge badge-reinc">&#128260; '+p.reinc+' reinc.</span>':'')+
-        (p.emTrat>0?'<span class="badge badge-trat">'+p.emTrat+' em trat.</span>':'')+
-        (p.resolvidas>0?'<span class="badge badge-ok">&#8595; '+p.resolvidas+' resol.</span>':'')+
-        (p.valorPend>0?'<span style="font-size:10px;font-family:var(--mono);color:var(--text3);">'+fmtShort(p.valorPend)+'</span>':'')+
-      '</div>'+
-    '</div>';
-  }).join('') : '<div class="empty" style="padding:1rem">Nenhum dado ainda</div>';
-
-  // Legend
-  document.getElementById('cons-legend').innerHTML = [
-    {color:'#1A1916',label:'Pendentes'},{color:'#2D6A4F',label:'Saíram/Resolvidas'},
-    {color:'#378ADD',label:'Novas entradas'},{color:'#C2410C',label:'Reincidentes'},
-    {color:'#5B21B6',label:'Tratadas pelas Adms'}
-  ].map(l=>'<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);"><div style="width:10px;height:10px;border-radius:2px;background:'+l.color+'"></div>'+l.label+'</div>').join('');
-
-  const labels  = points.map(p=>formatCargaDate(p.data).split('/').slice(0,2).join('/'));
-  const datPend = points.map(p=>p.pendentes);
-  const datRes  = points.map(p=>p.resolvidas);
-  const datNovas= points.map(p=>p.novas);
-  const datReinc= points.map(p=>p.reinc);
-  const datVPend= points.map(p=>Math.round(p.valorPend));
-  const datVRes = points.map(p=>Math.round(p.valorRes||0));
-
-  // Qtd chart
-  if (window.ChartDataLabels) Chart.register(ChartDataLabels);
-  const datVNovas    = points.map(p => Math.round(p.valorNovas||0));
-  const datTrat      = points.map(p => parseInt(p.emTrat)||0);
-  const datVTrat     = points.map(p => Math.round(p.valorTrat||0));
-  const datVResFinal = points.map(p => Math.round(p.valorRes||0));
-  if (consChart) { consChart.destroy(); consChart = null; }
-  const ctx = document.getElementById('cons-chart');
-  if (ctx) consChart = new Chart(ctx, {
-    type:'bar',
-    data:{labels, datasets:[
-      {label:'Pendentes', data:datPend, backgroundColor:'#1A1916', borderRadius:3, borderSkipped:false},
-      {label:'Resolvidas', data:datRes, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
-      {label:'Novas entradas', data:datNovas, backgroundColor:'#378ADD', borderRadius:3, borderSkipped:false},
-      {label:'Reincidentes', data:datReinc, backgroundColor:'#C2410C', borderRadius:3, borderSkipped:false},
-      {label:'Tratadas pelas Adms', data:datTrat, backgroundColor:'#5B21B6', borderRadius:3, borderSkipped:false},
-    ]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{
-          afterBody: items => {
-            const i = items[0].dataIndex;
-            return ['Pendentes: '+datPend[i], 'Resolvidas: '+datRes[i], 'Novas: '+datNovas[i], 'Reinc: '+datReinc[i]];
-          }
-        }},
-        datalabels:{
-          anchor:'center', align:'center',
-          font:{size:12, weight:'700'},
-          color:'#1A1916',
-          backgroundColor:'rgba(255,255,255,0.92)',
-          borderRadius:4,
-          padding:{top:3,bottom:3,left:6,right:6},
-          formatter: v => v > 0 ? v : ''
-        }
-      },
-      scales:{
-        x:{grid:{display:false}, ticks:{font:{size:11},color:'#888780',autoSkip:false,maxRotation:45},
-          stacked:false},
-        y:{grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11},color:'#888780'}, stacked:false}
-      }
-    }
-  });
-
-  // Valor chart
-
-  if (consChartVal) { consChartVal.destroy(); consChartVal = null; }
-  const ctxVal = document.getElementById('cons-chart-val');
-  if (ctxVal) consChartVal = new Chart(ctxVal, {
-    type:'bar',
-    data:{labels, datasets:[
-      {label:'Valor pendente', data:datVPend, backgroundColor:'#1A1916', borderRadius:3, borderSkipped:false},
-      {label:'Valor resolvido (Adms)', data:datVResFinal, backgroundColor:'#2D6A4F', borderRadius:3, borderSkipped:false},
-      {label:'Valor novas entradas', data:datVNovas, backgroundColor:'#378ADD', borderRadius:3, borderSkipped:false},
-      {label:'Valor em tratativa', data:datVTrat, backgroundColor:'#5B21B6', borderRadius:3, borderSkipped:false},
-    ]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:c=>'R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2})}},
-        datalabels:{
-          anchor:'center', align:'center',
-          font:{size:11, weight:'700'},
-          color:'#1A1916',
-          backgroundColor:'rgba(255,255,255,0.92)',
-          borderRadius:4,
-          padding:{top:3,bottom:3,left:5,right:5},
-          formatter: v => v > 0 ? (v>=1000 ? 'R$ '+(v/1000).toFixed(1)+'k' : 'R$ '+v) : ''
-        }
-      },
-      scales:{
-        x:{grid:{display:false}, ticks:{font:{size:11},color:'#888780',autoSkip:false,maxRotation:45}},
-        y:{grid:{color:'rgba(0,0,0,0.05)'}, ticks:{font:{size:11},color:'#888780',callback:v=>v>=1000?'R$'+(v/1000).toFixed(0)+'k':'R$'+v}}
-      }
-    }
-  });
+  // Monta semanas e popula select
+  buildSemanas();
+  renderSemanal();
 }
 
-function switchConsChart(tipo) {
-  const btnQtd = document.getElementById('cons-tab-qtd');
-  const btnVal = document.getElementById('cons-tab-val');
-  const wrapQtd = document.getElementById('cons-wrap-qtd');
-  const wrapVal = document.getElementById('cons-wrap-val');
-  if (tipo==='qtd') {
-    btnQtd.style.background='var(--text)'; btnQtd.style.color='#fff'; btnQtd.style.borderColor='var(--text)';
-    btnVal.style.background=''; btnVal.style.color=''; btnVal.style.borderColor='';
-    wrapQtd.style.display='block'; wrapVal.style.display='none';
-  } else {
-    btnVal.style.background='var(--text)'; btnVal.style.color='#fff'; btnVal.style.borderColor='var(--text)';
-    btnQtd.style.background=''; btnQtd.style.color=''; btnQtd.style.borderColor='';
-    wrapQtd.style.display='none'; wrapVal.style.display='block';
-    if (consChartVal) consChartVal.update();
-  }
+// ── SEMANAL ──
+let _semanas = [];
+
+function parseDDMM(str) {
+  // "dd/mm" → Date com ano corrente
+  if (!str) return null;
+  const clean = String(str).split(' ')[0]; // remove sufixo "(2ª)" etc
+  const parts = clean.split('/');
+  if (parts.length < 2) return null;
+  const d = parseInt(parts[0]), m = parseInt(parts[1]) - 1;
+  const now = new Date();
+  let year = now.getFullYear();
+  // se mês já passou neste ano, assume próximo (raro, mas seguro)
+  const dt = new Date(year, m, d);
+  return dt;
 }
 
-
-
-
-
-function openWaConsolidado() {
-  const msg = buildWaConsolidado();
-  document.getElementById('wa-cons-preview').textContent = msg;
-  document.getElementById('wa-cons-phone').value = '';
-  document.getElementById('wa-cons-modal').style.display = 'flex';
-  setTimeout(() => document.getElementById('wa-cons-phone').focus(), 100);
+function dateKey(dt) {
+  if (!dt) return '';
+  return String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0');
 }
 
-function closeWaConsModal() {
-  document.getElementById('wa-cons-modal').style.display = 'none';
-}
-
-function sendWaConsolidado() {
-  const phone = document.getElementById('wa-cons-phone').value.replace(/\D/g,'');
-  if (!phone || phone.length < 10) { showToast('⚠️ Informe um número válido com DDD'); return; }
-  const msg = buildWaConsolidado();
-  const url = 'https://wa.me/55' + phone + '?text=' + encodeURIComponent(msg);
-  window.open(url, '_blank');
-  closeWaConsModal();
-}
-
-function buildWaConsolidado() {
+function buildSemanas() {
   const cargas = state.cargas || [];
   const snaps  = state.snapshots || [];
-  const os     = state.os;
+  if (!cargas.length) { _semanas = []; return; }
 
-  let lines = ['*📊 Atualização Diária — OS Rejeitadas*', ''];
+  // Coleta todas as datas de carga únicas ordenadas
+  const datasCargas = [...new Set(cargas.map(c => formatCargaDate(c.data)))]
+    .map(d => ({ str: d, dt: parseDDMM(d) }))
+    .filter(x => x.dt)
+    .sort((a,b) => a.dt - b.dt);
 
-  // Build all points same logic as chart
-  const allPoints = [];
-  const cargasByDate = {};
+  // Agrupa cargas por data
+  const cargaMap = {};
   cargas.forEach(c => {
     const key = formatCargaDate(c.data);
-    cargasByDate[key] = (cargasByDate[key]||0) + 1;
-  });
-  const cargaCount = {};
-  cargas.forEach(c => {
-    const key = formatCargaDate(c.data);
-    cargaCount[key] = (cargaCount[key]||0) + 1;
-    const resolvidasTotal = (parseInt(c.removidas)||0);
-    allPoints.push({
-      data: key, label: key,
-      pendentes: parseInt(c.pendentes)||0,
-      resolvidas: resolvidasTotal,
-      novas: parseInt(c.novas)||0,
-      tratadas: 0,
-      valorPend: parseFloat(c.valorPendente)||0,
-      tipo: 'carga'
-    });
+    if (!cargaMap[key]) cargaMap[key] = { novas:0, removidas:0, pendentes:0, valorPendente:0, valorNovas:0, emTrat:0, valorTrat:0, valorRes:0, resolvidas:0 };
+    const m = cargaMap[key];
+    m.novas      += parseInt(c.novas)||0;
+    m.removidas  += parseInt(c.removidas)||0;
+    m.pendentes   = parseInt(c.pendentes)||0;
+    m.valorPendente = parseFloat(c.valorPendente)||0;
+    m.valorNovas += parseFloat(c.valorNovas)||0;
   });
 
-  snaps.forEach(s => {
-    const key = formatCargaDate(s.data);
-    if (cargasByDate[key]) return;
-    allPoints.push({
-      data: key, label: key,
-      pendentes: parseInt(s.pendentes)||0,
-      resolvidas: parseInt(s.resolvidas)||0,
-      emTratativa: Math.max(0, (parseInt(s.emTrat)||0) - (parseInt(s.resolvidas)||0)),
-      novas: 0,
-      tratadas: parseInt(s.emTrat)||0,
-      valorPend: parseFloat(s.valorPend)||0,
-      valorTrat: parseFloat(s.valorTrat)||0,
-      tipo: 'snapshot'
-    });
+  // Mescla snapshots
+  const snapMap = {};
+  snaps.forEach(s => { snapMap[formatCargaDate(s.data)] = s; });
+  Object.entries(snapMap).forEach(([key, s]) => {
+    if (!cargaMap[key]) cargaMap[key] = { novas:0, removidas:0, pendentes:0, valorPendente:0, valorNovas:0, emTrat:0, valorTrat:0, valorRes:0, resolvidas:0 };
+    const m = cargaMap[key];
+    m.emTrat    += parseInt(s.emTrat)||0;
+    m.valorTrat += parseFloat(s.valorTrat)||0;
+    m.valorRes  += parseFloat(s.valorRes)||0;
+    m.resolvidas+= parseInt(s.resolvidas)||0;
   });
 
-  // Hoje removido — só mostra dias com dados salvos (carga ou snapshot)
+  // Semanas: cada grupo começa na primeira terça, vai até a terça seguinte
+  // Simplificado: agrupa em blocos de 2 cargas (terça + quinta) com abertura = pendente da carga anterior
+  _semanas = [];
+  const DIAS_POR_SEMANA = 7;
 
-  // Sort
-  const sorted = allPoints.sort((a,b) => a.data.split('/').reverse().join('').localeCompare(b.data.split('/').reverse().join('')));
+  // Primeira data = abertura da semana 1
+  let semInicio = datasCargas[0].dt;
+  let semFim = new Date(semInicio.getTime() + DIAS_POR_SEMANA * 86400000);
 
-  sorted.forEach(p => {
-    let line = '*' + p.label + '* — ' + p.pendentes + ' pendentes';
-    if (p.resolvidas > 0) line += ' — ' + p.resolvidas + ' resolvidas';
-    if (p.novas > 0) line += ' — ' + p.novas + ' novas';
-    if (p.resolvidas > 0 && p.tipo !== 'carga') line += ' — ' + p.resolvidas + ' resolvidas pelas Adms';
-    if (p.emTratativa > 0) line += ' — ' + p.emTratativa + ' em tratativa';
-    if (p.tipo === 'carga' && p.tratadas > 0) line += ' — ' + p.tratadas + ' tratadas pelas Adms';
-    if (p.tipo === 'hoje' || p.tipo === 'snapshot') {
-      line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' *(previsto)*';
-      if (p.valorTrat > 0) {
-        line += ' — R$ ' + p.valorTrat.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}) + ' já marcado pelas Adms';
-      }
-    } else {
-      line += ' — R$ ' + p.valorPend.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
+  let semAtual = null;
+
+  datasCargas.forEach(({ str, dt }) => {
+    // nova semana?
+    if (!semAtual || dt >= semFim) {
+      if (semAtual) _semanas.push(semAtual);
+      semInicio = dt;
+      semFim = new Date(semInicio.getTime() + DIAS_POR_SEMANA * 86400000);
+      const prevSem = _semanas[_semanas.length - 1];
+      const aberturaQtd = prevSem ? prevSem.fechQtd : (cargaMap[str]?.pendentes || 0);
+      const aberturaVal = prevSem ? prevSem.fechVal : (cargaMap[str]?.valorPendente || 0);
+      semAtual = {
+        titulo: 'Semana ' + (_semanas.length + 1),
+        abertura: { data: str, qtd: aberturaQtd, val: aberturaVal },
+        cargas: [],
+        fechQtd: null, fechVal: null,
+        atual: false
+      };
     }
-    lines.push(line);
+    const c = cargaMap[str];
+    if (c) {
+      semAtual.cargas.push({
+        data: str,
+        saiuQtd: c.removidas,   saiuVal: c.valorRes || (c.removidas > 0 ? null : null),
+        admQtd:  c.emTrat||0,   admVal:  c.valorTrat||0,
+        entQtd:  c.novas,       entVal:  c.valorNovas||0,
+        pendQtd: c.pendentes,   pendVal: c.valorPendente
+      });
+      semAtual.fechQtd = c.pendentes;
+      semAtual.fechVal = c.valorPendente;
+    }
+  });
+  if (semAtual) _semanas.push(semAtual);
+
+  // Marca a mais recente como atual
+  if (_semanas.length) _semanas[_semanas.length-1].atual = true;
+
+  // Corrige abertura de cada semana com o fechamento da anterior
+  for (let i=1;i<_semanas.length;i++) {
+    const prev = _semanas[i-1];
+    _semanas[i].abertura.qtd = prev.fechQtd ?? _semanas[i].abertura.qtd;
+    _semanas[i].abertura.val = prev.fechVal ?? _semanas[i].abertura.val;
+  }
+
+  // Popula select
+  const sel = document.getElementById('sem-sel');
+  if (!sel) return;
+  sel.innerHTML = '';
+  _semanas.forEach((s,i) => {
+    const op = document.createElement('option');
+    op.value = i;
+    op.textContent = s.titulo + (s.atual ? ' — atual' : '');
+    sel.appendChild(op);
+  });
+  sel.value = String(_semanas.length - 1); // seleciona a mais recente
+}
+
+function setSemModo(m) {
+  semModo = m;
+  document.getElementById('sem-tog-qtd').classList.toggle('on', m==='qtd');
+  document.getElementById('sem-tog-val').classList.toggle('on', m==='val');
+  renderSemanal();
+}
+
+function renderSemanal() {
+  const sel = document.getElementById('sem-sel');
+  if (!sel || !_semanas.length) {
+    document.getElementById('sem-body').innerHTML = '<div class="empty"><div class="empty-icon">📅</div>Nenhuma carga ainda</div>';
+    return;
+  }
+  const idx = parseInt(sel.value) || 0;
+  const s = _semanas[idx] || _semanas[_semanas.length-1];
+  const m = semModo;
+
+  const abVal  = m==='qtd' ? s.abertura.qtd : s.abertura.val;
+  const abTxt  = m==='qtd'
+    ? s.abertura.qtd + ' pendentes'
+    : 'R$\u00a0' + Math.round(s.abertura.val).toLocaleString('pt-BR') + ' pendente';
+
+  // range de datas
+  const datas = [s.abertura.data, ...s.cargas.map(c=>c.data)];
+  const range = datas.filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+
+  let rows = '';
+  s.cargas.forEach(c => {
+    const saiu = m==='qtd' ? c.saiuQtd : c.saiuVal;
+    const adm  = m==='qtd' ? c.admQtd  : c.admVal;
+    const ent  = m==='qtd' ? c.entQtd  : c.entVal;
+    const pend = m==='qtd' ? c.pendQtd : c.pendVal;
+    const hasData = saiu !== null && saiu !== undefined;
+    rows += `
+      <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">${c.data}</span></div>
+      <div class="sem-cell">${hasData ? `<div class="sem-bar" style="background:#EAF3DE;color:#27500A;">−${fmtSem(saiu,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
+      <div class="sem-cell">${(adm||0)>0 ? `<div class="sem-bar" style="background:#EEEDFE;color:#3C3489;">−${fmtSem(adm,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
+      <div class="sem-cell">${hasData ? `<div class="sem-bar" style="background:#E6F1FB;color:#0C447C;">+${fmtSem(ent,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
+      <div class="sem-cell right"><span class="sem-pend ${pend===null||pend===undefined?'muted':''}">${fmtSemPend(pend,m)}</span></div>`;
   });
 
-  lines.push('');
-  lines.push('_Atualização gerada em ' + new Date().toLocaleString('pt-BR') + '_');
-  return lines.join('\n');
+  const fechNum = s.fechQtd !== null
+    ? `<div class="sem-fech-num" style="color:var(--red);">${fmtSemPend(m==='qtd'?s.fechQtd:s.fechVal,m)}</div><div class="sem-fech-sub">${m==='qtd'?'OS pendentes':'valor pendente'}</div>`
+    : `<div class="sem-fech-num" style="color:var(--text3);">—</div><div class="sem-fech-sub">aguardando</div>`;
+
+  document.getElementById('sem-body').innerHTML = `
+    <div class="sem-card-inner">
+      <div class="sem-head">
+        <div>
+          <span class="sem-title">${s.titulo}</span>
+          ${s.atual ? '<span class="badge-atual-sem">em curso</span>' : ''}
+        </div>
+        <span class="sem-range">${range}</span>
+      </div>
+      <div class="sem-cols">
+        <div class="sem-col-head left">data</div>
+        <div class="sem-col-head" style="color:#27500A;">saíram real</div>
+        <div class="sem-col-head" style="color:#3C3489;">adm</div>
+        <div class="sem-col-head" style="color:#0C447C;">entrantes</div>
+        <div class="sem-col-head right">pendente</div>
+
+        <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">${s.abertura.data}</span></div>
+        <div class="sem-cell" style="grid-column:span 3;">
+          <div style="width:100%;height:34px;border-radius:4px;background:#1A1916;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#F1EFE8;">${abTxt}</div>
+        </div>
+        <div class="sem-cell right"><span class="sem-pend">${fmtSemPend(abVal,m)}</span></div>
+
+        ${rows}
+
+        <div class="sem-divider"></div>
+        <div class="sem-cell left" style="border-top:none;"><span style="font-size:11px;color:var(--text3);">fechamento</span></div>
+        <div class="sem-cell" style="border-top:none;grid-column:span 3;"></div>
+        <div class="sem-cell right" style="border-top:none;text-align:right;">${fechNum}</div>
+      </div>
+    </div>`;
 }
 
 let waCurrentIdx = null;
-
 function openWaModal(idx) {
-  const o = state.os[idx];
-  waCurrentIdx = idx;
-  document.getElementById('wa-modal-sub').textContent = 'OS ' + o.os + ' — ' + o.equipe;
-  document.getElementById('wa-msg-text').value = buildWaMsg(o);
-  document.getElementById('wa-copy-btn').textContent = '📋 Copiar mensagem';
-  document.getElementById('wa-modal').style.display = 'flex';
+  const o=state.os[idx]; waCurrentIdx=idx;
+  document.getElementById('wa-modal-sub').textContent='OS '+o.os+' — '+o.equipe;
+  document.getElementById('wa-msg-text').value=buildWaMsg(o);
+  document.getElementById('wa-copy-btn').textContent='📋 Copiar mensagem';
+  document.getElementById('wa-modal').style.display='flex';
 }
-
-function closeWaModal() {
-  document.getElementById('wa-modal').style.display = 'none';
-  waCurrentIdx = null;
-}
-
-function sendWhatsApp() { copyWaMsg(); }
-
+function closeWaModal() { document.getElementById('wa-modal').style.display='none'; waCurrentIdx=null; }
 function copyWaMsg() {
-  const txt = document.getElementById('wa-msg-text');
-  txt.select();
-  navigator.clipboard.writeText(txt.value).then(() => {
-    document.getElementById('wa-copy-btn').textContent = '✅ Copiado!';
-    setTimeout(() => document.getElementById('wa-copy-btn').textContent = '📋 Copiar mensagem', 2000);
-  }).catch(() => {
-    document.execCommand('copy');
-    document.getElementById('wa-copy-btn').textContent = '✅ Copiado!';
-    setTimeout(() => document.getElementById('wa-copy-btn').textContent = '📋 Copiar mensagem', 2000);
-  });
+  const txt=document.getElementById('wa-msg-text'); txt.select();
+  navigator.clipboard.writeText(txt.value).then(()=>{document.getElementById('wa-copy-btn').textContent='✅ Copiado!';setTimeout(()=>document.getElementById('wa-copy-btn').textContent='📋 Copiar mensagem',2000);}).catch(()=>{document.execCommand('copy');document.getElementById('wa-copy-btn').textContent='✅ Copiado!';setTimeout(()=>document.getElementById('wa-copy-btn').textContent='📋 Copiar mensagem',2000);});
 }
-
 function buildWaMsg(o) {
-  return '*⚠️ OS Rejeitada — Ação Necessária*\n\n'
-    + 'Olá! Identificamos uma Ordem de Serviço pendente de tratativa referente à sua equipe:\n\n'
-    + '🔢 *OS:* ' + o.os + '\n'
-    + '👥 *Equipe:* ' + o.equipe + '\n'
-    + '🗓️ *Data de Rejeição:* ' + o.dataRejeicaoStr + '\n'
-    + '⏳ *Dias sem tratativa:* ' + o.diasAtraso + ' dias' + (o.diasAtraso >= 90 ? ' *(Status: CRÍTICO)*' : '') + '\n'
-    + '❌ *Motivo:* ' + o.motivo + '\n'
-    + '📝 *O que precisa ser feito:* ' + o.justificativa + '\n'
-    + '💰 *Valor retido no faturamento:* ' + fmtValor(o.valor) + '\n\n'
-    + 'Por gentileza, nos informe uma previsão para regularização desta OS.';
+  return '*⚠️ OS Rejeitada — Ação Necessária*\n\nOlá! Identificamos uma Ordem de Serviço pendente de tratativa referente à sua equipe:\n\n🔢 *OS:* '+o.os+'\n👥 *Equipe:* '+o.equipe+'\n🗓️ *Data de Rejeição:* '+o.dataRejeicaoStr+'\n⏳ *Dias sem tratativa:* '+o.diasAtraso+' dias'+(o.diasAtraso>=90?' *(Status: CRÍTICO)*':'')+'\n❌ *Motivo:* '+o.motivo+'\n📝 *O que precisa ser feito:* '+o.justificativa+'\n💰 *Valor retido no faturamento:* '+fmtValor(o.valor)+'\n\nPor gentileza, nos informe uma previsão para regularização desta OS.';
 }
-function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500); }
 
-// ================ INIT ================
-if (configured) { document.getElementById('cfg-banner').style.display='none'; sincronizar(); setInterval(sincronizar, 30000); }
+function openWaConsolidado() {
+  const sel = document.getElementById('sem-sel');
+  const idx = sel ? parseInt(sel.value)||0 : 0;
+  const s = _semanas[idx] || _semanas[_semanas.length-1];
+  const msg = s ? buildWaSemanal(s) : '—';
+  document.getElementById('wa-cons-preview').textContent=msg;
+  document.getElementById('wa-cons-phone').value='';
+  document.getElementById('wa-cons-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('wa-cons-phone').focus(),100);
+}
+function closeWaConsModal() { document.getElementById('wa-cons-modal').style.display='none'; }
+function sendWaConsolidado() {
+  const phone=document.getElementById('wa-cons-phone').value.replace(/\D/g,'');
+  if (!phone||phone.length<10) { showToast('⚠️ Informe um número válido com DDD'); return; }
+  const sel=document.getElementById('sem-sel'); const idx=sel?parseInt(sel.value)||0:0;
+  const s=_semanas[idx]||_semanas[_semanas.length-1];
+  const msg=s?buildWaSemanal(s):'—';
+  window.open('https://wa.me/55'+phone+'?text='+encodeURIComponent(msg),'_blank');
+  closeWaConsModal();
+}
+function buildWaSemanal(s) {
+  const lines=['*📊 Acompanhamento Semanal — OS Rejeitadas*','*'+s.titulo+'*',''];
+  lines.push('📌 Abertura: '+s.abertura.data+' — '+s.abertura.qtd+' pendentes ('+fmtValor(s.abertura.val)+')');
+  s.cargas.forEach(c=>{
+    let l='📅 '+c.data+': ';
+    const parts=[];
+    if (c.saiuQtd) parts.push('−'+c.saiuQtd+' saíram real');
+    if (c.admQtd)  parts.push('−'+c.admQtd+' adm');
+    if (c.entQtd)  parts.push('+'+c.entQtd+' novas');
+    l += parts.join(' · ') + ' → '+c.pendQtd+' pendentes ('+fmtValor(c.pendVal)+')';
+    lines.push(l);
+  });
+  if (s.fechQtd!==null) {
+    lines.push('');
+    lines.push('✅ Fechamento: '+s.fechQtd+' pendentes ('+fmtValor(s.fechVal)+')');
+  }
+  lines.push('');
+  lines.push('_Gerado em '+new Date().toLocaleString('pt-BR')+'_');
+  return lines.join('\n');
+}
+
+function showToast(msg) { const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500); }
+
+if (configured) { document.getElementById('cfg-banner').style.display='none'; sincronizar(); setInterval(sincronizar,30000); }
 else setSyncStatus('error');
 
-if (!window.Chart) {
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
-  document.head.appendChild(s);
-}
-
-window.addEventListener('beforeunload', function(e) {
-  if (pendentesSet && pendentesSet.size > 0) {
-    e.preventDefault();
-    e.returnValue = 'Você tem alterações não salvas. Tem certeza que quer sair?';
-    return e.returnValue;
-  }
-});
+window.addEventListener('beforeunload',function(e){if(pendentesSet&&pendentesSet.size>0){e.preventDefault();e.returnValue='Você tem alterações não salvas. Tem certeza que quer sair?';return e.returnValue;}});
 </script>
 </body>
 </html>
