@@ -170,7 +170,7 @@
   .sem-title { font-size:13px; font-weight:600; color:var(--text); }
   .sem-range { font-size:11px; color:var(--text3); }
   .badge-atual-sem { font-size:10px; padding:2px 7px; border-radius:4px; background:var(--blue-bg); color:var(--blue); margin-left:8px; font-weight:500; }
-  .sem-cols { display:grid; grid-template-columns:64px repeat(3,1fr) 90px; gap:0; }
+  .sem-cols { display:grid; grid-template-columns:64px repeat(3,1fr) 148px; gap:0; }
   .sem-col-head { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:.05em; padding:0 6px 8px; text-align:center; }
   .sem-col-head.left { text-align:left; padding-left:0; }
   .sem-col-head.right { text-align:right; padding-right:0; }
@@ -179,7 +179,7 @@
   .sem-cell.right { justify-content:flex-end; padding-right:0; }
   .sem-bar { width:100%; height:34px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; }
   .sem-empty { width:100%; height:34px; border-radius:4px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text3); }
-  .sem-pend { font-size:17px; font-weight:600; color:var(--text); font-family:var(--mono); }
+  .sem-pend { font-size:13px; font-weight:600; color:var(--text); font-family:var(--mono); white-space:nowrap; }
   .sem-pend.muted { color:var(--text3); }
   .sem-divider { grid-column:1/-1; height:1px; background:var(--border); margin:8px 0 4px; }
   .sem-fech-num { font-size:20px; font-weight:600; font-family:var(--mono); }
@@ -410,7 +410,7 @@
             <button class="sem-tog" id="sem-tog-val" onclick="setSemModo('val')">Valor (R$)</button>
           </div>
           <select class="sem-select" id="sem-sel" onchange="renderSemanal()"></select>
-          <button class="wa-btn" style="font-size:13px;display:flex;align-items:center;gap:6px;border:1px solid #25D366;padding:6px 12px;border-radius:6px;color:#25D366;font-weight:500;" onclick="openWaConsolidado()">💬 Enviar atualização</button>
+          <button class="btn" style="font-size:12px;padding:5px 12px;" onclick="copiarMensagemSemanal()">📋 Copiar mensagem</button>
         </div>
       </div>
       <div id="sem-body"></div>
@@ -977,7 +977,7 @@ function fmtValor(v) { return 'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{m
 function fmtShort(v) { const n=parseFloat(v)||0; return n>=1000?'R$ '+(n/1000).toFixed(1)+'k':'R$ '+Math.round(n); }
 function fmtSem(v,m) {
   if (v===null||v===undefined) return '—';
-  if (m==='val') return 'R$\u00a0'+(Math.round(v)).toLocaleString('pt-BR');
+  if (m==='val') return 'R$\u00a0'+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   return String(Math.round(v));
 }
 function fmtSemPend(v,m) {
@@ -1247,8 +1247,36 @@ function buildSemanas() {
   });
   if (semAtual) _semanas.push(semAtual);
 
-  // Marca a semana mais recente
-  if (_semanas.length) _semanas[_semanas.length-1].atual = true;
+  // Adiciona semana seguinte vazia se a semana atual ja tem fechamento (todas as cargas foram)
+  // e ainda nao ha dados da proxima semana
+  if (_semanas.length) {
+    var ult = _semanas[_semanas.length-1];
+    var temProxima = _semanas.length >= 2;
+    // Sempre garante que existe pelo menos uma semana futura vazia
+    if (ult.fechQtd !== null && !temProxima) {
+      _semanas.push({
+        titulo: 'Semana ' + (_semanas.length + 1),
+        abertura: { data: 'próxima', qtd: ult.fechQtd, val: ult.fechVal },
+        linhas: [], fechQtd: null, fechVal: null, atual: false, placeholder: true
+      });
+    } else if (ult.fechQtd !== null) {
+      // Verifica se a ultima semana do array eh placeholder ou real
+      var proxIdx = _semanas.length - 1;
+      var proxSem = _semanas[proxIdx];
+      if (!proxSem.placeholder) {
+        _semanas.push({
+          titulo: 'Semana ' + (_semanas.length + 1),
+          abertura: { data: new Date().toLocaleDateString('pt-BR').split('/').slice(0,2).join('/'), qtd: ult.fechQtd, val: ult.fechVal },
+          linhas: [], fechQtd: null, fechVal: null, atual: false, placeholder: true
+        });
+      }
+    }
+  }
+
+  // Marca a semana mais recente nao-placeholder como atual
+  for (var si = _semanas.length-1; si >= 0; si--) {
+    if (!_semanas[si].placeholder) { _semanas[si].atual = true; break; }
+  }
 
   // Popula select
   var sel = document.getElementById('sem-sel');
@@ -1278,6 +1306,44 @@ function renderSemanal() {
   const idx = parseInt(sel.value) || 0;
   const s = _semanas[idx] || _semanas[_semanas.length-1];
   const m = semModo;
+
+  // Semana placeholder (proxima semana ainda sem dados)
+  if (s.placeholder) {
+    const abV = m==='qtd' ? s.abertura.qtd : s.abertura.val;
+    const abT = m==='qtd' ? s.abertura.qtd+' pendentes' : 'R$\u00a0'+(parseFloat(s.abertura.val)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' pendente';
+    document.getElementById('sem-body').innerHTML = `
+      <div class="sem-card-inner" style="opacity:.6;">
+        <div class="sem-head">
+          <div><span class="sem-title">${s.titulo}</span><span style="font-size:10px;padding:2px 7px;border-radius:4px;background:var(--surface2);color:var(--text3);margin-left:8px;">aguardando cargas</span></div>
+          <span class="sem-range">próxima terça · quinta · terça</span>
+        </div>
+        <div class="sem-cols">
+          <div class="sem-col-head left">data</div>
+          <div class="sem-col-head" style="color:#27500A;">saíram real</div>
+          <div class="sem-col-head" style="color:#3C3489;">adm</div>
+          <div class="sem-col-head" style="color:#0C447C;">entrantes</div>
+          <div class="sem-col-head right">pendente</div>
+          <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">abertura</span></div>
+          <div class="sem-cell" style="grid-column:span 3;"><div style="width:100%;height:34px;border-radius:4px;background:#1A1916;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#F1EFE8;">${abT}</div></div>
+          <div class="sem-cell right"><span class="sem-pend">${fmtSemPend(abV,m)}</span></div>
+          <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">terça</span></div>
+          <div class="sem-cell"><div class="sem-empty">—</div></div>
+          <div class="sem-cell"><div class="sem-empty">—</div></div>
+          <div class="sem-cell"><div class="sem-empty">—</div></div>
+          <div class="sem-cell right"><span class="sem-pend muted">—</span></div>
+          <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">quinta</span></div>
+          <div class="sem-cell"><div class="sem-empty">—</div></div>
+          <div class="sem-cell"><div class="sem-empty">—</div></div>
+          <div class="sem-cell"><div class="sem-empty">—</div></div>
+          <div class="sem-cell right"><span class="sem-pend muted">—</span></div>
+          <div class="sem-divider"></div>
+          <div class="sem-cell left" style="border-top:none;"><span style="font-size:11px;color:var(--text3);">fechamento</span></div>
+          <div class="sem-cell" style="border-top:none;grid-column:span 3;"></div>
+          <div class="sem-cell right" style="border-top:none;text-align:right;"><div class="sem-fech-num" style="color:var(--text3);">—</div><div class="sem-fech-sub">aguardando</div></div>
+        </div>
+      </div>`;
+    return;
+  }
 
   const abVal  = m==='qtd' ? s.abertura.qtd : s.abertura.val;
   const abTxt  = m==='qtd'
@@ -1369,6 +1435,23 @@ function copyWaMsg() {
 }
 function buildWaMsg(o) {
   return '*⚠️ OS Rejeitada — Ação Necessária*\n\nOlá! Identificamos uma Ordem de Serviço pendente de tratativa referente à sua equipe:\n\n🔢 *OS:* '+o.os+'\n👥 *Equipe:* '+o.equipe+'\n🗓️ *Data de Rejeição:* '+o.dataRejeicaoStr+'\n⏳ *Dias sem tratativa:* '+o.diasAtraso+' dias'+(o.diasAtraso>=90?' *(Status: CRÍTICO)*':'')+'\n❌ *Motivo:* '+o.motivo+'\n📝 *O que precisa ser feito:* '+o.justificativa+'\n💰 *Valor retido no faturamento:* '+fmtValor(o.valor)+'\n\nPor gentileza, nos informe uma previsão para regularização desta OS.';
+}
+
+function copiarMensagemSemanal() {
+  const sel = document.getElementById('sem-sel');
+  const idx = sel ? parseInt(sel.value)||0 : 0;
+  const s = _semanas[idx] || _semanas[_semanas.length-1];
+  if (!s) { showToast('Nenhuma semana disponível'); return; }
+  const msg = buildWaSemanal(s);
+  navigator.clipboard.writeText(msg).then(() => {
+    showToast('✅ Mensagem copiada!');
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = msg; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✅ Mensagem copiada!');
+  });
 }
 
 function openWaConsolidado() {
