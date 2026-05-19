@@ -921,7 +921,7 @@ function renderTratativas() {
         <td style="font-family:var(--mono);font-size:12px;color:${o.dataResolucao?'var(--text)':'var(--text3)'};">${o.dataResolucao?formatDateStr(o.dataResolucao):'—'}</td>
         <td style="font-size:12px;color:${o.obs?'var(--text)':'var(--text3)'};max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${o.obs||''}">${o.obs||'—'}</td>
         <td style="white-space:nowrap;">${(o.reincidencias>0||(o.historicoRejeicoes&&String(o.historicoRejeicoes).trim()&&String(o.historicoRejeicoes).trim()!=='0'))?`<button class="edit-btn" onclick="toggleHistorico(${idx})" title="Ver histórico">📋</button>`:''}<span>${stateTag}</span><button class="wa-btn" onclick="openWaModal(${idx})" title="Copiar mensagem">📋</button><button class="edit-btn" onclick="toggleEdit(${idx})" title="Editar">✏️</button></td>
-      </tr>`;
+      </tr>${(o.reincidencias>0||(o.historicoRejeicoes&&String(o.historicoRejeicoes).trim()&&String(o.historicoRejeicoes).trim()!=='0'))&&histSet.has(idx)?buildHistRow(o,idx):''}`;
     }
   }).join('');
   updatePendingBadge();
