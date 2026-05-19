@@ -1212,13 +1212,25 @@ function buildSemanas() {
 
     // Carga com 7+ dias desde inicio: fecha semana atual e usa essa carga como abertura da proxima
     if (c.tipo === 'carga' && diasDesdeInicio >= 7) {
+      // Antes de fechar: adiciona essa carga como ultima linha da semana atual
+      var pendAnteriorVal2 = semAtual.fechVal !== null ? semAtual.fechVal : semAtual.abertura.val;
+      var saiuValEst2 = pendAnteriorVal2 - c.valorPendente + (c.valorNovas||0);
+      if (saiuValEst2 < 0) saiuValEst2 = 0;
+      var saiuVal2 = c.valorRemovidas > 0 ? c.valorRemovidas : saiuValEst2;
+      semAtual.linhas.push({
+        data: str, tipo: 'carga',
+        saiuQtd: c.removidas, saiuVal: saiuVal2,
+        admQtd: c.admQtd||0, admVal: c.admVal||0,
+        entQtd: c.novas, entVal: c.valorNovas||0,
+        pendQtd: c.pendentes, pendVal: c.valorPendente
+      });
+      semAtual.fechQtd = c.pendentes;
+      semAtual.fechVal = c.valorPendente;
+      // Fecha semana 1 e abre semana 2 com o pendente desta carga como abertura
       _semanas.push(semAtual);
       semInicioDt = dt;
-      var prev = _semanas[_semanas.length - 1];
-      var abQtd = prev.fechQtd !== null ? prev.fechQtd : c.pendentes;
-      var abVal = prev.fechVal !== null ? prev.fechVal : c.valorPendente;
-      semAtual = abrirSemana(str, abQtd, abVal);
-      return; // nao adiciona linha - eh so abertura
+      semAtual = abrirSemana(str, c.pendentes, c.valorPendente);
+      return;
     }
 
     // Linha normal dentro da semana
