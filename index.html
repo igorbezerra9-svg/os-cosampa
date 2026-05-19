@@ -982,7 +982,7 @@ function fmtSem(v,m) {
 }
 function fmtSemPend(v,m) {
   if (v===null||v===undefined) return '—';
-  if (m==='val') { const k=v/1000; return 'R$\u00a0'+k.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'k'; }
+  if (m==='val') { return 'R$\u00a0'+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
   return String(Math.round(v));
 }
 
