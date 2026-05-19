@@ -193,9 +193,7 @@
 </head>
 <body>
 
-<script>
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9LlfhTW5kAinJq4NFkg2B-sQzNpwH0xbzx8j8nFoZxbDPfkr-Oa-lxlttSsaBBtrjVQ/exec';
-</script>
+
 
 <header>
   <div class="brand">COSAMPA <span>·</span> OS Rejeitadas</div>
@@ -208,13 +206,13 @@
   </div>
 </header>
 
-<nav>
-  <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
-  <button onclick="showTab('tratativas',this)">Tratativas</button>
-  <button onclick="showTab('historico',this)">Histórico</button>
-  <button onclick="showTab('hierarquia',this)">Hierarquia</button>
-  <button onclick="showTab('consolidado',this)">Consolidado</button>
-  <button onclick="showTab('importar',this)">↑ Importar Planilha</button>
+<nav id="main-nav">
+  <button class="active" data-tab="dashboard">Dashboard</button>
+  <button data-tab="tratativas">Tratativas</button>
+  <button data-tab="historico">Histórico</button>
+  <button data-tab="hierarquia">Hierarquia</button>
+  <button data-tab="consolidado">Consolidado</button>
+  <button data-tab="importar">↑ Importar Planilha</button>
 </nav>
 
 <main>
@@ -479,6 +477,7 @@
 </div>
 
 <script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9LlfhTW5kAinJq4NFkg2B-sQzNpwH0xbzx8j8nFoZxbDPfkr-Oa-lxlttSsaBBtrjVQ/exec';
 const EQUIPES_INFO = {
   'CPS-TR-11B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
   'CPR-RD-12B':{supervisor:'Cicero Herculano',processo:'Emergencial',centro:'Campos Sales'},
@@ -1548,6 +1547,13 @@ function showToast(msg) { const t=document.getElementById('toast');t.textContent
 
 if (configured) { document.getElementById('cfg-banner').style.display='none'; sincronizar(); setInterval(sincronizar,30000); }
 else setSyncStatus('error');
+
+// Navegacao via data-tab (evita ReferenceError de onclick inline)
+document.getElementById('main-nav').addEventListener('click', function(e) {
+  const btn = e.target.closest('button[data-tab]');
+  if (!btn) return;
+  showTab(btn.dataset.tab, btn);
+});
 
 window.addEventListener('beforeunload',function(e){if(pendentesSet&&pendentesSet.size>0){e.preventDefault();e.returnValue='Você tem alterações não salvas. Tem certeza que quer sair?';return e.returnValue;}});
 </script>
