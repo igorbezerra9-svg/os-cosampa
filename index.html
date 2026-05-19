@@ -1242,20 +1242,6 @@ function buildSemanas() {
       }
     }
   });
-      semAtual.fechQtd = c.pendentes;
-      semAtual.fechVal = c.valorPendente;
-    } else {
-      var total = (c.admQtd||0) + (c.resQtd||0);
-      if (total > 0) {
-        semAtual.linhas.push({
-          data: str, tipo: 'adm',
-          admQtd: total,
-          admVal: (c.admVal||0) + (c.resVal||0),
-          pendQtd: c.pendentes, pendVal: c.valorPendente
-        });
-      }
-    }
-  });
   if (semAtual) _semanas.push(semAtual);
 
   // Atualiza fechamento da ultima semana com snapshot mais recente do mesmo dia
