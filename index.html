@@ -1139,23 +1139,22 @@ function buildSemanas() {
   const snaps  = state.snapshots || [];
   if (!cargas.length) { _semanas = []; return; }
 
-  // ── 1. Agrupa cargas por data (última entrada do dia vence para pendentes/valor)
+  // 1. Agrupa cargas por data
   const cargaMap = {};
   cargas.forEach(c => {
     const key = formatCargaDate(c.data);
-    if (!cargaMap[key]) cargaMap[key] = { novas:0, removidas:0, pendentes:0, valorPendente:0, valorNovas:0, tipo:'carga' };
+    if (!cargaMap[key]) cargaMap[key] = { novas:0, removidas:0, pendentes:0, valorPendente:0, valorNovas:0, valorRemovidas:0, tipo:'carga' };
     const m = cargaMap[key];
-    m.novas         += parseInt(c.novas)||0;
-    m.removidas     += parseInt(c.removidas)||0;
-    m.pendentes      = parseInt(c.pendentes)||0;      // última linha vence
-    m.valorPendente  = parseFloat(c.valorPendente)||0;
-    m.valorNovas    += parseFloat(c.valorNovas)||0;
+    m.novas          += parseInt(c.novas)||0;
+    m.removidas      += parseInt(c.removidas)||0;
+    m.pendentes       = parseInt(c.pendentes)||0;
+    m.valorPendente   = parseFloat(c.valorPendente)||0;
+    m.valorNovas     += parseFloat(c.valorNovas)||0;
+    m.valorRemovidas += parseFloat(c.valorRemovidas)||0;
   });
 
-  // ── 2. Snapshots — pega APENAS o mais recente de cada dia (evita duplicatas de saves)
-  //    Para dias SEM carga: cria entrada só-adm
-  //    Para dias COM carga: mescla adm na entrada existente
-  const snapLatest = {}; // key -> snap mais recente (último do array = mais recente)
+  // 2. Snapshots - pega o mais recente de cada dia
+  const snapLatest = {};
   snaps.forEach(s => { snapLatest[formatCargaDate(s.data)] = s; });
 
   Object.entries(snapLatest).forEach(([key, s]) => {
@@ -1166,84 +1165,77 @@ function buildSemanas() {
     const pendQtd = parseInt(s.pendentes)||0;
     const pendVal = parseFloat(s.valorPend)||0;
     if (cargaMap[key]) {
-      // dia com carga: só acrescenta adm
-      cargaMap[key].admQtd  = admQtd;
-      cargaMap[key].admVal  = admVal;
-      cargaMap[key].resQtd  = resQtd;
-      cargaMap[key].resVal  = resVal;
+      cargaMap[key].admQtd = admQtd;
+      cargaMap[key].admVal = admVal;
+      cargaMap[key].resQtd = resQtd;
+      cargaMap[key].resVal = resVal;
     } else {
-      // dia entre cargas: linha só-adm
-      cargaMap[key] = {
-        novas:0, removidas:0, pendentes: pendQtd, valorPendente: pendVal,
-        valorNovas:0, tipo:'adm',
-        admQtd, admVal, resQtd, resVal
-      };
+      cargaMap[key] = { novas:0, removidas:0, pendentes:pendQtd, valorPendente:pendVal, valorNovas:0, valorRemovidas:0, tipo:'adm', admQtd, admVal, resQtd, resVal };
     }
   });
 
-  // ── 3. Coleta todas as datas ordenadas (cargas + snapshots entre cargas)
+  // 3. Todas as datas ordenadas
   const todasDatas = Object.keys(cargaMap)
     .map(d => ({ str: d, dt: parseDDMM(d) }))
     .filter(x => x.dt)
     .sort((a,b) => a.dt - b.dt);
 
-  // Datas que têm carga real (para delimitar semanas)
   const datasCargas = todasDatas.filter(d => cargaMap[d.str].tipo === 'carga');
   if (!datasCargas.length) { _semanas = []; return; }
 
-  // ── 4. Monta semanas: semana nova a cada 7 dias a partir da 1ª carga
+  // 4. Agrupa em semanas: nova semana quando carga > 7 dias apos inicio da semana atual
   _semanas = [];
-  const DIAS_POR_SEMANA = 7;
-  let semInicio = datasCargas[0].dt;
-  let semFim    = new Date(semInicio.getTime() + DIAS_POR_SEMANA * 86400000);
-  let semAtual  = null;
+  let semInicioDt = datasCargas[0].dt;
+  let semAtual = null;
 
-  // Abertura da semana 1 = pendentes da primeira carga (antes do processamento)
-  function novaSemanaTitulo() { return 'Semana ' + (_semanas.length + 1); }
+  function abrirSemana(dataStr, abQtd, abVal) {
+    return {
+      titulo: 'Semana ' + (_semanas.length + 1),
+      abertura: { data: dataStr, qtd: abQtd, val: abVal },
+      linhas: [],
+      fechQtd: null, fechVal: null,
+      atual: false
+    };
+  }
 
-  todasDatas.forEach(({ str, dt }) => {
-    const c = cargaMap[str];
+  todasDatas.forEach(function(item) {
+    var str = item.str, dt = item.dt;
+    var c = cargaMap[str];
+    var diasDesdeInicio = Math.round((dt - semInicioDt) / 86400000);
 
-    // Verifica se precisa abrir nova semana (baseado em datas de carga)
-    if (c.tipo === 'carga' && semAtual && dt >= semFim) {
+    // Nova semana quando carga cai mais de 7 dias apos inicio
+    if (c.tipo === 'carga' && semAtual && diasDesdeInicio > 7) {
       _semanas.push(semAtual);
-      semInicio = dt;
-      semFim    = new Date(semInicio.getTime() + DIAS_POR_SEMANA * 86400000);
-      semAtual  = null;
+      semInicioDt = dt;
+      var prev = _semanas[_semanas.length - 1];
+      semAtual = abrirSemana(str, prev.fechQtd !== null ? prev.fechQtd : c.pendentes, prev.fechVal !== null ? prev.fechVal : c.valorPendente);
     }
 
+    // Primeira vez: abre semana sem adicionar linha (abertura eh so referencia)
     if (!semAtual) {
-      const prevSem = _semanas[_semanas.length - 1];
-      // Abertura: fechamento da semana anterior, ou para semana 1: pendentes da 1ª carga
-      const abQtd = prevSem ? prevSem.fechQtd : c.pendentes;
-      const abVal = prevSem ? prevSem.fechVal : c.valorPendente;
-      semAtual = {
-        titulo: novaSemanaTitulo(),
-        abertura: { data: str, qtd: abQtd, val: abVal },
-        linhas: [],   // cada linha pode ser tipo 'carga' ou 'adm'
-        fechQtd: null, fechVal: null,
-        atual: false
-      };
+      semAtual = abrirSemana(str, c.pendentes, c.valorPendente);
+      return;
     }
 
     if (c.tipo === 'carga') {
       semAtual.linhas.push({
         data: str, tipo: 'carga',
-        saiuQtd: c.removidas,       saiuVal: c.resVal || 0,
-        admQtd:  c.admQtd  || 0,    admVal:  c.admVal  || 0,
-        entQtd:  c.novas,            entVal:  c.valorNovas || 0,
-        pendQtd: c.pendentes,        pendVal: c.valorPendente
+        saiuQtd: c.removidas,
+        saiuVal: c.valorRemovidas > 0 ? c.valorRemovidas : 0,
+        admQtd:  c.admQtd  || 0,   admVal: c.admVal  || 0,
+        entQtd:  c.novas,           entVal: c.valorNovas || 0,
+        pendQtd: c.pendentes,       pendVal: c.valorPendente
       });
       semAtual.fechQtd = c.pendentes;
       semAtual.fechVal = c.valorPendente;
     } else {
-      // linha só-adm (entre cargas) — não atualiza fechamento
-      if (c.admQtd > 0 || c.resQtd > 0) {
+      var total = (c.admQtd||0) + (c.resQtd||0);
+      if (total > 0) {
         semAtual.linhas.push({
           data: str, tipo: 'adm',
-          admQtd: c.admQtd || 0, admVal: c.admVal || 0,
-          resQtd: c.resQtd || 0, resVal: c.resVal || 0,
-          pendQtd: c.pendentes,  pendVal: c.valorPendente
+          admQtd: total,
+          admVal: (c.admVal||0) + (c.resVal||0),
+          pendQtd: c.pendentes, pendVal: c.valorPendente
         });
       }
     }
@@ -1254,18 +1246,17 @@ function buildSemanas() {
   if (_semanas.length) _semanas[_semanas.length-1].atual = true;
 
   // Popula select
-  const sel = document.getElementById('sem-sel');
+  var sel = document.getElementById('sem-sel');
   if (!sel) return;
   sel.innerHTML = '';
-  _semanas.forEach((s,i) => {
-    const op = document.createElement('option');
+  _semanas.forEach(function(s,i) {
+    var op = document.createElement('option');
     op.value = i;
     op.textContent = s.titulo + (s.atual ? ' — atual' : '');
     sel.appendChild(op);
   });
   sel.value = String(_semanas.length - 1);
 }
-
 function setSemModo(m) {
   semModo = m;
   document.getElementById('sem-tog-qtd').classList.toggle('on', m==='qtd');
@@ -1302,7 +1293,7 @@ function renderSemanal() {
       const pend = m==='qtd' ? c.pendQtd : c.pendVal;
       rows += `
         <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">${c.data}</span></div>
-        <div class="sem-cell"><div class="sem-bar" style="background:#EAF3DE;color:#27500A;">−${fmtSem(saiu,m)}</div></div>
+        <div class="sem-cell">${saiu > 0 ? `<div class="sem-bar" style="background:#EAF3DE;color:#27500A;">−${fmtSem(saiu,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
         <div class="sem-cell">${(adm||0)>0 ? `<div class="sem-bar" style="background:#EEEDFE;color:#3C3489;">−${fmtSem(adm,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
         <div class="sem-cell"><div class="sem-bar" style="background:#E6F1FB;color:#0C447C;">+${fmtSem(ent,m)}</div></div>
         <div class="sem-cell right"><span class="sem-pend">${fmtSemPend(pend,m)}</span></div>`;
