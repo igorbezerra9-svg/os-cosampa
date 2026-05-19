@@ -1249,29 +1249,41 @@ function buildSemanas() {
   });
   if (semAtual) _semanas.push(semAtual);
 
-  // Atualiza a ultima linha da ultima semana com snapshot do mesmo dia (tempo real)
+  // Atualiza a ultima semana com snapshot do dia da abertura (tempo real)
   if (_semanas.length) {
     var ultSem = _semanas[_semanas.length - 1];
-    // Verifica tanto linhas quanto abertura (semana pode ter so abertura)
-    var ultLinha = ultSem.linhas.length > 0 ? ultSem.linhas[ultSem.linhas.length - 1] : null;
-    var dataRef = ultLinha ? ultLinha.data : ultSem.abertura.data;
-    var snapUlt = snapLatest[dataRef];
-    if (snapUlt) {
-      var snapPendQtd = parseInt(snapUlt.pendentes)||0;
-      var snapPendVal = parseFloat(snapUlt.valorPend)||0;
-      var snapAdmQtd  = (parseInt(snapUlt.emTrat)||0) + (parseInt(snapUlt.resolvidas)||0);
-      var snapAdmVal  = (parseFloat(snapUlt.valorTrat)||0) + (parseFloat(snapUlt.valorRes)||0);
-      if (snapPendQtd > 0) {
-        if (ultLinha) {
-          ultLinha.pendQtd = snapPendQtd;
-          ultLinha.pendVal = snapPendVal;
-          if (snapAdmQtd > 0) { ultLinha.admQtd = snapAdmQtd; ultLinha.admVal = snapAdmVal; }
-          ultSem.fechQtd = snapPendQtd;
-          ultSem.fechVal = snapPendVal;
-        } else {
-          // Semana so com abertura: atualiza abertura com snapshot
-          ultSem.abertura.qtd = snapPendQtd;
-          ultSem.abertura.val = snapPendVal;
+    var dataAb = ultSem.abertura.data;
+    var snapAb = snapLatest[dataAb];
+
+    if (snapAb) {
+      var snapPendQtd = parseInt(snapAb.pendentes)||0;
+      var snapPendVal = parseFloat(snapAb.valorPend)||0;
+      var snapAdmQtd  = (parseInt(snapAb.emTrat)||0) + (parseInt(snapAb.resolvidas)||0);
+      var snapAdmVal  = (parseFloat(snapAb.valorTrat)||0) + (parseFloat(snapAb.valorRes)||0);
+
+      if (ultSem.linhas.length === 0 && snapAdmQtd > 0) {
+        // Semana so com abertura + adm no mesmo dia: adiciona linha ADM
+        ultSem.linhas.push({
+          data: dataAb, tipo: 'adm',
+          admQtd: snapAdmQtd, admVal: snapAdmVal,
+          pendQtd: snapPendQtd, pendVal: snapPendVal
+        });
+        // Atualiza abertura para refletir o pendente antes das adms
+        // (abertura ja foi definida como fechamento da semana anterior, esta correto)
+      } else if (ultSem.linhas.length > 0) {
+        // Semana com linhas: atualiza ultima linha
+        var ultLinha = ultSem.linhas[ultSem.linhas.length - 1];
+        var snapUltLinha = snapLatest[ultLinha.data];
+        if (snapUltLinha) {
+          var sqtd = parseInt(snapUltLinha.pendentes)||0;
+          var sval = parseFloat(snapUltLinha.valorPend)||0;
+          var sAdmQ = (parseInt(snapUltLinha.emTrat)||0)+(parseInt(snapUltLinha.resolvidas)||0);
+          var sAdmV = (parseFloat(snapUltLinha.valorTrat)||0)+(parseFloat(snapUltLinha.valorRes)||0);
+          if (sqtd > 0) {
+            ultLinha.pendQtd = sqtd; ultLinha.pendVal = sval;
+            if (sAdmQ > 0) { ultLinha.admQtd = sAdmQ; ultLinha.admVal = sAdmV; }
+            ultSem.fechQtd = sqtd; ultSem.fechVal = sval;
+          }
         }
       }
     }
