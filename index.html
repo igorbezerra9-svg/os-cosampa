@@ -1361,6 +1361,23 @@ function renderSemanal() {
   const range = datas.filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
 
   let rows = '';
+
+  // Se semana atual sem linhas: mostra slots vazios de terça e quinta
+  if ((s.linhas||[]).length === 0 && s.atual) {
+    const abV = m==='qtd' ? s.abertura.qtd : s.abertura.val;
+    rows = `
+      <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">terça</span></div>
+      <div class="sem-cell"><div class="sem-empty">—</div></div>
+      <div class="sem-cell"><div class="sem-empty">—</div></div>
+      <div class="sem-cell"><div class="sem-empty">—</div></div>
+      <div class="sem-cell right"><span class="sem-pend muted">—</span></div>
+      <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">quinta</span></div>
+      <div class="sem-cell"><div class="sem-empty">—</div></div>
+      <div class="sem-cell"><div class="sem-empty">—</div></div>
+      <div class="sem-cell"><div class="sem-empty">—</div></div>
+      <div class="sem-cell right"><span class="sem-pend muted">—</span></div>`;
+  }
+
   (s.linhas || []).forEach(c => {
     const isCarga = c.tipo === 'carga';
     if (isCarga) {
