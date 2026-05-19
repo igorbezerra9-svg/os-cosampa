@@ -1218,10 +1218,15 @@ function buildSemanas() {
     }
 
     if (c.tipo === 'carga') {
+      // Estima valor saído: pendente anterior - pendente atual + novas entradas
+      var pendAnteriorVal = semAtual.fechVal !== null ? semAtual.fechVal : semAtual.abertura.val;
+      var saiuValEstimado = pendAnteriorVal - c.valorPendente + (c.valorNovas||0);
+      if (saiuValEstimado < 0) saiuValEstimado = 0;
+      var saiuVal = c.valorRemovidas > 0 ? c.valorRemovidas : saiuValEstimado;
       semAtual.linhas.push({
         data: str, tipo: 'carga',
         saiuQtd: c.removidas,
-        saiuVal: c.valorRemovidas > 0 ? c.valorRemovidas : 0,
+        saiuVal: saiuVal,
         admQtd:  c.admQtd  || 0,   admVal: c.admVal  || 0,
         entQtd:  c.novas,           entVal: c.valorNovas || 0,
         pendQtd: c.pendentes,       pendVal: c.valorPendente
@@ -1293,7 +1298,7 @@ function renderSemanal() {
       const pend = m==='qtd' ? c.pendQtd : c.pendVal;
       rows += `
         <div class="sem-cell left"><span style="font-size:11px;color:var(--text3);">${c.data}</span></div>
-        <div class="sem-cell">${saiu > 0 ? `<div class="sem-bar" style="background:#EAF3DE;color:#27500A;">−${fmtSem(saiu,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
+        <div class="sem-cell">${(saiu !== null && saiu !== undefined && saiu > 0) ? `<div class="sem-bar" style="background:#EAF3DE;color:#27500A;">−${fmtSem(saiu,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
         <div class="sem-cell">${(adm||0)>0 ? `<div class="sem-bar" style="background:#EEEDFE;color:#3C3489;">−${fmtSem(adm,m)}</div>` : '<div class="sem-empty">—</div>'}</div>
         <div class="sem-cell"><div class="sem-bar" style="background:#E6F1FB;color:#0C447C;">+${fmtSem(ent,m)}</div></div>
         <div class="sem-cell right"><span class="sem-pend">${fmtSemPend(pend,m)}</span></div>`;
