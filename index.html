@@ -1247,6 +1247,34 @@ function buildSemanas() {
   });
   if (semAtual) _semanas.push(semAtual);
 
+  // Atualiza fechamento da ultima semana com snapshot mais recente do mesmo dia
+  // (para refletir o que as adms marcaram hoje em tempo real)
+  if (_semanas.length) {
+    var ultSem = _semanas[_semanas.length - 1];
+    if (ultSem.linhas.length > 0) {
+      var ultLinha = ultSem.linhas[ultSem.linhas.length - 1];
+      var snapUlt = snapLatest[ultLinha.data];
+      if (snapUlt) {
+        var snapPendQtd = parseInt(snapUlt.pendentes)||0;
+        var snapPendVal = parseFloat(snapUlt.valorPend)||0;
+        var snapAdmQtd  = (parseInt(snapUlt.emTrat)||0) + (parseInt(snapUlt.resolvidas)||0);
+        var snapAdmVal  = (parseFloat(snapUlt.valorTrat)||0) + (parseFloat(snapUlt.valorRes)||0);
+        // Atualiza a linha da ultima carga com dados do snapshot
+        if (snapPendQtd > 0) {
+          ultLinha.pendQtd = snapPendQtd;
+          ultLinha.pendVal = snapPendVal;
+          if (snapAdmQtd > 0) {
+            ultLinha.admQtd = snapAdmQtd;
+            ultLinha.admVal = snapAdmVal;
+          }
+          // Atualiza fechamento da semana
+          ultSem.fechQtd = snapPendQtd;
+          ultSem.fechVal = snapPendVal;
+        }
+      }
+    }
+  }
+
   // Adiciona semana seguinte vazia se a semana atual ja tem fechamento (todas as cargas foram)
   // e ainda nao ha dados da proxima semana
   if (_semanas.length) {
@@ -1267,7 +1295,7 @@ function buildSemanas() {
         _semanas.push({
           titulo: 'Semana ' + (_semanas.length + 1),
           abertura: { data: new Date().toLocaleDateString('pt-BR').split('/').slice(0,2).join('/'), qtd: ult.fechQtd, val: ult.fechVal },
-          linhas: [], fechQtd: null, fechVal: null, atual: false, placeholder: true
+          linhas: [], fechQtd: null, fechVal: null, atual: false, placeholder: true, _parentRef: ult
         });
       }
     }
@@ -1309,8 +1337,12 @@ function renderSemanal() {
 
   // Semana placeholder (proxima semana ainda sem dados)
   if (s.placeholder) {
-    const abV = m==='qtd' ? s.abertura.qtd : s.abertura.val;
-    const abT = m==='qtd' ? s.abertura.qtd+' pendentes' : 'R$\u00a0'+(parseFloat(s.abertura.val)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' pendente';
+    // Pega sempre o valor mais fresco da semana anterior
+    const pai = s._parentRef || s;
+    const abQtdFresh = pai.fechQtd !== null ? pai.fechQtd : s.abertura.qtd;
+    const abValFresh = pai.fechVal !== null ? pai.fechVal : s.abertura.val;
+    const abV = m==='qtd' ? abQtdFresh : abValFresh;
+    const abT = m==='qtd' ? abQtdFresh+' pendentes' : 'R$\u00a0'+(parseFloat(abValFresh)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' pendente';
     document.getElementById('sem-body').innerHTML = `
       <div class="sem-card-inner" style="opacity:.6;">
         <div class="sem-head">
