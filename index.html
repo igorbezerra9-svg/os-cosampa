@@ -630,7 +630,7 @@ const EQUIPES_INFO = {
 function getInfo(equipe) {
   const base = EQUIPES_INFO[equipe] || {supervisor:'—',processo:'—',centro:'—'};
   const proc = (base.processo||'').toLowerCase();
-  const isObrasLV = proc.includes('obra') || proc.includes('linha viva');
+  const isObrasLV = proc.includes('obra') || proc.includes('linha viva') || proc.includes('retro');
   const coordMap = {'Juazeiro do Norte':'Marcelo Lessa','Milagres':'Jefferson Melo','Campos Sales':'Jeane Caroline'};
   base.coordenador = isObrasLV ? 'Dimas João' : (coordMap[base.centro] || '—');
   return base;
