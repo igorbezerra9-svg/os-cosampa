@@ -299,6 +299,13 @@
       <select class="filter-input" id="filtro-centro" onchange="renderTratativas()"><option value="">Todos os centros</option></select>
       <select class="filter-input" id="filtro-processo" onchange="renderTratativas()"><option value="">Todos os processos</option></select>
       <select class="filter-input" id="filtro-supervisor" onchange="renderTratativas()"><option value="">Todos os supervisores</option></select>
+      <select class="filter-input" id="filtro-ordem" onchange="renderTratativas()" title="Ordenar">
+        <option value="">Ordenar: Padrão</option>
+        <option value="dias_desc">Dias ↓ maior primeiro</option>
+        <option value="dias_asc">Dias ↑ menor primeiro</option>
+        <option value="valor_desc">Valor ↓ maior primeiro</option>
+        <option value="valor_asc">Valor ↑ menor primeiro</option>
+      </select>
       <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
         <div id="pending-badge" style="display:none;" class="pending-badge">
           <span class="pending-dot"></span>
@@ -887,6 +894,13 @@ function renderTratativas() {
     if (supervisor&&info.supervisor!==supervisor) return false;
     return true;
   });
+  // Ordenação
+  const ordem = document.getElementById('filtro-ordem')?.value || '';
+  if (ordem === 'dias_desc')   filtered.sort((a,b) => b.diasAtraso - a.diasAtraso);
+  else if (ordem === 'dias_asc')   filtered.sort((a,b) => a.diasAtraso - b.diasAtraso);
+  else if (ordem === 'valor_desc') filtered.sort((a,b) => b.valor - a.valor);
+  else if (ordem === 'valor_asc')  filtered.sort((a,b) => a.valor - b.valor);
+
   document.getElementById('trat-empty').style.display=filtered.length?'none':'block';
   document.getElementById('trat-count').textContent=`${filtered.length} OS exibidas de ${state.os.length} total`;
   document.getElementById('tratativas-body').innerHTML=filtered.map(o=>{
@@ -904,7 +918,7 @@ function renderTratativas() {
         <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text2);" title="${o.justificativa}">${o.justificativa}</td>
         <td class="mono">${fmtValor(o.valor)}</td>
         <td><select class="tbl-input" style="width:110px;" onchange="upd(${idx},'status',this.value)"><option ${o.status==='Pendente'?'selected':''}>Pendente</option><option ${o.status==='Em tratativa'?'selected':''}>Em tratativa</option><option ${o.status==='Resolvido'?'selected':''}>Resolvido</option><option ${o.status==='Crítico'?'selected':''}>Crítico</option><option ${o.status==='Reincidente'?'selected':''}>Reincidente</option></select></td>
-        <td><select class="tbl-input" style="width:180px;" onchange="upd(${idx},'responsavel',this.value)"><option value="">Selecionar Adm...</option><option value='Nayane - Juazeiro do Norte' ${o.responsavel==='Nayane - Juazeiro do Norte'?'selected':''}>Nayane - Juazeiro do Norte</option><option value='Cicera Rodrigues - Juazeiro do Norte' ${o.responsavel==='Cicera Rodrigues - Juazeiro do Norte'?'selected':''}>Cicera Rodrigues - Juazeiro do Norte</option><option value='Joselianny Chaves - Milagres' ${o.responsavel==='Joselianny Chaves - Milagres'?'selected':''}>Joselianny Chaves - Milagres</option><option value='Ana Cleomar - Milagres' ${o.responsavel==='Ana Cleomar - Milagres'?'selected':''}>Ana Cleomar - Milagres</option><option value='Delgaria Silva - Campos Sales' ${o.responsavel==='Delgaria Silva - Campos Sales'?'selected':''}>Delgaria Silva - Campos Sales</option><option value='Mireli Maria - Campos Sales' ${o.responsavel==='Mireli Maria - Campos Sales'?'selected':''}>Mireli Maria - Campos Sales</option><option value='Amanda Vasques - Juazeiro do Norte' ${o.responsavel==='Amanda Vasques - Juazeiro do Norte'?'selected':''}>Amanda Vasques - Juazeiro do Norte</option></select></td>
+        <td><select class="tbl-input" style="width:180px;" onchange="upd(${idx},'responsavel',this.value)"><option value="">Selecionar Adm...</option><option value='Nayane - Juazeiro do Norte' ${o.responsavel==='Nayane - Juazeiro do Norte'?'selected':''}>Nayane - Juazeiro do Norte</option><option value='Cicera Rodrigues - Juazeiro do Norte' ${o.responsavel==='Cicera Rodrigues - Juazeiro do Norte'?'selected':''}>Cicera Rodrigues - Juazeiro do Norte</option><option value='Joselianny Chaves - Milagres' ${o.responsavel==='Joselianny Chaves - Milagres'?'selected':''}>Joselianny Chaves - Milagres</option><option value='Ana Cleomar - Milagres' ${o.responsavel==='Ana Cleomar - Milagres'?'selected':''}>Ana Cleomar - Milagres</option><option value='Delgaria Silva - Campos Sales' ${o.responsavel==='Delgaria Silva - Campos Sales'?'selected':''}>Delgaria Silva - Campos Sales</option><option value='Mireli Maria - Campos Sales' ${o.responsavel==='Mireli Maria - Campos Sales'?'selected':''}>Mireli Maria - Campos Sales</option><option value='Amanda Vasques - Juazeiro do Norte' ${o.responsavel==='Amanda Vasques - Juazeiro do Norte'?'selected':''}>Amanda Vasques - Juazeiro do Norte</option><option value='Daniele - Juazeiro do Norte' ${o.responsavel==='Daniele - Juazeiro do Norte'?'selected':''}>Daniele - Juazeiro do Norte</option></select></td>
         <td><input class="tbl-input" type="date" style="width:130px;" value="${o.dataResolucao||''}" onchange="upd(${idx},'dataResolucao',this.value)"></td>
         <td><input class="tbl-input" style="width:150px;" placeholder="Observação..." value="${o.obs||''}" oninput="upd(${idx},'obs',this.value)"></td>
         <td style="white-space:nowrap;">${stateTag}<button class="edit-btn" onclick="toggleEdit(${idx})" title="Fechar edição">✕</button></td>
