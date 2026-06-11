@@ -653,8 +653,10 @@ async function apiPost(action, data) {
 
 async function sincronizar(force) {
   if (!configured) return;
-  const emTratativas = currentTab === 'tratativas';
+  // Se a pessoa estiver com o foco em algum campo de edição (input/select/textarea),
+  // não sincroniza para não interromper o preenchimento e o status não fica "sumindo".
   const digitando = document.activeElement && ['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName);
+  if (digitando && !force) return;
   setSyncStatus('syncing');
   try {
     const data = await apiGet();
@@ -662,14 +664,8 @@ async function sincronizar(force) {
       state.cargas = data.cargas || [];
       state.log    = data.log    || [];
       state.snapshots = data.snapshots || [];
-      if (emTratativas && digitando && !force) {
-        const srvMap = {};
-        (data.os || []).forEach(o => { srvMap[o.id] = normalizeOS(o); });
-        state.os = state.os.map(o => srvMap[o.id] ? {...srvMap[o.id], status:o.status, responsavel:o.responsavel, dataResolucao:o.dataResolucao, obs:o.obs} : o);
-      } else {
-        state.os = (data.os || []).map(normalizeOS);
-        renderCurrentTab();
-      }
+      state.os = (data.os || []).map(normalizeOS);
+      renderCurrentTab();
       setSyncStatus('ok');
     } else throw new Error(data?.error || 'erro');
   } catch(e) { setSyncStatus('error'); console.error('Sync error:', e); }
