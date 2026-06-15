@@ -653,10 +653,9 @@ async function apiPost(action, data) {
 
 async function sincronizar(force) {
   if (!configured) return;
-  // Se a pessoa estiver com o foco em algum campo de edição (input/select/textarea),
-  // não sincroniza para não interromper o preenchimento e o status não fica "sumindo".
-  const digitando = document.activeElement && ['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName);
-  if (digitando && !force) return;
+  // Não sincroniza enquanto houver linhas abertas em edição ou alterações pendentes não salvas,
+  // para não fechar os campos nem resetar o que o usuário está preenchendo.
+  if (!force && (editingSet.size > 0 || pendentesSet.size > 0)) return;
   setSyncStatus('syncing');
   try {
     const data = await apiGet();
